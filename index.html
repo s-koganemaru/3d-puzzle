@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v189 スマホ ブロック群縮小テスト</title>
+<title>v190 スマホ ブロック描画縮小テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -248,16 +248,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 </style>
 
 
-<style id="v189-mobile-group-size-test">
-/* PC/iPadの基本配置は変更しない。
-   狭いスマホだけブロック群の各カードを小さくする。 */
-@media (max-width:600px){
-  #group .card{
-    transform:scale(0.72)!important;
-    transform-origin:center center!important;
-  }
-}
-</style>
+
 
 </head><body>
 <div class="wrap">
@@ -1377,7 +1368,7 @@ drawMoveBox();
 
 
 
-<style id="v189-fix">
+<style id="v190-fix">
 #group.group{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;display:block!important;transform:none!important;overflow:visible!important;z-index:9!important}
 #group.group .row{display:contents!important}
 #group.group .card{position:absolute!important;width:150px!important;height:150px!important;margin:0!important;padding:0!important;transform:none!important;pointer-events:none!important}
@@ -1395,7 +1386,7 @@ drawMoveBox();
 arrow visual centers: 40 / 80
 yb=35</div>
 
-<script id="v189-script">
+<script id="v190-script">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'),group=document.getElementById('group'); if(!wrap||!group)return;
  const pos=[[87,10],[92,15],[87,23],[92,28],[87,36],[92,41],[87,49]];
@@ -1451,8 +1442,8 @@ window.addEventListener('load',function(){
 
  function apply(){
    placeCards();
-   /* v189: disabled old asynchronous arrow correction */
-   /* v189: disabled old asynchronous arrow correction */
+   /* v190: disabled old asynchronous arrow correction */
+   /* v190: disabled old asynchronous arrow correction */
    emptyMoveBox();
  }
  setTimeout(apply,0);
@@ -1463,15 +1454,15 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v189-note-style">
-#v189Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
+<style id="v190-note-style">
+#v190Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
 background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </style>
-<div id="v189Note">v189 BOX size ×1.30</div>
+<div id="v190Note">v190 BOX size ×1.30</div>
 
 
-<style id="v189-clean-display">
-/* 座標・目盛表示は非表示。v170-v189の定義はコード内に残してあるので再表示可能 */
+<style id="v190-clean-display">
+/* 座標・目盛表示は非表示。v170-v190の定義はコード内に残してあるので再表示可能 */
 .coordTag,#coordParams{display:none!important}
 
 /* 位置リセット: 左矢印中心 x=40 の下、y=45 */
@@ -1501,7 +1492,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<script id="v189-initial-empty-by-return-action">
+<script id="v190-initial-empty-by-return-action">
 (function(){
   window.addEventListener('load', function(){
     function clearByExistingReturn(){
@@ -1522,7 +1513,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </script>
 
 
-<style id="v189-ui">
+<style id="v190-ui">
 /* BOX名は画面座標 y=60 に固定 */
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
@@ -1550,14 +1541,14 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<style id="v189-position-fix">
+<style id="v190-position-fix">
 #rotateHint,#storageName,#moveName{position:absolute!important;margin:0!important;z-index:5000!important;pointer-events:none!important;white-space:nowrap!important}
 #rotateHint{left:40%!important;top:55%!important;transform:translate(-50%,-50%)!important;font-size:13px!important}
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #groupHint{display:none!important}
 </style>
-<script id="v189-place-labels-in-wrap">
+<script id="v190-place-labels-in-wrap">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['rotateHint','storageName','moveName'].forEach(function(id){
@@ -1569,19 +1560,19 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v189-uniform-fit">
+<style id="v190-uniform-fit">
 html,body{margin:0!important;padding:0!important}
 body{overflow:auto!important}
-#v189FitStage{position:relative;margin:0;padding:0}
-#v189FitStage>.wrap{transform-origin:top left!important}
+#v190FitStage{position:relative;margin:0;padding:0}
+#v190FitStage>.wrap{transform-origin:top left!important}
 </style>
-<script id="v189-uniform-fit-js">
+<script id="v190-uniform-fit-js">
 (function(){
  function fitWholeGame(){
    const wrap=document.querySelector('.wrap'); if(!wrap)return;
-   let stage=document.getElementById('v189FitStage');
+   let stage=document.getElementById('v190FitStage');
    if(!stage){
-     stage=document.createElement('div'); stage.id='v189FitStage';
+     stage=document.createElement('div'); stage.id='v190FitStage';
      wrap.parentNode.insertBefore(stage,wrap); stage.appendChild(wrap);
    }
    wrap.style.transform='none'; stage.style.width=''; stage.style.height='';
@@ -1598,7 +1589,7 @@ body{overflow:auto!important}
 </script>
 
 
-<style id="v189-arrow-centers">
+<style id="v190-arrow-centers">
 /* 外周目盛座標で矢印の「見た目の中心」を x=40,80 に固定 */
 #transferArrow{
   left:40%!important;
@@ -1609,7 +1600,7 @@ body{overflow:auto!important}
   transform:translate(-50%,-50%)!important;
 }
 </style>
-<script id="v189-arrow-centers-js">
+<script id="v190-arrow-centers-js">
 (function(){
  function placeArrows(){
    const wrap=document.querySelector('.wrap'); if(!wrap)return;
@@ -1623,11 +1614,11 @@ body{overflow:auto!important}
 </script>
 
 
-<style id="v189-arrow-final">
+<style id="v190-arrow-final">
 #transferArrow{left:40%!important;top:35%!important;transform:translate(-50%,-50%)!important}
 #returnToGroup{left:80%!important;top:35%!important;transform:translate(-50%,-50%)!important}
 </style>
-<script id="v189-arrow-parent-final">
+<script id="v190-arrow-parent-final">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['transferArrow','returnToGroup'].forEach(function(id){
@@ -1638,7 +1629,7 @@ window.addEventListener('load',function(){
 </script>
 
 
-<script id="v189-arrow-from-boxes">
+<script id="v190-arrow-from-boxes">
 (function(){
  function putArrowCenter(el, desiredViewportX){
    const wrap=document.querySelector('.wrap');
@@ -1674,6 +1665,50 @@ window.addEventListener('load',function(){
  });
  window.addEventListener('resize',()=>setTimeout(place,80));
  window.addEventListener('orientationchange',()=>setTimeout(place,200));
+})();
+</script>
+
+
+<script id="v190-phone-mini-render-size">
+(function(){
+ function applyPhoneMiniSize(){
+   const phone = window.matchMedia('(max-width:600px)').matches;
+   document.querySelectorAll('#group .card').forEach(function(card){
+     const cv=card.querySelector('canvas');
+     if(!cv)return;
+     /* 同じHTMLが画面幅を見て自動判定する。
+        PC/iPad=100%、スマホ幅600px以下=70%。 */
+     if(phone){
+       const baseW=parseFloat(cv.dataset.v190BaseW || getComputedStyle(cv).width);
+       const baseH=parseFloat(cv.dataset.v190BaseH || getComputedStyle(cv).height);
+       if(!cv.dataset.v190BaseW){
+         cv.dataset.v190BaseW=baseW;
+         cv.dataset.v190BaseH=baseH;
+       }
+       cv.style.width=(baseW*0.70)+'px';
+       cv.style.height=(baseH*0.70)+'px';
+       cv.style.position='absolute';
+       cv.style.left='50%';
+       cv.style.top='50%';
+       cv.style.transform='translate(-50%,-50%)';
+     }else{
+       if(cv.dataset.v190BaseW){
+         cv.style.width=cv.dataset.v190BaseW+'px';
+         cv.style.height=cv.dataset.v190BaseH+'px';
+       }
+       cv.style.position='';
+       cv.style.left='';
+       cv.style.top='';
+       cv.style.transform='';
+     }
+   });
+ }
+ window.addEventListener('load',function(){
+   setTimeout(applyPhoneMiniSize,100);
+   setTimeout(applyPhoneMiniSize,400);
+ });
+ window.addEventListener('resize',applyPhoneMiniSize);
+ window.addEventListener('orientationchange',function(){setTimeout(applyPhoneMiniSize,150)});
 })();
 </script>
 
