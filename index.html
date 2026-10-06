@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v146 横型矢印操作</title>
+<title>v181 表示位置修正版</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -131,12 +131,128 @@ html,body{margin:0!important;padding:0!important;width:100%!important;overflow-x
 body:not(.moveMode) #returnToGroup{display:flex!important;}
 #groupPrompt{display:none!important;}
 </style>
+<style id="v147-arrow-tuning">
+/* v147: flow arrows are shorter/thicker; reset is below the left arrow. */
+.bigFlowArrow{
+  width:6.2%!important;height:11%!important;
+  font-size:0!important;line-height:1!important;
+}
+.bigFlowArrow::before{content:"";display:block;width:44px;height:18px;background:#222;}
+.bigFlowArrow::after{content:"";display:block;width:0;height:0;border-top:22px solid transparent;border-bottom:22px solid transparent;}
+#transferArrow.leftFlowArrow{left:32.5%!important;top:52%!important;flex-direction:row!important;}
+#transferArrow.leftFlowArrow::after{order:-1;border-right:30px solid #222;}
+#returnToGroup.rightFlowArrow{left:66.5%!important;top:52%!important;flex-direction:row!important;}
+#returnToGroup.rightFlowArrow::after{border-left:30px solid #222;}
+#resetView{
+  left:32.5%!important;top:62%!important;transform:translateX(-50%)!important;
+  font-size:17px!important;padding:6px 10px!important;white-space:nowrap!important;
+}
+</style>
+
+<style id="v148-arrow-fix">
+/* v148: both flow arrows are horizontal, single, equal-size, and vertically centered on the boxes. */
+#transferArrow.leftFlowArrow,
+#returnToGroup.rightFlowArrow{
+  top:45%!important;
+  transform:translate(-50%,-50%)!important;
+  font-size:0!important;
+  line-height:0!important;
+}
+#transferArrow.leftFlowArrow{left:32.5%!important;}
+#returnToGroup.rightFlowArrow{left:66.5%!important;}
+</style>
+
+
+<style id="v149-active-card-fade">
+/* 移動boxへ移ったブロックは、ブロック群では「移動済み」と分かるよう霞を掛ける */
+#group .card.move-active{
+  opacity:0.28 !important;
+  filter:saturate(0.35) brightness(1.18) !important;
+}
+</style>
+
+
+<style id="v152-y-up-10">
+/* 収納box・移動box・左右矢印を、平面y方向にまとめて10上へ移動 */
+.storage{top:6%!important;}
+.moveboxWrap{top:6%!important;}
+#transferArrow.leftFlowArrow{top:35%!important;}
+#returnToGroup.rightFlowArrow{top:35%!important;}
+</style>
+
+
+<style id="v153-force-y-up-10">
+.storage{top:6%!important;}
+#moveBoxArea.moveboxWrap{top:6%!important;}
+#transferArrow{top:35%!important;}
+#returnToGroup{top:35%!important;}
+</style>
+
+
+<style id="v154-arrow-center-y">
+#transferArrow,
+#returnToGroup{
+  top:35%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+
+
+<style id="v155-arrow-cube-center-y">
+/* 「boxの中心」＝3×3×3の中央ピース (1,1,1) の中心。
+   canvas領域の中心ではなく、描画された立方体の見た目の中心に矢印を合わせる。 */
+#transferArrow,
+#returnToGroup{
+  top:31%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+
+
+<style id="v156-both-arrows-box-center">
+/* box中心 = 中央ピース (1,1,1) の中心 */
+#transferArrow.leftFlowArrow,
+#returnToGroup.rightFlowArrow,
+#transferArrow,
+#returnToGroup{
+  top:31%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+
+
+<style id="v157-box-scale-110">
+/* 収納box・移動boxを中心位置固定のまま、縦横とも1.10倍 */
+.storage,
+#moveBoxArea.moveboxWrap{
+  transform:scale(1.10)!important;
+  transform-origin:center center!important;
+}
+</style>
+
+
+
+
+
+
+<style id="v167-input-layer-fix">
+/*
+ v165/v166でブロック群を画面全体(100% x 100%)にしたため、
+ #group が移動BOXの上に透明な入力層として重なっていた。
+ 描画位置はそのまま、入力の重なりだけ修正する。
+*/
+#group.group{z-index:9!important;}
+.storage{z-index:10!important;}
+#moveBoxArea.moveboxWrap{z-index:15!important;}
+#transferArrow,#returnToGroup,#resetView{z-index:1006!important;}
+</style>
+
 </head><body>
 <div class="wrap">
-<div id="v144Version">v146 横型矢印操作</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="v144Version">v167 移動BOX操作復旧</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
-  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">初期位置に戻す</button>
+  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
   <div id="returnToGroup" class="bigFlowArrow rightFlowArrow" role="button" tabindex="0" aria-label="ブロック群へ戻す">→</div>
 </div>
 <div id="overlapMsg" style="display:none;position:relative;z-index:1003;text-align:center;font-size:20px;font-weight:bold;margin:-28px auto 8px">重なっています</div>
@@ -1182,4 +1298,252 @@ document.body.classList.add('moveMode');
 drawMoveBox();
 </script>
 <div id="versionBadge" style="position:fixed;right:6px;bottom:5px;z-index:5000;font:12px Arial,sans-serif;color:#555;background:rgba(255,255,255,.82);padding:2px 5px;border-radius:3px;pointer-events:none">v144</div>
+
+<script id="v151-active-card-fade-js">
+(function(){
+  function clearFade(){
+    document.querySelectorAll('#group .card.move-active')
+      .forEach(c=>c.classList.remove('move-active'));
+  }
+
+  function syncFade(){
+    clearFade();
+    try{
+      const cards=[...document.querySelectorAll('#group .card')];
+      const mb=document.getElementById('moveBoxArea');
+      const moveBoxVisible = mb && getComputedStyle(mb).display!=='none';
+
+      if(moveBoxVisible &&
+         typeof activeIndex!=='undefined' &&
+         activeIndex!==null && activeIndex>=0 &&
+         cards[activeIndex]){
+        cards[activeIndex].classList.add('move-active');
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('click', function(e){
+    const back=e.target.closest && e.target.closest('#returnToGroup');
+    if(back){
+      /* returnToGroup の本来の処理が終わった後、霞を確実に解除 */
+      requestAnimationFrame(function(){
+        clearFade();
+        setTimeout(clearFade,0);
+        setTimeout(clearFade,80);
+      });
+      return;
+    }
+    requestAnimationFrame(function(){
+      syncFade();
+      setTimeout(syncFade,0);
+      setTimeout(syncFade,80);
+    });
+  }, true);
+
+  window.addEventListener('load', syncFade);
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<style id="v181-fix">
+#group.group{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;display:block!important;transform:none!important;overflow:visible!important;z-index:9!important}
+#group.group .row{display:contents!important}
+#group.group .card{position:absolute!important;width:150px!important;height:150px!important;margin:0!important;padding:0!important;transform:none!important;pointer-events:none!important}
+#group.group .card canvas{width:150px!important;height:150px!important;display:block!important}
+.storage{left:20%!important;top:39%!important;transform:translate(-50%,-50%) scale(1.43)!important;transform-origin:center!important;z-index:10!important}
+#moveBoxArea.moveboxWrap{left:60%!important;top:39%!important;transform:translate(-50%,-50%) scale(1.43)!important;transform-origin:center!important;z-index:15!important}
+
+/* 矢印の「見える図形」の中心を target に置くため、要素位置ではなく描画後の中心をJSで補正する */
+#transferArrow,#returnToGroup{top:35%!important;z-index:1006!important}
+
+.coordTag{position:absolute;z-index:5000;pointer-events:none;font:10px/1.15 monospace;color:#222;background:rgba(255,255,255,.75);padding:1px 3px;white-space:nowrap}
+#coordParams{position:absolute;left:4px;top:4px;z-index:5001;font:10px/1.25 monospace;color:#333;background:rgba(255,255,255,.78);padding:3px 5px;pointer-events:none;white-space:pre}
+</style>
+<div id="coordParams">y_bd=13
+arrow visual centers: 40 / 80
+yb=35</div>
+
+<script id="v181-script">
+window.addEventListener('load',function(){
+ const wrap=document.querySelector('.wrap'),group=document.getElementById('group'); if(!wrap||!group)return;
+ const pos=[[87,10],[92,15],[87,23],[92,28],[87,36],[92,41],[87,49]];
+ const anchorX=44.34,anchorY=89.63;
+
+ function tag(id,s,x,y,dx=4,dy=2){
+   let e=document.getElementById(id);
+   if(!e){e=document.createElement('span');e.id=id;e.className='coordTag';wrap.appendChild(e)}
+   e.textContent=s;e.style.left=`calc(${x}% + ${dx}px)`;e.style.top=`calc(${y}% + ${dy}px)`;
+ }
+ function placeCards(){
+   const W=wrap.clientWidth,H=wrap.clientHeight,cards=[...group.querySelectorAll('.card')];
+   cards.forEach((c,i)=>{if(!pos[i])return;let [x,y]=pos[i];
+     c.style.setProperty('left',(W*x/100-anchorX)+'px','important');
+     c.style.setProperty('top',(H*y/100-anchorY)+'px','important');
+   });
+   tag('ybl','y_bl=10',87,10,4,-13);tag('xbl','x_bl=87',87,10,4,2);
+   tag('ybr','y_br=15',92,15,4,-13);tag('xbr','x_br=92',92,15,4,2);
+   tag('xs','x_s=20',20,35,4,2);tag('xm','x_m=60',60,35,4,2);tag('yb','yb=35',20,35,4,-13);
+   tag('xl','center=40',40,35,4,-13);tag('xr','center=80',80,35,4,-13);
+ }
+
+ /* CSS left値の推測ではなく、実際のgetBoundingClientRect中心を測って目標へ反復補正 */
+ function centerArrow(id,targetPct){
+   const el=document.getElementById(id); if(!el)return;
+   const wr=wrap.getBoundingClientRect();
+   el.style.setProperty('transform','none','important');
+   el.style.setProperty('left','0px','important');
+   requestAnimationFrame(()=>{
+     const r0=el.getBoundingClientRect();
+     const desired=wr.left+wr.width*targetPct/100;
+     const newLeft=desired-(r0.left+r0.width/2)+parseFloat(getComputedStyle(el).left||0);
+     el.style.setProperty('left',newLeft+'px','important');
+   });
+ }
+
+ /* 初期状態を明示的に「MoveBoxは空、7カードは群」にする。
+    描画関数より後に複数回適用して、既存初期化による薄緑復活を上書きする。 */
+ function emptyMoveBox(){
+   try{
+     if(typeof activeIndex!=='undefined') activeIndex=-1;
+     if(typeof cells!=='undefined') cells=[];
+     if(typeof activeColor!=='undefined') activeColor=null;
+     if(typeof transferred!=='undefined') transferred=false;
+     document.querySelectorAll('#group .card').forEach(c=>{
+       c.classList.remove('move-active');
+       c.style.removeProperty('opacity');
+       c.style.removeProperty('filter');
+     });
+     if(typeof draw==='function') draw();
+   }catch(e){}
+ }
+
+ function apply(){
+   placeCards();
+   centerArrow('transferArrow',40);
+   centerArrow('returnToGroup',80);
+   emptyMoveBox();
+ }
+ setTimeout(apply,0);
+ setTimeout(apply,80);
+ setTimeout(apply,250);
+ window.addEventListener('resize',()=>setTimeout(apply,0));
+});
+</script>
+
+
+<style id="v181-note-style">
+#v181Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
+background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
+</style>
+<div id="v181Note">v181 BOX size ×1.30</div>
+
+
+<style id="v181-clean-display">
+/* 座標・目盛表示は非表示。v170-v181の定義はコード内に残してあるので再表示可能 */
+.coordTag,#coordParams{display:none!important}
+
+/* 位置リセット: 左矢印中心 x=40 の下、y=45 */
+#resetView{
+  position:absolute!important;
+  left:40%!important;
+  top:45%!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:1007!important;
+}
+
+/* BOX名称 */
+.boxName{
+  position:absolute; transform:translate(-50%,-50%);
+  z-index:5000; pointer-events:none;
+  font-weight:700; font-size:16px; white-space:nowrap;
+}
+#storageName{left:20%;top:60%}
+#moveName{left:60%;top:60%}
+</style>
+<div id="storageName" class="boxName">収納BOX</div>
+<div id="moveName" class="boxName">移動BOX</div>
+
+
+
+
+
+
+
+<script id="v181-initial-empty-by-return-action">
+(function(){
+  window.addEventListener('load', function(){
+    function clearByExistingReturn(){
+      const back=document.getElementById('returnToGroup');
+      if(back){
+        back.click();
+        /* The frame must remain visible even though the active block is gone. */
+        const mb=document.getElementById('moveBoxArea');
+        if(mb) mb.style.display='flex';
+        const st=document.querySelector('.storage');
+        if(st) st.style.display='block';
+      }
+    }
+    /* Run after the legacy startup has drawn its default light-green block. */
+    setTimeout(clearByExistingReturn, 180);
+  });
+})();
+</script>
+
+
+<style id="v181-ui">
+/* BOX名は画面座標 y=60 に固定 */
+#storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+#moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+
+/* 位置リセット */
+#resetView{background:#d9efff!important}
+
+/* 説明文字 */
+#rotateHint,#groupHint{
+ position:absolute;z-index:5000;pointer-events:none;white-space:nowrap;
+ transform:translate(-50%,-50%);
+}
+#rotateHint{
+ left:40%;top:50%;
+ font-size:13px;
+}
+#groupHint{
+ left:90%;top:60%;
+ font-size:15px;font-weight:600;
+}
+</style>
+<div id="rotateHint">枠の外をクリックしてぐりぐり回す</div>
+
+
+
+
+
+<style id="v181-position-fix">
+#rotateHint,#storageName,#moveName{position:absolute!important;margin:0!important;z-index:5000!important;pointer-events:none!important;white-space:nowrap!important}
+#rotateHint{left:40%!important;top:55%!important;transform:translate(-50%,-50%)!important;font-size:13px!important}
+#storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+#moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+#groupHint{display:none!important}
+</style>
+<script id="v181-place-labels-in-wrap">
+window.addEventListener('load',function(){
+ const wrap=document.querySelector('.wrap'); if(!wrap)return;
+ ['rotateHint','storageName','moveName'].forEach(function(id){
+   const e=document.getElementById(id);
+   if(e && e.parentElement!==wrap) wrap.appendChild(e);
+ });
+ const gh=document.getElementById('groupHint'); if(gh)gh.remove();
+});
+</script>
+
 </body></html>
