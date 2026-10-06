@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v188 ぐりぐり境界 y60 本体修正</title>
+<title>v189 スマホ ブロック群縮小テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -245,6 +245,18 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 .storage{z-index:10!important;}
 #moveBoxArea.moveboxWrap{z-index:15!important;}
 #transferArrow,#returnToGroup,#resetView{z-index:1006!important;}
+</style>
+
+
+<style id="v189-mobile-group-size-test">
+/* PC/iPadの基本配置は変更しない。
+   狭いスマホだけブロック群の各カードを小さくする。 */
+@media (max-width:600px){
+  #group .card{
+    transform:scale(0.72)!important;
+    transform-origin:center center!important;
+  }
+}
 </style>
 
 </head><body>
@@ -1365,7 +1377,7 @@ drawMoveBox();
 
 
 
-<style id="v188-fix">
+<style id="v189-fix">
 #group.group{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;display:block!important;transform:none!important;overflow:visible!important;z-index:9!important}
 #group.group .row{display:contents!important}
 #group.group .card{position:absolute!important;width:150px!important;height:150px!important;margin:0!important;padding:0!important;transform:none!important;pointer-events:none!important}
@@ -1383,7 +1395,7 @@ drawMoveBox();
 arrow visual centers: 40 / 80
 yb=35</div>
 
-<script id="v188-script">
+<script id="v189-script">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'),group=document.getElementById('group'); if(!wrap||!group)return;
  const pos=[[87,10],[92,15],[87,23],[92,28],[87,36],[92,41],[87,49]];
@@ -1439,8 +1451,8 @@ window.addEventListener('load',function(){
 
  function apply(){
    placeCards();
-   /* v188: disabled old asynchronous arrow correction */
-   /* v188: disabled old asynchronous arrow correction */
+   /* v189: disabled old asynchronous arrow correction */
+   /* v189: disabled old asynchronous arrow correction */
    emptyMoveBox();
  }
  setTimeout(apply,0);
@@ -1451,15 +1463,15 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v188-note-style">
-#v188Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
+<style id="v189-note-style">
+#v189Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
 background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </style>
-<div id="v188Note">v188 BOX size ×1.30</div>
+<div id="v189Note">v189 BOX size ×1.30</div>
 
 
-<style id="v188-clean-display">
-/* 座標・目盛表示は非表示。v170-v188の定義はコード内に残してあるので再表示可能 */
+<style id="v189-clean-display">
+/* 座標・目盛表示は非表示。v170-v189の定義はコード内に残してあるので再表示可能 */
 .coordTag,#coordParams{display:none!important}
 
 /* 位置リセット: 左矢印中心 x=40 の下、y=45 */
@@ -1489,7 +1501,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<script id="v188-initial-empty-by-return-action">
+<script id="v189-initial-empty-by-return-action">
 (function(){
   window.addEventListener('load', function(){
     function clearByExistingReturn(){
@@ -1510,7 +1522,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </script>
 
 
-<style id="v188-ui">
+<style id="v189-ui">
 /* BOX名は画面座標 y=60 に固定 */
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
@@ -1538,14 +1550,14 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<style id="v188-position-fix">
+<style id="v189-position-fix">
 #rotateHint,#storageName,#moveName{position:absolute!important;margin:0!important;z-index:5000!important;pointer-events:none!important;white-space:nowrap!important}
 #rotateHint{left:40%!important;top:55%!important;transform:translate(-50%,-50%)!important;font-size:13px!important}
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #groupHint{display:none!important}
 </style>
-<script id="v188-place-labels-in-wrap">
+<script id="v189-place-labels-in-wrap">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['rotateHint','storageName','moveName'].forEach(function(id){
@@ -1557,19 +1569,19 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v188-uniform-fit">
+<style id="v189-uniform-fit">
 html,body{margin:0!important;padding:0!important}
 body{overflow:auto!important}
-#v188FitStage{position:relative;margin:0;padding:0}
-#v188FitStage>.wrap{transform-origin:top left!important}
+#v189FitStage{position:relative;margin:0;padding:0}
+#v189FitStage>.wrap{transform-origin:top left!important}
 </style>
-<script id="v188-uniform-fit-js">
+<script id="v189-uniform-fit-js">
 (function(){
  function fitWholeGame(){
    const wrap=document.querySelector('.wrap'); if(!wrap)return;
-   let stage=document.getElementById('v188FitStage');
+   let stage=document.getElementById('v189FitStage');
    if(!stage){
-     stage=document.createElement('div'); stage.id='v188FitStage';
+     stage=document.createElement('div'); stage.id='v189FitStage';
      wrap.parentNode.insertBefore(stage,wrap); stage.appendChild(wrap);
    }
    wrap.style.transform='none'; stage.style.width=''; stage.style.height='';
@@ -1586,7 +1598,7 @@ body{overflow:auto!important}
 </script>
 
 
-<style id="v188-arrow-centers">
+<style id="v189-arrow-centers">
 /* 外周目盛座標で矢印の「見た目の中心」を x=40,80 に固定 */
 #transferArrow{
   left:40%!important;
@@ -1597,7 +1609,7 @@ body{overflow:auto!important}
   transform:translate(-50%,-50%)!important;
 }
 </style>
-<script id="v188-arrow-centers-js">
+<script id="v189-arrow-centers-js">
 (function(){
  function placeArrows(){
    const wrap=document.querySelector('.wrap'); if(!wrap)return;
@@ -1611,11 +1623,11 @@ body{overflow:auto!important}
 </script>
 
 
-<style id="v188-arrow-final">
+<style id="v189-arrow-final">
 #transferArrow{left:40%!important;top:35%!important;transform:translate(-50%,-50%)!important}
 #returnToGroup{left:80%!important;top:35%!important;transform:translate(-50%,-50%)!important}
 </style>
-<script id="v188-arrow-parent-final">
+<script id="v189-arrow-parent-final">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['transferArrow','returnToGroup'].forEach(function(id){
@@ -1626,7 +1638,7 @@ window.addEventListener('load',function(){
 </script>
 
 
-<script id="v188-arrow-from-boxes">
+<script id="v189-arrow-from-boxes">
 (function(){
  function putArrowCenter(el, desiredViewportX){
    const wrap=document.querySelector('.wrap');
