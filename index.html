@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v181 表示位置修正版</title>
+<title>v188 ぐりぐり境界 y60 本体修正</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -1090,6 +1090,14 @@ function drawMoveBox(){
    return true;
  }
 
+
+ function pointerAboveY60(e){
+   const wrap=document.querySelector('.wrap');
+   if(!wrap)return true;
+   const wr=wrap.getBoundingClientRect();
+   return e.clientY < wr.top + wr.height*0.60;
+ }
+
  c.addEventListener('pointerdown',e=>{
    const r=c.getBoundingClientRect();
    const px=(e.clientX-r.left)*c.width/r.width, py=(e.clientY-r.top)*c.height/r.height;
@@ -1159,6 +1167,7 @@ function drawMoveBox(){
    pickedPoint=null;
    pickedVertex=null;
    vertexDragging=false;
+   if(!pointerAboveY60(e)){ viewDragging=false; return; }
    viewDragging=true;
    lastX=e.clientX; lastY=e.clientY;
    c.setPointerCapture(e.pointerId);
@@ -1261,6 +1270,7 @@ function drawMoveBox(){
    // Storage-box interior not on a stored block: no view rotation.
    if(storageInsideCube(px,py)) return;
 
+   if(!pointerAboveY60(e)){ storageDragging=false; return; }
    storageDragging=true;
    storageLastX=e.clientX; storageLastY=e.clientY;
    storageCanvas.setPointerCapture(e.pointerId);
@@ -1355,7 +1365,7 @@ drawMoveBox();
 
 
 
-<style id="v181-fix">
+<style id="v188-fix">
 #group.group{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;display:block!important;transform:none!important;overflow:visible!important;z-index:9!important}
 #group.group .row{display:contents!important}
 #group.group .card{position:absolute!important;width:150px!important;height:150px!important;margin:0!important;padding:0!important;transform:none!important;pointer-events:none!important}
@@ -1373,7 +1383,7 @@ drawMoveBox();
 arrow visual centers: 40 / 80
 yb=35</div>
 
-<script id="v181-script">
+<script id="v188-script">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'),group=document.getElementById('group'); if(!wrap||!group)return;
  const pos=[[87,10],[92,15],[87,23],[92,28],[87,36],[92,41],[87,49]];
@@ -1429,8 +1439,8 @@ window.addEventListener('load',function(){
 
  function apply(){
    placeCards();
-   centerArrow('transferArrow',40);
-   centerArrow('returnToGroup',80);
+   /* v188: disabled old asynchronous arrow correction */
+   /* v188: disabled old asynchronous arrow correction */
    emptyMoveBox();
  }
  setTimeout(apply,0);
@@ -1441,15 +1451,15 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v181-note-style">
-#v181Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
+<style id="v188-note-style">
+#v188Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
 background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </style>
-<div id="v181Note">v181 BOX size ×1.30</div>
+<div id="v188Note">v188 BOX size ×1.30</div>
 
 
-<style id="v181-clean-display">
-/* 座標・目盛表示は非表示。v170-v181の定義はコード内に残してあるので再表示可能 */
+<style id="v188-clean-display">
+/* 座標・目盛表示は非表示。v170-v188の定義はコード内に残してあるので再表示可能 */
 .coordTag,#coordParams{display:none!important}
 
 /* 位置リセット: 左矢印中心 x=40 の下、y=45 */
@@ -1479,7 +1489,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<script id="v181-initial-empty-by-return-action">
+<script id="v188-initial-empty-by-return-action">
 (function(){
   window.addEventListener('load', function(){
     function clearByExistingReturn(){
@@ -1500,7 +1510,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </script>
 
 
-<style id="v181-ui">
+<style id="v188-ui">
 /* BOX名は画面座標 y=60 に固定 */
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
@@ -1528,14 +1538,14 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<style id="v181-position-fix">
+<style id="v188-position-fix">
 #rotateHint,#storageName,#moveName{position:absolute!important;margin:0!important;z-index:5000!important;pointer-events:none!important;white-space:nowrap!important}
 #rotateHint{left:40%!important;top:55%!important;transform:translate(-50%,-50%)!important;font-size:13px!important}
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #groupHint{display:none!important}
 </style>
-<script id="v181-place-labels-in-wrap">
+<script id="v188-place-labels-in-wrap">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['rotateHint','storageName','moveName'].forEach(function(id){
@@ -1544,6 +1554,115 @@ window.addEventListener('load',function(){
  });
  const gh=document.getElementById('groupHint'); if(gh)gh.remove();
 });
+</script>
+
+
+<style id="v188-uniform-fit">
+html,body{margin:0!important;padding:0!important}
+body{overflow:auto!important}
+#v188FitStage{position:relative;margin:0;padding:0}
+#v188FitStage>.wrap{transform-origin:top left!important}
+</style>
+<script id="v188-uniform-fit-js">
+(function(){
+ function fitWholeGame(){
+   const wrap=document.querySelector('.wrap'); if(!wrap)return;
+   let stage=document.getElementById('v188FitStage');
+   if(!stage){
+     stage=document.createElement('div'); stage.id='v188FitStage';
+     wrap.parentNode.insertBefore(stage,wrap); stage.appendChild(wrap);
+   }
+   wrap.style.transform='none'; stage.style.width=''; stage.style.height='';
+   const w=wrap.offsetWidth,h=wrap.offsetHeight; if(!w||!h)return;
+   const aw=document.documentElement.clientWidth, ah=window.innerHeight;
+   const s=Math.min(1,aw/w,ah/h);
+   wrap.style.transform='scale('+s+')';
+   stage.style.width=(w*s)+'px'; stage.style.height=(h*s)+'px';
+ }
+ window.addEventListener('load',()=>{fitWholeGame();setTimeout(fitWholeGame,150);setTimeout(fitWholeGame,500)});
+ window.addEventListener('resize',fitWholeGame);
+ window.addEventListener('orientationchange',()=>setTimeout(fitWholeGame,150));
+})();
+</script>
+
+
+<style id="v188-arrow-centers">
+/* 外周目盛座標で矢印の「見た目の中心」を x=40,80 に固定 */
+#transferArrow{
+  left:40%!important;
+  transform:translate(-50%,-50%)!important;
+}
+#returnToGroup{
+  left:80%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+<script id="v188-arrow-centers-js">
+(function(){
+ function placeArrows(){
+   const wrap=document.querySelector('.wrap'); if(!wrap)return;
+   ['transferArrow','returnToGroup'].forEach(function(id){
+     const e=document.getElementById(id);
+     if(e && e.parentElement!==wrap) wrap.appendChild(e);
+   });
+ }
+ window.addEventListener('load',placeArrows);
+})();
+</script>
+
+
+<style id="v188-arrow-final">
+#transferArrow{left:40%!important;top:35%!important;transform:translate(-50%,-50%)!important}
+#returnToGroup{left:80%!important;top:35%!important;transform:translate(-50%,-50%)!important}
+</style>
+<script id="v188-arrow-parent-final">
+window.addEventListener('load',function(){
+ const wrap=document.querySelector('.wrap'); if(!wrap)return;
+ ['transferArrow','returnToGroup'].forEach(function(id){
+   const e=document.getElementById(id);
+   if(e && e.parentElement!==wrap) wrap.appendChild(e);
+ });
+});
+</script>
+
+
+<script id="v188-arrow-from-boxes">
+(function(){
+ function putArrowCenter(el, desiredViewportX){
+   const wrap=document.querySelector('.wrap');
+   if(!wrap || !el)return;
+   /* 現在の見た目中心と目標との差を、wrapの実表示幅から%へ換算して補正 */
+   const wr=wrap.getBoundingClientRect();
+   const er=el.getBoundingClientRect();
+   const current=(er.left+er.right)/2;
+   const delta=desiredViewportX-current;
+   const old=parseFloat(getComputedStyle(el).left) || 0;
+   const localWidth=wrap.offsetWidth || 1;
+   const scale=wr.width/localWidth || 1;
+   el.style.setProperty('left',(old + delta/scale)+'px','important');
+ }
+ function place(){
+   const s=document.querySelector('.storage');
+   const m=document.getElementById('moveBoxArea');
+   const l=document.getElementById('transferArrow');
+   const r=document.getElementById('returnToGroup');
+   if(!s||!m||!l||!r)return;
+
+   const sr=s.getBoundingClientRect(), mr=m.getBoundingClientRect();
+   const sx=(sr.left+sr.right)/2;
+   const mx=(mr.left+mr.right)/2;
+   const leftTarget=(sx+mx)/2;
+   const rightTarget=2*mx-leftTarget;
+
+   putArrowCenter(l,leftTarget);
+   putArrowCenter(r,rightTarget);
+ }
+ window.addEventListener('load',function(){
+   [50,200,600].forEach(ms=>setTimeout(place,ms));
+ });
+ window.addEventListener('resize',()=>setTimeout(place,80));
+ window.addEventListener('orientationchange',()=>setTimeout(place,200));
+})();
 </script>
 
 </body></html>
