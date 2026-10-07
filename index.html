@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v206 スマホ縦座標0～80テスト</title>
+<title>v208 スマホ縦座標0～80テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -262,7 +262,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 </style>
 </head><body>
 <div class="wrap">
-<div id="v144Version">v206 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="v144Version">v208 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
   <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
@@ -614,7 +614,7 @@ function drawMoveBox(){
    const nearUser=corners[0].u;
    const [NX,NY,NZ]=nearUser;
 
-   // v206: clearly mark the nearest corner used by the six rotation arrows.
+   // v208: clearly mark the nearest corner used by the six rotation arrows.
    const nearDot=projectArrow3D(userToInternal(NX,NY,NZ));
    ax.save();
    ax.beginPath();
@@ -995,7 +995,7 @@ function drawMoveBox(){
      document.getElementById('moveBoxArea').style.display='flex';
      group.style.display='flex';
      document.body.classList.add('moveMode');
-     draw();
+     draw(); activeIndex=-1;
    };
    returnToGroupBtn.addEventListener('click',returnBlockToGroup);
    returnToGroupBtn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();returnBlockToGroup();}});
@@ -1341,8 +1341,7 @@ drawMoveBox();
 
       if(moveBoxVisible &&
          typeof activeIndex!=='undefined' &&
-         activeIndex!==null && activeIndex>=0 &&
-         cards[activeIndex]){
+         activeIndex!==null && activeIndex>=0 &&          typeof transferred!=='undefined' && transferred===false &&          cards[activeIndex]){
         cards[activeIndex].classList.add('move-active');
       }
     }catch(e){}
@@ -1659,7 +1658,7 @@ window.addEventListener('load',function(){
 
 
 
-<style id="v206-test-instructions-style">
+<style id="v208-test-instructions-style">
 #testInstructions{
  position:absolute; left:2%; top:61%; z-index:4900;
  width:73%; box-sizing:border-box;
@@ -1676,6 +1675,7 @@ window.addEventListener('load',function(){
  color:#111; text-align:left; pointer-events:none;
 }
 #testInstructionsRight .dragNote{margin-top:5px;font-weight:700}
+#testInstructionNotes{position:absolute;left:68%;top:71.5%;z-index:4900;width:32%;box-sizing:border-box;font-family:sans-serif;font-size:13px;line-height:1.42;color:#111;text-align:left;pointer-events:none}#testInstructionNotes .dragNote{margin-top:5px;font-weight:700}
 </style>
 <div id="testInstructions">
  <div class="title">操作方法</div>
@@ -1688,12 +1688,9 @@ window.addEventListener('load',function(){
 </div>
 <div id="testInstructionsRight">
  <div>5）収納BOX内のブロックをクリックすると、移動BOXへ取り出せます</div>
- <div>6）7個すべてのブロックを収納BOXに収め、3×3×3の立方体ができれば完成です</div>
- <div class="dragNote">ドラッグ：クリックしたまま動かすこと</div>
- <div><b>クリック：タブレットとスマホではタップ</b></div>
-</div>
+ <div>6）7個すべてのブロックを収納BOXに収め、3×3×3の立方体ができれば完成です</div> </div><div id="testInstructionNotes"><div class="dragNote">ドラッグ：クリックしたまま動かすこと</div><div><b>クリック：タブレットとスマホではタップ</b></div></div>
 
-<script id="v206-place-test-instructions">
+<script id="v208-place-test-instructions">
 (function(){
  const wrap=document.querySelector('.wrap');
  const e=document.getElementById('testInstructions');
