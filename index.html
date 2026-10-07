@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v191 横向きスマホ判定修正</title>
+<title>v192 スマホ実描画70%</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -252,7 +252,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 
 </head><body>
 <div class="wrap">
-<div id="v144Version">v167 移動BOX操作復旧</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="v144Version">v192 スマホ実描画70%</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
   <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
@@ -306,7 +306,12 @@ function renderBlock(canvas,block){
  function attr(b){gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0)}
  function center(x,y,z){gl.uniform3f(uCenter,x-1,y-1,z-1)}
  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clearDepth(1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT); // v143: true transparent clear for mobile Safari/Chrome
- gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.uniform1f(uScale,2*.826/5.0);gl.uniform1f(uDepthBias,0);
+ gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
+ const phoneMini = window.matchMedia('(pointer:coarse)').matches &&
+                   Math.min(window.innerWidth,window.innerHeight) <= 600;
+ const miniScale = phoneMini ? 0.70 : 1.00;
+ gl.uniform1f(uScale,(2*.826/5.0)*miniScale);
+ gl.uniform1f(uDepthBias,0);
  const occ=new Set(block.cells.map(c=>c.join(',')));
 
  // transparent pieces: internal edges intentionally not drawn
@@ -1368,7 +1373,7 @@ drawMoveBox();
 
 
 
-<style id="v191-fix">
+<style id="v192-fix">
 #group.group{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;display:block!important;transform:none!important;overflow:visible!important;z-index:9!important}
 #group.group .row{display:contents!important}
 #group.group .card{position:absolute!important;width:150px!important;height:150px!important;margin:0!important;padding:0!important;transform:none!important;pointer-events:none!important}
@@ -1386,7 +1391,7 @@ drawMoveBox();
 arrow visual centers: 40 / 80
 yb=35</div>
 
-<script id="v191-script">
+<script id="v192-script">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'),group=document.getElementById('group'); if(!wrap||!group)return;
  const pos=[[87,10],[92,15],[87,23],[92,28],[87,36],[92,41],[87,49]];
@@ -1454,14 +1459,14 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v191-note-style">
+<style id="v192-note-style">
 #v191Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
 background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </style>
 <div id="v191Note">v191 BOX size ×1.30</div>
 
 
-<style id="v191-clean-display">
+<style id="v192-clean-display">
 /* 座標・目盛表示は非表示。v170-v191の定義はコード内に残してあるので再表示可能 */
 .coordTag,#coordParams{display:none!important}
 
@@ -1492,7 +1497,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<script id="v191-initial-empty-by-return-action">
+<script id="v192-initial-empty-by-return-action">
 (function(){
   window.addEventListener('load', function(){
     function clearByExistingReturn(){
@@ -1513,7 +1518,7 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 </script>
 
 
-<style id="v191-ui">
+<style id="v192-ui">
 /* BOX名は画面座標 y=60 に固定 */
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
@@ -1541,14 +1546,14 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 
 
 
-<style id="v191-position-fix">
+<style id="v192-position-fix">
 #rotateHint,#storageName,#moveName{position:absolute!important;margin:0!important;z-index:5000!important;pointer-events:none!important;white-space:nowrap!important}
 #rotateHint{left:40%!important;top:55%!important;transform:translate(-50%,-50%)!important;font-size:13px!important}
 #storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
 #groupHint{display:none!important}
 </style>
-<script id="v191-place-labels-in-wrap">
+<script id="v192-place-labels-in-wrap">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['rotateHint','storageName','moveName'].forEach(function(id){
@@ -1560,13 +1565,13 @@ window.addEventListener('load',function(){
 </script>
 
 
-<style id="v191-uniform-fit">
+<style id="v192-uniform-fit">
 html,body{margin:0!important;padding:0!important}
 body{overflow:auto!important}
 #v191FitStage{position:relative;margin:0;padding:0}
 #v191FitStage>.wrap{transform-origin:top left!important}
 </style>
-<script id="v191-uniform-fit-js">
+<script id="v192-uniform-fit-js">
 (function(){
  function fitWholeGame(){
    const wrap=document.querySelector('.wrap'); if(!wrap)return;
@@ -1589,7 +1594,7 @@ body{overflow:auto!important}
 </script>
 
 
-<style id="v191-arrow-centers">
+<style id="v192-arrow-centers">
 /* 外周目盛座標で矢印の「見た目の中心」を x=40,80 に固定 */
 #transferArrow{
   left:40%!important;
@@ -1600,7 +1605,7 @@ body{overflow:auto!important}
   transform:translate(-50%,-50%)!important;
 }
 </style>
-<script id="v191-arrow-centers-js">
+<script id="v192-arrow-centers-js">
 (function(){
  function placeArrows(){
    const wrap=document.querySelector('.wrap'); if(!wrap)return;
@@ -1614,11 +1619,11 @@ body{overflow:auto!important}
 </script>
 
 
-<style id="v191-arrow-final">
+<style id="v192-arrow-final">
 #transferArrow{left:40%!important;top:35%!important;transform:translate(-50%,-50%)!important}
 #returnToGroup{left:80%!important;top:35%!important;transform:translate(-50%,-50%)!important}
 </style>
-<script id="v191-arrow-parent-final">
+<script id="v192-arrow-parent-final">
 window.addEventListener('load',function(){
  const wrap=document.querySelector('.wrap'); if(!wrap)return;
  ['transferArrow','returnToGroup'].forEach(function(id){
@@ -1629,7 +1634,7 @@ window.addEventListener('load',function(){
 </script>
 
 
-<script id="v191-arrow-from-boxes">
+<script id="v192-arrow-from-boxes">
 (function(){
  function putArrowCenter(el, desiredViewportX){
    const wrap=document.querySelector('.wrap');
@@ -1669,49 +1674,5 @@ window.addEventListener('load',function(){
 </script>
 
 
-<script id="v191-phone-mini-render-size">
-(function(){
- function applyPhoneMiniSize(){
-   const phone =
-     window.matchMedia('(pointer:coarse)').matches &&
-     Math.min(window.innerWidth,window.innerHeight) <= 600;
-   document.querySelectorAll('#group .card').forEach(function(card){
-     const cv=card.querySelector('canvas');
-     if(!cv)return;
-     /* 同じHTMLが画面幅を見て自動判定する。
-        PC/iPad=100%、スマホ幅600px以下=70%。 */
-     if(phone){
-       const baseW=parseFloat(cv.dataset.v191BaseW || getComputedStyle(cv).width);
-       const baseH=parseFloat(cv.dataset.v191BaseH || getComputedStyle(cv).height);
-       if(!cv.dataset.v191BaseW){
-         cv.dataset.v191BaseW=baseW;
-         cv.dataset.v191BaseH=baseH;
-       }
-       cv.style.width=(baseW*0.70)+'px';
-       cv.style.height=(baseH*0.70)+'px';
-       cv.style.position='absolute';
-       cv.style.left='50%';
-       cv.style.top='50%';
-       cv.style.transform='translate(-50%,-50%)';
-     }else{
-       if(cv.dataset.v191BaseW){
-         cv.style.width=cv.dataset.v191BaseW+'px';
-         cv.style.height=cv.dataset.v191BaseH+'px';
-       }
-       cv.style.position='';
-       cv.style.left='';
-       cv.style.top='';
-       cv.style.transform='';
-     }
-   });
- }
- window.addEventListener('load',function(){
-   setTimeout(applyPhoneMiniSize,100);
-   setTimeout(applyPhoneMiniSize,400);
- });
- window.addEventListener('resize',applyPhoneMiniSize);
- window.addEventListener('orientationchange',function(){setTimeout(applyPhoneMiniSize,150)});
-})();
-</script>
 
 </body></html>
