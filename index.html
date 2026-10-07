@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v205 スマホ縦座標0～80テスト</title>
+<title>v206 スマホ縦座標0～80テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -262,7 +262,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 </style>
 </head><body>
 <div class="wrap">
-<div id="v144Version">v205 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="v144Version">v206 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
   <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
@@ -405,15 +405,7 @@ miniCards.forEach((card)=>{
   if(cv) cv.style.pointerEvents='none';
 });
 group.style.cursor='pointer';
-group.addEventListener('click',(e)=>{
-  let chosen=null, best=Infinity;
-  for(const card of miniCards){
-    const r=card.getBoundingClientRect();
-    const cx=(r.left+r.right)/2, cy=(r.top+r.bottom)/2;
-    const d=(e.clientX-cx)*(e.clientX-cx)+(e.clientY-cy)*(e.clientY-cy);
-    if(d<best){best=d;chosen=card;}
-  }
-  if(!chosen || best > 32*32) return;   const idx=Number(chosen.dataset.blockIndex);
+group.addEventListener('click',(e)=>{ let chosen=null, best=Infinity; for(const card of miniCards){ const r=card.getBoundingClientRect(); const cx=(r.left+r.right)/2, cy=(r.top+r.bottom)/2; if(Math.abs(e.clientX-cx)>28 || Math.abs(e.clientY-cy)>28) continue; const d=(e.clientX-cx)*(e.clientX-cx)+(e.clientY-cy)*(e.clientY-cy); if(d<best){best=d;chosen=card;} } if(!chosen) return;   const idx=Number(chosen.dataset.blockIndex);
   if(!Number.isInteger(idx) || !blockDefs[idx]) return;
   if(storedBlockIndices.has(idx)) return;
   activeIndex=idx;
@@ -622,7 +614,7 @@ function drawMoveBox(){
    const nearUser=corners[0].u;
    const [NX,NY,NZ]=nearUser;
 
-   // v205: clearly mark the nearest corner used by the six rotation arrows.
+   // v206: clearly mark the nearest corner used by the six rotation arrows.
    const nearDot=projectArrow3D(userToInternal(NX,NY,NZ));
    ax.save();
    ax.beginPath();
@@ -1667,7 +1659,7 @@ window.addEventListener('load',function(){
 
 
 
-<style id="v205-test-instructions-style">
+<style id="v206-test-instructions-style">
 #testInstructions{
  position:absolute; left:2%; top:61%; z-index:4900;
  width:73%; box-sizing:border-box;
@@ -1701,13 +1693,13 @@ window.addEventListener('load',function(){
  <div><b>クリック：タブレットとスマホではタップ</b></div>
 </div>
 
-<script id="v205-place-test-instructions">
+<script id="v206-place-test-instructions">
 (function(){
  const wrap=document.querySelector('.wrap');
  const e=document.getElementById('testInstructions');
  const r=document.getElementById('testInstructionsRight');
  if(wrap && e && e.parentElement!==wrap) wrap.appendChild(e);
- if(wrap && r && r.parentElement!==wrap) wrap.appendChild(r);
+ if(wrap && r && r.parentElement!==wrap) wrap.appendChild(r); const n=document.getElementById('testInstructionNotes'); if(wrap && n && n.parentElement!==wrap) wrap.appendChild(n);
 })();
 </script>
 </body></html>
