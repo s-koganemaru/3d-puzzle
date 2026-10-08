@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v209 スマホ縦座標0～80テスト</title>
+<title>v213 スマホ縦座標0～80テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -262,7 +262,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 </style>
 </head><body>
 <div class="wrap">
-<div id="v144Version">v209 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="v144Version">v213 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
   <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
@@ -296,7 +296,15 @@ const edgesG=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],
 function rgb(hex){
  let n=parseInt(hex.slice(1),16);return [(n>>16)/255,((n>>8)&255)/255,(n&255)/255,1];
 }
+// v213: render all seven miniatures with ONE reusable WebGL context.
+// Copy each completed rendering into its own ordinary 2D canvas.
+// This prevents iPad WebGL context eviction from blanking miniature cards.
+const miniatureRendererCanvas=document.createElement('canvas');
+miniatureRendererCanvas.width=250;
+miniatureRendererCanvas.height=250;
 function renderBlock(canvas,block){
+ const outputCanvas=canvas;
+ canvas=miniatureRendererCanvas;
  const gl=(canvas.getContext('webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true})||canvas.getContext('experimental-webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true}));
  if(!gl){const d=document.getElementById('webglDiag');if(d){d.style.display='block';d.textContent='3D描画を開始できませんでした（WebGL未使用）。Safariの設定またはローカルHTML表示方式を確認してください。';}return;}
  const VS=`attribute vec3 aPos;uniform vec3 uCenter;uniform float uScale;uniform float uDepthBias;
@@ -367,6 +375,10 @@ function renderBlock(canvas,block){
 
  // outer 3x3x3 outline intentionally not drawn
 
+ // v213: transfer the rendered pixels to a permanent 2D canvas.
+ const ctx2d=outputCanvas.getContext('2d');
+ ctx2d.clearRect(0,0,outputCanvas.width,outputCanvas.height);
+ ctx2d.drawImage(canvas,0,0,outputCanvas.width,outputCanvas.height);
 }
 const group=document.getElementById('group');
 const rows=[blockDefs.slice(0,3),blockDefs.slice(3,5),blockDefs.slice(5,7)];
