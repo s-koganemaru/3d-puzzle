@@ -530,6 +530,52 @@ function drawMoveBox(){
  const tg=[];
  for(const [a,b] of segs.values())tg.push(...a,...b);
  const tgb=makeBuf(tg);
+ // v232: render the 12 frame edges as screen-space-width ribbons.
+ // Depth is interpolated from each original 3D edge endpoint.
+ const ribbonData=[];
+ for(let i=0;i<tg.length;i+=6){
+   const a=tg.slice(i,i+3),b=tg.slice(i+3,i+6);
+   for(const [t,side] of [[0,-1],[0,1],[1,-1],[0,1],[1,1],[1,-1]])
+     ribbonData.push(...a,...b,t,side);
+ }
+ const ribbonVS=`attribute vec3 aStart;attribute vec3 aEnd;attribute vec2 aTS;
+ uniform mat3 uViewRot;uniform vec2 uScale;uniform vec2 uOffset;
+ uniform vec2 uViewport;uniform float uWidth;
+ vec3 project(vec3 p){
+   p=uViewRot*p;
+   return vec3((p.x*.72-p.z*.52)*uScale.x+uOffset.x,
+               (p.y*.68+(p.x*.25+p.z*.34))*uScale.y+uOffset.y,
+               (-p.x*.75+p.z-p.y*.70)*.08);
+ }
+ void main(){
+   vec3 a=project(aStart),b=project(aEnd);
+   vec2 d=(b.xy-a.xy)*uViewport;
+   vec2 n=length(d)>0.0001?vec2(-d.y,d.x)/length(d):vec2(0.,1.);
+   vec3 p=mix(a,b,aTS.x);
+   p.xy+=n*aTS.y*uWidth/uViewport;
+   gl_Position=vec4(p,1.);
+ }`;
+ const ribbonFS=`precision mediump float;void main(){gl_FragColor=vec4(0.,0.,0.,1.);}`;
+ function makeRibbon(gl,viewCanvas){
+   function compile(type,source){const q=gl.createShader(type);gl.shaderSource(q,source);gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(q));return q;}
+   const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,ribbonVS));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,ribbonFS));gl.linkProgram(p);
+   if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));
+   const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(ribbonData),gl.STATIC_DRAW);
+   const a=gl.getAttribLocation(p,'aStart'),b=gl.getAttribLocation(p,'aEnd'),t=gl.getAttribLocation(p,'aTS');
+   const r=gl.getUniformLocation(p,'uViewRot'),scale=gl.getUniformLocation(p,'uScale'),offset=gl.getUniformLocation(p,'uOffset'),viewport=gl.getUniformLocation(p,'uViewport'),width=gl.getUniformLocation(p,'uWidth');
+   return function(rot){
+     gl.useProgram(p);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+     for(const [loc,n,ofs] of [[a,3,0],[b,3,12],[t,2,24]]){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,n,gl.FLOAT,false,32,ofs);}
+     gl.uniformMatrix3fv(r,false,rot);
+     gl.uniform2f(scale,2*86.7/500,2*86.7/525);gl.uniform2f(offset,0.0104,0.234);
+     gl.uniform2f(viewport,viewCanvas.width/2,viewCanvas.height/2);
+     gl.uniform1f(width,1.35); // half-width in device pixels: 2.7 px total
+     gl.drawArrays(gl.TRIANGLES,0,ribbonData.length/8);
+     for(const loc of [a,b,t])gl.disableVertexAttribArray(loc);
+   };
+ }
+ const drawMoveFrameRibbon=makeRibbon(gl,c);
+
 
 
 
@@ -800,13 +846,10 @@ function drawMoveBox(){
    gl.disable(gl.POLYGON_OFFSET_FILL);
 
    // Transparent grid: unchanged from v32.
-   use(tgb);gl.uniform3f(uCenter,0,0,0);
-   gl.uniform4f(uColor,0.0,0.0,0.0,1.0);
    gl.depthMask(false);
-   gl.lineWidth(1.0); // v229: outer frame uses the same black line style as block edges
-   gl.drawArrays(gl.LINES,0,tg.length/3);
-   gl.lineWidth(1.0);
+   drawMoveFrameRibbon(viewMatrix());
    gl.depthMask(true);
+   gl.useProgram(pr);
 
    // Wakakusa black edges: unchanged from v32.
    use(eb);gl.uniform4f(uColor,0,0,0,1);
@@ -848,6 +891,7 @@ function drawMoveBox(){
  function sbuf(arr){const b=sg.createBuffer();sg.bindBuffer(sg.ARRAY_BUFFER,b);sg.bufferData(sg.ARRAY_BUFFER,new Float32Array(arr),sg.STATIC_DRAW);return b}
  function suse(b){sg.bindBuffer(sg.ARRAY_BUFFER,b);sg.enableVertexAttribArray(sa);sg.vertexAttribPointer(sa,3,sg.FLOAT,false,0,0)}
  const sfb=sbuf(fa), seb=sbuf(ea), stgb=sbuf(tg);
+ const drawStorageFrameRibbon=makeRibbon(sg,scv);
 
  window.drawStorageGL=function(R){
    sg.viewport(0,0,scv.width,scv.height);
@@ -879,8 +923,10 @@ function drawMoveBox(){
     }
 
     // Same transparent framework as upper box.
-   suse(stgb);sg.uniform3f(suC,0,0,0);sg.uniform4f(suCol,0.0,0.0,0.0,1.0);
-   sg.depthMask(false);sg.lineWidth(1.0); /* v229 outer frame same line style as block edges */ sg.drawArrays(sg.LINES,0,tg.length/3);sg.lineWidth(1.0);sg.depthMask(true);
+   sg.depthMask(false);
+   drawStorageFrameRibbon(storageViewMatrix);
+   sg.depthMask(true);
+   sg.useProgram(sp);
 
    if(storedBlocks.length){
       suse(seb);sg.uniform4f(suCol,0,0,0,1);sg.depthMask(false);
