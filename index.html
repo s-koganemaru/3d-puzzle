@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v215 スマホ縦座標0～80テスト</title>
+<title>v231 スマホ縦座標0～80テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -262,7 +262,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 </style>
 </head><body>
 <div class="wrap">
-<div id="v144Version">v215 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="v144Version">v231 スマホ縦座標0～80</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
   <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
@@ -513,7 +513,8 @@ function drawMoveBox(){
    const k=ka<kb?ka+'|'+kb:kb+'|'+ka;
    if(!segs.has(k))segs.set(k,[a,b]);
  }
- const vals=[-1.5,-.5,.5,1.5];
+ // v229: only the 12 outer frame edges; omit surface subdivision lines.
+ const vals=[-1.5,1.5];
  for(const X of [-1.5,1.5]){
    for(const y of vals)addT([X,y,-1.5],[X,y,1.5]);
    for(const z of vals)addT([X,-1.5,z],[X,1.5,z]);
@@ -699,13 +700,6 @@ function drawMoveBox(){
        ax.closePath();ax.fill();ax.stroke();ax.restore();
 
        arrowNo++;
-       ax.save();
-       ax.font='bold 16px sans-serif';
-       ax.textAlign='center';
-       ax.textBaseline='middle';
-       ax.fillStyle='#111';
-       ax.fillText(String(arrowNo),px+nx*16,py+ny*16);
-       ax.restore();
 
        const ev=[h.b[0]-h.a[0],h.b[1]-h.a[1],h.b[2]-h.a[2]];
        const el=Math.hypot(...ev)||1;
@@ -807,12 +801,12 @@ function drawMoveBox(){
 
    // Transparent grid: unchanged from v32.
    use(tgb);gl.uniform3f(uCenter,0,0,0);
-   // v215: transparent foreground lines; rear lines remain occluded by block depth.
-   gl.uniform4f(uColor,0.0,0.0,0.0,0.42);
-   gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-   gl.depthMask(false);gl.lineWidth(2.0);
+   gl.uniform4f(uColor,0.0,0.0,0.0,1.0);
+   gl.depthMask(false);
+   gl.lineWidth(1.0); // v229: outer frame uses the same black line style as block edges
    gl.drawArrays(gl.LINES,0,tg.length/3);
-   gl.lineWidth(1.0);gl.disable(gl.BLEND);gl.depthMask(true);
+   gl.lineWidth(1.0);
+   gl.depthMask(true);
 
    // Wakakusa black edges: unchanged from v32.
    use(eb);gl.uniform4f(uColor,0,0,0,1);
@@ -823,7 +817,7 @@ function drawMoveBox(){
    }
    gl.depthMask(true);
    drawArrows();
-   overlayCoordinateAxes();
+   // RGB coordinate axes hidden in v230; overlayCoordinateAxes() retained for later use.
    drawPickedVertex();
 
    // Synchronize the lower Storage Box viewing direction.
@@ -885,11 +879,8 @@ function drawMoveBox(){
     }
 
     // Same transparent framework as upper box.
-   // v215: same transparent foreground treatment in Storage Box.
-   suse(stgb);sg.uniform3f(suC,0,0,0);sg.uniform4f(suCol,0.0,0.0,0.0,0.42);
-   sg.enable(sg.BLEND);sg.blendFunc(sg.SRC_ALPHA,sg.ONE_MINUS_SRC_ALPHA);
-   sg.depthMask(false);sg.lineWidth(2.0);sg.drawArrays(sg.LINES,0,tg.length/3);
-   sg.lineWidth(1.0);sg.disable(sg.BLEND);sg.depthMask(true);
+   suse(stgb);sg.uniform3f(suC,0,0,0);sg.uniform4f(suCol,0.0,0.0,0.0,1.0);
+   sg.depthMask(false);sg.lineWidth(1.0); /* v229 outer frame same line style as block edges */ sg.drawArrays(sg.LINES,0,tg.length/3);sg.lineWidth(1.0);sg.depthMask(true);
 
    if(storedBlocks.length){
       suse(seb);sg.uniform4f(suCol,0,0,0,1);sg.depthMask(false);
@@ -935,10 +926,11 @@ function drawMoveBox(){
      ax.closePath();ax.fill();
      ax.font='bold 20px sans-serif';ax.fillText(label,b[0]+6,b[1]-6);
    }
-   const O=[0,0,0];
-   axisArrow(O,[1.15,0,0],'#d92727','X');
-   axisArrow(O,[0,1.15,0],'#159447','Y');
-   axisArrow(O,[0,0,1.15],'#1769d2','Z');
+   // RGB coordinate axes hidden in v230. Drawing functions retained for later use.
+   // const O=[0,0,0];
+   // axisArrow(O,[1.15,0,0],'#d92727','X');
+   // axisArrow(O,[0,1.15,0],'#159447','Y');
+   // axisArrow(O,[0,0,1.15],'#1769d2','Z');
 
  };
 
