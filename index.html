@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>v233 スマホ縦座標0～80テスト</title>
+<title>v234 スマホ縦座標0～80テスト</title>
 <style>
 body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
 h2{font-size:20px;font-weight:500;margin:10px 0 3px}
@@ -258,6 +258,14 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
  html,body{width:100%!important;margin:0!important;padding:0!important;overflow-x:hidden!important}
  .wrap{width:100vw!important;max-width:none!important;margin:0!important;
        height:calc(100vh / 0.80)!important;min-height:0!important;transform:none!important}
+}
+</style>
+<style id="v234-ipad-landscape-width">
+/* iPad 横向き: 1180px の上限で右端15%が欠ける現象を防ぐ。
+   スマホ横向きの既存設定とPC表示は維持する。 */
+@media (pointer:coarse) and (min-height:601px) and (orientation:landscape){
+ .wrap{width:100vw!important;max-width:none!important;margin-left:0!important;margin-right:0!important;}
+ html,body{margin-left:0!important;margin-right:0!important;overflow-x:hidden!important;}
 }
 </style>
 </head><body>
