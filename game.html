@@ -1,0 +1,1861 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v236 操作記録テスト</title>
+<style>
+body{margin:0;background:#fff;font-family:sans-serif;text-align:center;color:#333}
+h2{font-size:20px;font-weight:500;margin:10px 0 3px}
+p{font-size:13px;color:#666;margin:3px 8px 8px}
+.wrap{width:min(96vw,760px);margin:auto}
+.group{display:flex;flex-direction:column;align-items:center;gap:0}
+.row{display:flex;justify-content:center;gap:0;position:relative}
+.row:nth-child(1){z-index:10}
+.row:nth-child(2){z-index:20}
+.row:nth-child(3){z-index:30}
+.card{padding:0;margin:-29px -22px;background:transparent}
+.row:nth-child(2){transform:translateY(-26px)}
+.row:nth-child(3){transform:translate(53px,-52px)}
+.card canvas{width:150px;height:150px;display:block;background:transparent!important}
+
+.storage{margin:-48px auto 0}
+.storage canvas{width:420px;height:440px;max-width:96vw;display:block;margin:auto}
+.moveboxWrap{display:none;align-items:center;justify-content:center;height:440px}
+.moveboxWrap canvas{width:420px;height:440px;max-width:96vw;display:block;margin:auto}
+.transferArrow{
+  display:none;
+  height:48px;
+  margin:-119px auto 71px;
+  font-size:58px;
+  line-height:48px;
+  font-weight:bold;
+  color:#1478ff;
+  text-align:center;
+  user-select:none;
+  pointer-events:auto;
+  cursor:pointer;
+  position:relative;
+  z-index:1000;
+}
+body.moveMode .transferArrow{display:block}
+
+
+.moveStage{position:relative;width:420px;height:440px;max-width:96vw}
+.moveStage #moveBox,.moveStage #moveArrows{position:absolute;left:0;top:0;width:100%;height:100%;display:block;margin:0}
+.moveStage #moveArrows{pointer-events:none}
+
+.headerSpacer{height:128px}
+
+/* v129: smartphone layout coordinate guide (0-100) */
+.wrap{width:min(96vw,420px);position:relative;min-height:900px;box-sizing:border-box}
+.xyGuide{position:absolute;inset:0;z-index:5000;pointer-events:none;border:2px solid rgba(30,30,30,.75);box-sizing:border-box}
+.xyGuide .vline,.xyGuide .hline{position:absolute;background:rgba(40,90,160,.14)}
+.xyGuide .vline{top:0;bottom:0;width:1px}
+.xyGuide .hline{left:0;right:0;height:1px}
+.xyGuide .xlabel,.xyGuide .ylabel{position:absolute;font:11px/1 sans-serif;color:rgba(25,70,135,.82);background:rgba(255,255,255,.78);padding:1px 2px}
+.xyGuide .xlabel{top:3px;transform:translateX(-50%)}
+.xyGuide .ylabel{left:3px;transform:translateY(-50%)}
+.xyGuide .axisX{position:absolute;right:5px;top:18px;font:bold 12px sans-serif;color:#245b9b}
+.xyGuide .axisY{position:absolute;left:18px;bottom:5px;font:bold 12px sans-serif;color:#245b9b}
+.xyGuide .origin{position:absolute;left:4px;top:4px;font:bold 11px sans-serif;color:#245b9b;background:#fff;padding:1px 2px}
+
+/* v130b: requested layout changes; game logic unchanged */
+#returnToGroup,#resetView,#groupPrompt{position:absolute!important;z-index:6000;font-size:15px!important;line-height:1.2;padding:5px 9px;box-sizing:border-box}
+#returnToGroup{left:2%!important;top:15%!important}
+#resetView{left:2%!important;top:56%!important}
+#groupPrompt{left:2%;top:15%;font-weight:600;text-align:left;pointer-events:none}
+body.moveMode #groupPrompt{display:none}
+
+/* v133: provisional box centers on the 0-100 guide.
+   Move Box center y=33, Storage Box center y=70. */
+#moveBoxArea{position:absolute;left:0;right:0;top:128.48px;margin:0;height:440px}
+.storage{position:absolute!important;left:0;right:0;top:461.48px;margin:0 auto!important}
+
+/* v134: requested layout refinements */
+/* v135: visible projected cube centers are y=33 and y=70 on the 900px guide.
+   Move cube shifted left by 5 guide units; axis overlays use the exact same projection offsets as their boxes. */
+body:not(.moveMode) #returnToGroup{display:none!important}
+#resetView{display:block!important;visibility:visible!important}
+#transferArrow{
+  position:absolute!important;
+  left:0;right:0;top:439.5px!important;
+  margin:0 auto!important;
+  height:48px;
+}
+
+canvas{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;}
+/* v143: mini WebGL canvases use true transparent clear; mobile white-overlap fix */
+.group{isolation:isolate}
+.card{background:transparent!important}
+.card canvas{background:transparent!important}
+#webglDiag{display:none;margin:8px 12px;padding:9px 10px;border:1px solid #b33;background:#fff4f4;color:#8b0000;font:14px/1.45 sans-serif;position:relative;z-index:3000}
+</style><style id="v144-landscape-layout">
+html,body{margin:0!important;padding:0!important;width:100%!important;overflow-x:hidden!important;overflow-y:hidden!important;height:100vh!important}
+.wrap{width:min(98vw,1180px)!important;max-width:1180px!important;min-height:650px!important;height:min(94vh,760px)!important;margin:0 auto!important;position:relative!important;overflow:hidden!important}
+.xyGuide{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;pointer-events:none!important}
+#group.group{position:absolute!important;left:1.5%!important;top:8%!important;width:29%!important;height:76%!important;margin:0!important;z-index:20!important;align-content:center!important}
+#moveBoxArea.moveboxWrap{position:absolute!important;left:34%!important;top:16%!important;width:31%!important;height:58%!important;margin:0!important;align-items:center!important;justify-content:center!important;z-index:15!important}
+#moveBoxArea .moveStage{margin:0 auto!important}
+.storage{position:absolute!important;left:68%!important;top:16%!important;width:31%!important;height:58%!important;margin:0!important;z-index:10!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.storage canvas,#moveBoxArea canvas{max-width:100%!important;max-height:100%!important}
+#transferArrow{position:absolute!important;left:66%!important;top:43%!important;transform:translate(-50%,-50%) rotate(-90deg)!important;margin:0!important;z-index:1005!important;white-space:nowrap!important}
+#resetView{position:absolute!important;left:35%!important;top:77%!important;z-index:1006!important}
+#returnToGroup{position:absolute!important;left:49%!important;top:77%!important;z-index:1006!important}
+#overlapMsg{position:absolute!important;left:49.5%!important;top:10%!important;transform:translateX(-50%)!important;z-index:1010!important}
+#completionMsg{position:absolute!important;left:83.5%!important;top:7%!important;transform:translateX(-50%)!important;z-index:1010!important}
+#v144Version{position:absolute;top:4px;right:72px;z-index:3000;font:12px Arial,sans-serif;color:#444;background:rgba(255,255,255,.8);padding:2px 5px;pointer-events:none}
+@media(max-width:800px) and (orientation:landscape){.wrap{width:100vw!important;height:100vh!important;min-height:360px!important}#group.group{left:1%!important;width:30%!important}#moveBoxArea.moveboxWrap{left:34%!important;width:31%!important}.storage{left:68%!important;width:31%!important}}
+</style>
+
+<style id="v145-landscape-three-fixes">
+/* v145: 左=収納BOX、中央=移動BOX、右=ブロック群 */
+.storage{left:1.5%!important;top:16%!important;width:31%!important;height:58%!important;}
+#moveBoxArea.moveboxWrap{left:34%!important;top:16%!important;width:31%!important;height:58%!important;}
+#group.group{left:68%!important;top:8%!important;width:29%!important;height:76%!important;}
+#groupPrompt{left:69%!important;}
+/* 移動BOXを収納BOXと同じ表示枠・同じ縦横寸法にする */
+#moveBoxArea .moveStage{position:relative!important;width:100%!important;height:100%!important;margin:0!important;}
+#moveBoxArea .moveStage canvas{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;}
+.storage canvas{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;}
+@media(max-width:800px) and (orientation:landscape){
+ .storage{left:1%!important;width:31%!important;}
+ #moveBoxArea.moveboxWrap{left:34%!important;width:31%!important;}
+ #group.group{left:68%!important;width:30%!important;}
+}
+</style>
+
+<style id="v146-flow-arrows">
+/* v146: 左=収納BOX、中央=移動BOX、右=ブロック群。移動BOXは常時表示。 */
+#moveBoxArea.moveboxWrap{display:flex!important;}
+.bigFlowArrow{position:absolute!important;z-index:7000!important;display:flex!important;align-items:center;justify-content:center;width:7%!important;height:14%!important;transform:translate(-50%,-50%)!important;font:700 clamp(46px,6vw,82px)/1 sans-serif!important;color:#222!important;background:transparent!important;border:0!important;padding:0!important;margin:0!important;cursor:pointer!important;user-select:none!important;-webkit-user-select:none!important;}
+#transferArrow.leftFlowArrow{left:32.5%!important;top:45%!important;visibility:visible!important;}
+#returnToGroup.rightFlowArrow{left:66.5%!important;top:45%!important;}
+body:not(.moveMode) #returnToGroup{display:flex!important;}
+#groupPrompt{display:none!important;}
+</style>
+<style id="v147-arrow-tuning">
+/* v147: flow arrows are shorter/thicker; reset is below the left arrow. */
+.bigFlowArrow{
+  width:6.2%!important;height:11%!important;
+  font-size:0!important;line-height:1!important;
+}
+.bigFlowArrow::before{content:"";display:block;width:44px;height:18px;background:#222;}
+.bigFlowArrow::after{content:"";display:block;width:0;height:0;border-top:22px solid transparent;border-bottom:22px solid transparent;}
+#transferArrow.leftFlowArrow{left:32.5%!important;top:52%!important;flex-direction:row!important;}
+#transferArrow.leftFlowArrow::after{order:-1;border-right:30px solid #222;}
+#returnToGroup.rightFlowArrow{left:66.5%!important;top:52%!important;flex-direction:row!important;}
+#returnToGroup.rightFlowArrow::after{border-left:30px solid #222;}
+#resetView{
+  left:32.5%!important;top:62%!important;transform:translateX(-50%)!important;
+  font-size:17px!important;padding:6px 10px!important;white-space:nowrap!important;
+}
+</style>
+
+<style id="v148-arrow-fix">
+/* v148: both flow arrows are horizontal, single, equal-size, and vertically centered on the boxes. */
+#transferArrow.leftFlowArrow,
+#returnToGroup.rightFlowArrow{
+  top:45%!important;
+  transform:translate(-50%,-50%)!important;
+  font-size:0!important;
+  line-height:0!important;
+}
+#transferArrow.leftFlowArrow{left:32.5%!important;}
+#returnToGroup.rightFlowArrow{left:66.5%!important;}
+</style>
+
+
+<style id="v149-active-card-fade">
+/* 移動boxへ移ったブロックは、ブロック群では「移動済み」と分かるよう霞を掛ける */
+#group .card.move-active{
+  opacity:0.28 !important;
+  filter:saturate(0.35) brightness(1.18) !important;
+}
+</style>
+
+
+<style id="v152-y-up-10">
+/* 収納box・移動box・左右矢印を、平面y方向にまとめて10上へ移動 */
+.storage{top:6%!important;}
+.moveboxWrap{top:6%!important;}
+#transferArrow.leftFlowArrow{top:35%!important;}
+#returnToGroup.rightFlowArrow{top:35%!important;}
+</style>
+
+
+<style id="v153-force-y-up-10">
+.storage{top:6%!important;}
+#moveBoxArea.moveboxWrap{top:6%!important;}
+#transferArrow{top:35%!important;}
+#returnToGroup{top:35%!important;}
+</style>
+
+
+<style id="v154-arrow-center-y">
+#transferArrow,
+#returnToGroup{
+  top:35%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+
+
+<style id="v155-arrow-cube-center-y">
+/* 「boxの中心」＝3×3×3の中央ピース (1,1,1) の中心。
+   canvas領域の中心ではなく、描画された立方体の見た目の中心に矢印を合わせる。 */
+#transferArrow,
+#returnToGroup{
+  top:31%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+
+
+<style id="v156-both-arrows-box-center">
+/* box中心 = 中央ピース (1,1,1) の中心 */
+#transferArrow.leftFlowArrow,
+#returnToGroup.rightFlowArrow,
+#transferArrow,
+#returnToGroup{
+  top:31%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+
+
+<style id="v157-box-scale-110">
+/* 収納box・移動boxを中心位置固定のまま、縦横とも1.10倍 */
+.storage,
+#moveBoxArea.moveboxWrap{
+  transform:scale(1.10)!important;
+  transform-origin:center center!important;
+}
+</style>
+
+
+
+
+
+
+<style id="v167-input-layer-fix">
+/*
+ v165/v166でブロック群を画面全体(100% x 100%)にしたため、
+ #group が移動BOXの上に透明な入力層として重なっていた。
+ 描画位置はそのまま、入力の重なりだけ修正する。
+*/
+#group.group{z-index:9!important;}
+.storage{z-index:10!important;}
+#moveBoxArea.moveboxWrap{z-index:15!important;}
+#transferArrow,#returnToGroup,#resetView{z-index:1006!important;}
+</style>
+
+
+
+
+
+<style id="v194-phone-full-width">
+/* スマホ横画面だけ、ゲームの基準座標面を画面全幅にする。
+   全体transform縮小も7ブロック個別縮小も行わない。 */
+@media (pointer:coarse) and (max-height:600px) and (orientation:landscape){
+ html,body{width:100%!important;margin:0!important;padding:0!important;overflow-x:hidden!important}
+ .wrap{width:100vw!important;max-width:none!important;margin:0!important;
+       height:calc(100vh / 0.80)!important;min-height:0!important;transform:none!important}
+}
+</style>
+<style id="v234-ipad-landscape-width">
+/* iPad 横向き: 1180px の上限で右端15%が欠ける現象を防ぐ。
+   スマホ横向きの既存設定とPC表示は維持する。 */
+@media (pointer:coarse) and (min-height:601px) and (orientation:landscape){
+ .wrap{width:100vw!important;max-width:none!important;margin-left:0!important;margin-right:0!important;}
+ html,body{margin-left:0!important;margin-right:0!important;overflow-x:hidden!important;}
+}
+</style>
+</head><body>
+<div class="wrap">
+<div id="v144Version">v236 操作記録</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
+<div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
+<div style="position:static;z-index:1002">
+  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
+  <div id="returnToGroup" class="bigFlowArrow rightFlowArrow" role="button" tabindex="0" aria-label="ブロック群へ戻す">→</div>
+</div>
+<div id="overlapMsg" style="display:none;position:relative;z-index:1003;text-align:center;font-size:20px;font-weight:bold;margin:-28px auto 8px">重なっています</div>
+<div id="transferArrow" class="bigFlowArrow leftFlowArrow" role="button" tabindex="0" aria-label="収納BOXへ移動">←</div>
+<div id="completionMsg" style="display:none;text-align:center;font-size:36px;font-weight:bold;margin:8px auto 4px">完成です！！</div>
+<div class="storage" style="position:relative;width:420px;height:440px;max-width:96vw">
+<canvas id="storageGL" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%"></canvas>
+<canvas id="storageAxes" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
+</div></div>
+<script>
+
+const blockDefs=[
+ {id:1,name:'薄緑',c:'#78c97b',cells:[[0,0,2],[0,0,1],[1,0,2]]},
+ {id:2,name:'黄',c:'#f0cf3d',cells:[[0,0,2],[0,0,1],[0,0,0],[1,0,2]]},
+ {id:3,name:'赤',c:'#f02020',cells:[[0,0,2],[0,0,1],[1,0,1],[1,0,0]]},
+ {id:4,name:'緑',c:'#287a42',cells:[[0,0,2],[0,0,1],[1,0,2],[0,1,2]]},
+ {id:5,name:'紫',c:'#9562b5',cells:[[0,0,2],[0,0,1],[1,0,2],[1,1,2]]},
+ {id:6,name:'青',c:'#5a9bea',cells:[[0,0,2],[0,0,1],[0,0,0],[1,0,1]]},
+ {id:7,name:'茶',c:'#70452f',cells:[[0,0,2],[0,0,1],[1,0,2],[1,0,1]]}
+];
+// FIX済み：色付きブロックだけをY軸まわりに右90°
+for(const b of blockDefs)b.cells=b.cells.map(([x,y,z])=>[z,y,2-x]);
+
+const cubeG=[[-.5,-.5,-.5],[.5,-.5,-.5],[.5,.5,-.5],[-.5,.5,-.5],[-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5]];
+const facesG=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[3,7,6,2],[0,4,7,3],[1,2,6,5]];
+const edgesG=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+
+function rgb(hex){
+ let n=parseInt(hex.slice(1),16);return [(n>>16)/255,((n>>8)&255)/255,(n&255)/255,1];
+}
+// v213: render all seven miniatures with ONE reusable WebGL context.
+// Copy each completed rendering into its own ordinary 2D canvas.
+// This prevents iPad WebGL context eviction from blanking miniature cards.
+const miniatureRendererCanvas=document.createElement('canvas');
+miniatureRendererCanvas.width=250;
+miniatureRendererCanvas.height=250;
+function renderBlock(canvas,block){
+ const outputCanvas=canvas;
+ canvas=miniatureRendererCanvas;
+ const gl=(canvas.getContext('webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true})||canvas.getContext('experimental-webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true}));
+ if(!gl){const d=document.getElementById('webglDiag');if(d){d.style.display='block';d.textContent='3D描画を開始できませんでした（WebGL未使用）。Safariの設定またはローカルHTML表示方式を確認してください。';}return;}
+ const VS=`attribute vec3 aPos;uniform vec3 uCenter;uniform float uScale;uniform float uDepthBias;
+ void main(){vec3 p=aPos+uCenter;
+ float X=(p.x*.72-p.z*.52)*uScale;
+ float Y=(p.y*.68+(p.x*.25+p.z*.34))*uScale;
+ float D=(-p.x*.75+p.z-p.y*.70)*.08+uDepthBias;
+ gl_Position=vec4(X,Y,D,1.0);}`;
+ const FS=`precision mediump float;uniform vec4 uColor;void main(){gl_FragColor=uColor;}`;
+ function sh(t,s){const q=gl.createShader(t);gl.shaderSource(q,s);gl.compileShader(q);return q}
+ const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
+ const aPos=gl.getAttribLocation(pr,'aPos'),uCenter=gl.getUniformLocation(pr,'uCenter'),uScale=gl.getUniformLocation(pr,'uScale'),uDepthBias=gl.getUniformLocation(pr,'uDepthBias'),uColor=gl.getUniformLocation(pr,'uColor');
+ const fd=[];for(const f of facesG)for(const i of [0,1,2,0,2,3])fd.push(...cubeG[f[i]]);
+ const ed=[];for(const [a,b] of edgesG)ed.push(...cubeG[a],...cubeG[b]);
+ function buf(data){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);return b}
+ const fb=buf(fd),eb=buf(ed);
+ function attr(b){gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0)}
+ function center(x,y,z){gl.uniform3f(uCenter,x-1,y-1,z-1)}
+ gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clearDepth(1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT); // v143: true transparent clear for mobile Safari/Chrome
+ gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.uniform1f(uScale,2*.826/5.0);gl.uniform1f(uDepthBias,0);
+ const occ=new Set(block.cells.map(c=>c.join(',')));
+
+ // transparent pieces: internal edges intentionally not drawn
+
+ // colored faces: draw only exposed faces; shared/contact faces are omitted
+ const cc=rgb(block.c);gl.uniform4f(uColor,...cc);
+ gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);
+ const dirs=[[0,0,-1],[0,0,1],[0,-1,0],[0,1,0],[-1,0,0],[1,0,0]];
+ for(const c of block.cells){
+   for(let fi=0;fi<6;fi++){
+     const d=dirs[fi], nx=c[0]+d[0], ny=c[1]+d[1], nz=c[2]+d[2];
+     if(occ.has([nx,ny,nz].join(','))) continue;
+     const f=facesG[fi], one=[];
+     for(const i of [0,1,2,0,2,3]) one.push(...cubeG[f[i]]);
+     const oneb=buf(one); attr(oneb); center(...c);
+     gl.drawArrays(gl.TRIANGLES,0,6);
+     gl.deleteBuffer(oneb);
+   }
+ }
+ gl.disable(gl.POLYGON_OFFSET_FILL);
+
+ // colored edges: draw only edges belonging to exposed faces.
+ // Shared/contact faces contribute no edges, so internal-origin lines cannot appear.
+ const edgeSet=new Map();
+ function keyPoint(p){return p.map(v=>Math.round(v*2)/2).join(',')}
+ function addEdge(a,b){
+   const ka=keyPoint(a),kb=keyPoint(b),k=ka<kb?ka+'|'+kb:kb+'|'+ka;
+   if(!edgeSet.has(k)) edgeSet.set(k,[a,b]);
+ }
+ for(const c of block.cells){
+   for(let fi=0;fi<6;fi++){
+     const d=dirs[fi],nx=c[0]+d[0],ny=c[1]+d[1],nz=c[2]+d[2];
+     if(occ.has([nx,ny,nz].join(','))) continue;
+     const f=facesG[fi];
+     for(let j=0;j<4;j++){
+       const va=cubeG[f[j]],vb=cubeG[f[(j+1)%4]];
+       addEdge([va[0]+c[0]-1,va[1]+c[1]-1,va[2]+c[2]-1],
+               [vb[0]+c[0]-1,vb[1]+c[1]-1,vb[2]+c[2]-1]);
+     }
+   }
+ }
+ const sed=[];for(const [a,b] of edgeSet.values())sed.push(...a,...b);
+ const seb=buf(sed);attr(seb);gl.uniform3f(uCenter,0,0,0);
+ gl.uniform4f(uColor,0,0,0,1);gl.depthMask(false);
+ gl.drawArrays(gl.LINES,0,sed.length/3);
+ gl.depthMask(true);gl.deleteBuffer(seb);
+
+
+ // outer 3x3x3 outline intentionally not drawn
+
+ // v213: transfer the rendered pixels to a permanent 2D canvas.
+ const ctx2d=outputCanvas.getContext('2d');
+ ctx2d.clearRect(0,0,outputCanvas.width,outputCanvas.height);
+ ctx2d.drawImage(canvas,0,0,outputCanvas.width,outputCanvas.height);
+}
+const group=document.getElementById('group');
+const rows=[blockDefs.slice(0,3),blockDefs.slice(3,5),blockDefs.slice(5,7)];
+for(const bs of rows){
+ const row=document.createElement('div');row.className='row';
+ for(const b of bs){
+   const d=document.createElement('div');d.className='card';
+   d.dataset.blockIndex=blockDefs.indexOf(b);
+   d.title=b.id+'）'+b.name;
+   const c=document.createElement('canvas');c.width=250;c.height=250;
+   d.appendChild(c);row.appendChild(d);renderBlock(c,b);
+ }
+ group.appendChild(row);
+}
+
+let storedBlocks=[];
+let storedCells=null;
+let storedColor=[.47,.79,.48,1];
+let activeIndex=0;
+const storedBlockIndices=new Set();
+let activeColor=[.47,.79,.48,1];
+
+function drawStorageBox(sharedR){
+  if(window.drawStorageGL) window.drawStorageGL(sharedR);
+}
+
+const miniCards=[...group.querySelectorAll('.card')];
+// v125: カード同士の透明領域の重なりに影響されない選択方式。
+// group 全体でクリック位置を受け、画面上の各ブロックカード中心との距離が
+// 最も近いブロックを選ぶ。カード自身はクリックを奪わない。
+miniCards.forEach((card)=>{
+  card.style.position='relative';
+  card.style.zIndex='auto';
+  card.style.pointerEvents='none';
+  const cv=card.querySelector('canvas');
+  if(cv) cv.style.pointerEvents='none';
+});
+group.style.cursor='pointer';
+group.addEventListener('click',(e)=>{ let chosen=null, best=Infinity; for(const card of miniCards){ const r=card.getBoundingClientRect(); const cx=(r.left+r.right)/2, cy=(r.top+r.bottom)/2; if(Math.abs(e.clientX-cx)>28 || Math.abs(e.clientY-cy)>28) continue; const d=(e.clientX-cx)*(e.clientX-cx)+(e.clientY-cy)*(e.clientY-cy); if(d<best){best=d;chosen=card;} } if(!chosen) return;   const idx=Number(chosen.dataset.blockIndex);
+  if(!Number.isInteger(idx) || !blockDefs[idx]) return;
+  if(storedBlockIndices.has(idx)) return;
+  activeIndex=idx;
+  const b=blockDefs[idx];   cells=b.cells.map(q=>[...q]);
+  activeColor=rgb(b.c);
+  transferred=false;
+  group.style.display='flex'; // v145: ブロック群は移動BOXと同時表示
+  document.getElementById('moveBoxArea').style.display='flex';
+  document.body.classList.add('moveMode');
+  const ta=document.getElementById('transferArrow');
+  if(ta) ta.style.visibility='visible';
+  const om=document.getElementById('overlapMsg');
+  if(om) om.style.display='none';
+  drawMoveBox();
+});
+
+function drawMoveBox(){
+ // v126: each Move Box session starts with fresh interactive DOM nodes.
+ // This removes old event listeners/closures so invisible stale storage state
+ // cannot react to later clicks. The actual storedBlocks array is preserved.
+ for(const id of ['moveBox','transferArrow','returnToGroup','resetView','storageGL']){
+   const old=document.getElementById(id);
+   if(old){
+     const fresh=old.cloneNode(true);
+     if(old.tagName==='CANVAS'){ fresh.width=old.width; fresh.height=old.height; }
+     old.parentNode.replaceChild(fresh,old);
+   }
+ }
+ const c=document.getElementById('moveBox');
+ const ac=document.getElementById('moveArrows');
+ const ax=ac.getContext('2d');
+ let arrowHits=[];
+ const gl=(c.getContext('webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true})||c.getContext('experimental-webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true}));
+ if(!gl){const d=document.getElementById('webglDiag');if(d){d.style.display='block';d.textContent='3D描画を開始できませんでした（WebGL未使用）。Safariの設定またはローカルHTML表示方式を確認してください。';}return;}
+
+ const VS=`attribute vec3 aPos;uniform vec3 uCenter;uniform mat3 uViewRot;uniform float uScaleX;uniform float uScaleY;uniform float uXOffset;uniform float uYOffset;uniform float uDepthBias;
+ void main(){
+   vec3 p=uViewRot*(aPos+uCenter);
+   float X=(p.x*.72-p.z*.52)*uScaleX + uXOffset;
+   float Y=(p.y*.68+(p.x*.25+p.z*.34))*uScaleY + uYOffset;
+   float D=(-p.x*.75+p.z-p.y*.70)*.08+uDepthBias;
+   gl_Position=vec4(X,Y,D,1.0);
+ }`;
+ const FS=`precision mediump float;uniform vec4 uColor;void main(){gl_FragColor=uColor;}`;
+
+ function shader(t,src){const q=gl.createShader(t);gl.shaderSource(q,src);gl.compileShader(q);return q}
+ const pr=gl.createProgram();
+ gl.attachShader(pr,shader(gl.VERTEX_SHADER,VS));
+ gl.attachShader(pr,shader(gl.FRAGMENT_SHADER,FS));
+ gl.linkProgram(pr);gl.useProgram(pr);
+
+ const aPos=gl.getAttribLocation(pr,'aPos');
+ const uCenter=gl.getUniformLocation(pr,'uCenter');
+ const uViewRot=gl.getUniformLocation(pr,'uViewRot');
+ const uScaleX=gl.getUniformLocation(pr,'uScaleX');
+ const uScaleY=gl.getUniformLocation(pr,'uScaleY');
+ const uXOffset=gl.getUniformLocation(pr,'uXOffset');
+ const uYOffset=gl.getUniformLocation(pr,'uYOffset');
+ const uDepthBias=gl.getUniformLocation(pr,'uDepthBias');
+ const uColor=gl.getUniformLocation(pr,'uColor');
+
+ function makeBuf(a){
+   const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);
+   gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(a),gl.STATIC_DRAW);return b;
+ }
+ function use(b){
+   gl.bindBuffer(gl.ARRAY_BUFFER,b);
+   gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+   gl.enableVertexAttribArray(aPos);
+ }
+
+ const V=[[-.5,-.5,-.5],[.5,-.5,-.5],[.5,.5,-.5],[-.5,.5,-.5],
+          [-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5]];
+ const faces=[[0,1,2,0,2,3],[4,7,6,4,6,5],[0,4,5,0,5,1],
+              [3,2,6,3,6,7],[1,5,6,1,6,2],[0,3,7,0,7,4]];
+ const edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+ const fa=[],ea=[];
+ for(const f of faces)for(const n of f)fa.push(...V[n]);
+ for(const e of edges)for(const n of e)ea.push(...V[n]);
+ const fb=makeBuf(fa), eb=makeBuf(ea);
+
+ // Transparent pieces: same cube-edge method as successful Wakakusa test.
+ let cells=blockDefs[activeIndex].cells.map(q=>[...q]);
+ let transferred=false;
+
+
+
+ // Transparent framework: all SIX outer faces. Geometry is fixed.
+ const segs=new Map();
+ function keyp(p){return p.map(v=>v.toFixed(2)).join(',')}
+ function addT(a,b){
+   let ka=keyp(a),kb=keyp(b);
+   const k=ka<kb?ka+'|'+kb:kb+'|'+ka;
+   if(!segs.has(k))segs.set(k,[a,b]);
+ }
+ // v229: only the 12 outer frame edges; omit surface subdivision lines.
+ const vals=[-1.5,1.5];
+ for(const X of [-1.5,1.5]){
+   for(const y of vals)addT([X,y,-1.5],[X,y,1.5]);
+   for(const z of vals)addT([X,-1.5,z],[X,1.5,z]);
+ }
+ for(const Y of [-1.5,1.5]){
+   for(const x of vals)addT([x,Y,-1.5],[x,Y,1.5]);
+   for(const z of vals)addT([-1.5,Y,z],[1.5,Y,z]);
+ }
+ for(const Z of [-1.5,1.5]){
+   for(const x of vals)addT([x,-1.5,Z],[x,1.5,Z]);
+   for(const y of vals)addT([-1.5,y,Z],[1.5,y,Z]);
+ }
+ const tg=[];
+ for(const [a,b] of segs.values())tg.push(...a,...b);
+ const tgb=makeBuf(tg);
+ // v232: render the 12 frame edges as screen-space-width ribbons.
+ // Depth is interpolated from each original 3D edge endpoint.
+ const ribbonData=[];
+ for(let i=0;i<tg.length;i+=6){
+   const a=tg.slice(i,i+3),b=tg.slice(i+3,i+6);
+   for(const [t,side] of [[0,-1],[0,1],[1,-1],[0,1],[1,1],[1,-1]])
+     ribbonData.push(...a,...b,t,side);
+ }
+ const ribbonVS=`attribute vec3 aStart;attribute vec3 aEnd;attribute vec2 aTS;
+ uniform mat3 uViewRot;uniform vec2 uScale;uniform vec2 uOffset;
+ uniform vec2 uViewport;uniform float uWidth;
+ vec3 project(vec3 p){
+   p=uViewRot*p;
+   return vec3((p.x*.72-p.z*.52)*uScale.x+uOffset.x,
+               (p.y*.68+(p.x*.25+p.z*.34))*uScale.y+uOffset.y,
+               (-p.x*.75+p.z-p.y*.70)*.08);
+ }
+ void main(){
+   vec3 a=project(aStart),b=project(aEnd);
+   vec2 d=(b.xy-a.xy)*uViewport;
+   vec2 n=length(d)>0.0001?vec2(-d.y,d.x)/length(d):vec2(0.,1.);
+   vec3 p=mix(a,b,aTS.x);
+   p.xy+=n*aTS.y*uWidth/uViewport;
+   gl_Position=vec4(p,1.);
+ }`;
+ const ribbonFS=`precision mediump float;void main(){gl_FragColor=vec4(0.,0.,0.,1.);}`;
+ function makeRibbon(gl,viewCanvas){
+   function compile(type,source){const q=gl.createShader(type);gl.shaderSource(q,source);gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(q));return q;}
+   const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,ribbonVS));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,ribbonFS));gl.linkProgram(p);
+   if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));
+   const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(ribbonData),gl.STATIC_DRAW);
+   const a=gl.getAttribLocation(p,'aStart'),b=gl.getAttribLocation(p,'aEnd'),t=gl.getAttribLocation(p,'aTS');
+   const r=gl.getUniformLocation(p,'uViewRot'),scale=gl.getUniformLocation(p,'uScale'),offset=gl.getUniformLocation(p,'uOffset'),viewport=gl.getUniformLocation(p,'uViewport'),width=gl.getUniformLocation(p,'uWidth');
+   return function(rot){
+     gl.useProgram(p);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+     for(const [loc,n,ofs] of [[a,3,0],[b,3,12],[t,2,24]]){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,n,gl.FLOAT,false,32,ofs);}
+     gl.uniformMatrix3fv(r,false,rot);
+     gl.uniform2f(scale,2*86.7/500,2*86.7/525);gl.uniform2f(offset,0.0104,0.234);
+     gl.uniform2f(viewport,viewCanvas.width/2,viewCanvas.height/2);
+     gl.uniform1f(width,1.35); // half-width in device pixels: 2.7 px total
+     gl.drawArrays(gl.TRIANGLES,0,ribbonData.length/8);
+     for(const loc of [a,b,t])gl.disableVertexAttribArray(loc);
+   };
+ }
+ const drawMoveFrameRibbon=makeRibbon(gl,c);
+
+
+
+
+
+ // Free view rotation of the whole Move Box.
+ let viewR=[1,0,0, 0,1,0, 0,0,1]; // row-major
+ function viewMatrix(){
+   return new Float32Array([
+     viewR[0],viewR[3],viewR[6],
+     viewR[1],viewR[4],viewR[7],
+     viewR[2],viewR[5],viewR[8]
+   ]);
+ }
+ function rotateViewPoint(p){
+   return [
+     viewR[0]*p[0]+viewR[1]*p[1]+viewR[2]*p[2],
+     viewR[3]*p[0]+viewR[4]*p[1]+viewR[5]*p[2],
+     viewR[6]*p[0]+viewR[7]*p[1]+viewR[8]*p[2]
+   ];
+ }
+ function mm(A,B){
+   const C=new Array(9).fill(0);
+   for(let i=0;i<3;i++)for(let j=0;j<3;j++)
+     for(let k=0;k<3;k++) C[i*3+j]+=A[i*3+k]*B[k*3+j];
+   return C;
+ }
+ function axisAngle(axis,ang){
+   let [x,y,z]=axis;
+   const L=Math.hypot(x,y,z)||1; x/=L;y/=L;z/=L;
+   const c0=Math.cos(ang),s0=Math.sin(ang),q=1-c0;
+   return [
+     c0+x*x*q,x*y*q-z*s0,x*z*q+y*s0,
+     y*x*q+z*s0,c0+y*y*q,y*z*q-x*s0,
+     z*x*q-y*s0,z*y*q+x*s0,c0+z*z*q
+   ];
+ }
+ // Rotation arrows: restore the original puzzle59af method.
+ // Project all 8 vertices, choose the nearest one, then select
+ // the three actual cube edges incident to that vertex.
+ const projectArrow3D=(p)=>{
+   const r=rotateViewPoint(p);
+   const X=(r[0]*.72-r[2]*.52)*(2*86.7/500)+0.0104;
+   const Y=(r[1]*.68+(r[0]*.25+r[2]*.34))*(2*86.7/525)+0.234;
+   const D=(-r[0]*.75+r[2]-r[1]*.70)*.08;
+   return [(X*.5+.5)*ac.width,(1-(Y*.5+.5))*ac.height,D];
+ };
+
+ const cubeEdges3D=[
+   [[-1.5,-1.5,-1.5],[ 1.5,-1.5,-1.5],'x'],
+   [[-1.5, 1.5,-1.5],[ 1.5, 1.5,-1.5],'x'],
+   [[-1.5,-1.5, 1.5],[ 1.5,-1.5, 1.5],'x'],
+   [[-1.5, 1.5, 1.5],[ 1.5, 1.5, 1.5],'x'],
+   [[-1.5,-1.5,-1.5],[-1.5, 1.5,-1.5],'y'],
+   [[ 1.5,-1.5,-1.5],[ 1.5, 1.5,-1.5],'y'],
+   [[-1.5,-1.5, 1.5],[-1.5, 1.5, 1.5],'y'],
+   [[ 1.5,-1.5, 1.5],[ 1.5, 1.5, 1.5],'y'],
+   [[-1.5,-1.5,-1.5],[-1.5,-1.5, 1.5],'z'],
+   [[ 1.5,-1.5,-1.5],[ 1.5,-1.5, 1.5],'z'],
+   [[-1.5, 1.5,-1.5],[-1.5, 1.5, 1.5],'z'],
+   [[ 1.5, 1.5,-1.5],[ 1.5, 1.5, 1.5],'z']
+ ];
+
+ function userToInternal(X,Y,Z){
+   return [Z-1.5, Y-1.5, 1.5-X];
+ }
+
+ let pickedVertex=null;
+ let pickedPoint=null;
+
+ function drawPickedVertex(){
+   const p=pickedPoint || (pickedVertex ? userToInternal(...pickedVertex) : null);
+   if(!p)return;
+   const q=projectArrow3D(p);
+   ax.save();
+   ax.beginPath();
+   ax.arc(q[0],q[1],7,0,Math.PI*2);
+   ax.lineWidth=3;
+   ax.strokeStyle='#ff3030';
+   ax.stroke();
+   ax.restore();
+ }
+
+ function drawArrows(){
+   ax.clearRect(0,0,ac.width,ac.height);
+   arrowHits=[];
+
+   // Use the v58-confirmed nearest-corner test.
+   const corners=[];
+   for(const X of [0,3]) for(const Y of [0,3]) for(const Z of [0,3]){
+     const r=rotateViewPoint(userToInternal(X,Y,Z));
+     const nearScore=(-r[0] + r[1] - r[2]);
+     corners.push({u:[X,Y,Z],score:nearScore});
+   }
+   corners.sort((a,b)=>b.score-a.score);
+   const nearUser=corners[0].u;
+   const [NX,NY,NZ]=nearUser;
+
+   // v209: clearly mark the nearest corner used by the six rotation arrows.
+   const nearDot=projectArrow3D(userToInternal(NX,NY,NZ));
+   ax.save();
+   ax.beginPath();
+   ax.arc(nearDot[0],nearDot[1],6.5,0,Math.PI*2);
+   ax.fillStyle='#000';
+   ax.fill();
+   ax.lineWidth=2;
+   ax.strokeStyle='#fff';
+   ax.stroke();
+   ax.restore();
+
+   // Start from the EXACT v55/v52-confirmed arrow arrangement at (3,3,0),
+   // then reflect that arrangement to whichever corner is currently nearest.
+   // Therefore when nearUser=(3,3,0), nothing changes at all.
+   const mapPoint=([X,Y,Z])=>[
+     NX===3 ? X : 3-X,
+     NY===3 ? Y : 3-Y,
+     NZ===0 ? Z : 3-Z
+   ];
+
+   // v55 direction vectors are INTERNAL vectors.
+   // Reflect them consistently via user coordinates.
+   const mapDir=(v)=>{
+     let ux=-v[2], uy=v[1], uz=v[0]; // internal -> user direction
+     if(NX===0) ux=-ux;
+     if(NY===0) uy=-uy;
+     if(NZ===3) uz=-uz;
+     return [uz,uy,-ux];             // user -> internal direction
+   };
+
+   const baseEdges=[
+     {axis:'x',a:[0,3,0],b:[3,3,0],dirs:[[0,-1,0],[1,0,0]]},
+     {axis:'y',a:[3,0,0],b:[3,3,0],dirs:[[0,0,1],[1,0,0]]},
+     {axis:'z',a:[3,3,0],b:[3,3,3],dirs:[[0,0,1],[0,-1,0]]}
+   ];
+
+   const edges=baseEdges.map(e=>({
+     axis:e.axis,
+     a:userToInternal(...mapPoint(e.a)),
+     b:userToInternal(...mapPoint(e.b)),
+     dirs:e.dirs.map(mapDir)
+   }));
+
+   const O=projectArrow3D([0,0,0]);
+   let arrowNo=0;
+   for(const h of edges){
+     const A=projectArrow3D(h.a),B=projectArrow3D(h.b);
+     const M=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+
+     for(const u of h.dirs){
+       const P=projectArrow3D([u[0]*1.5,u[1]*1.5,u[2]*1.5]);
+       let dx=P[0]-O[0],dy=P[1]-O[1];
+       const L=Math.hypot(dx,dy)||1; dx/=L;dy/=L;
+
+       const offset=16;
+       const px=M[0]+dx*offset,py=M[1]+dy*offset;
+       const tipX=px+dx*16,tipY=py+dy*16;
+       const baseX=px-dx*10,baseY=py-dy*10;
+       const nx=-dy,ny=dx;
+
+       ax.save();
+       ax.fillStyle='#1478ff';
+       ax.strokeStyle='#0757b8';
+       ax.lineWidth=1.5;
+       ax.beginPath();
+       ax.moveTo(tipX,tipY);
+       ax.lineTo(baseX+nx*6,baseY+ny*6);
+       ax.lineTo(baseX+nx*2,baseY+ny*2);
+       ax.lineTo(baseX-nx*6,baseY-ny*6);
+       ax.closePath();ax.fill();ax.stroke();ax.restore();
+
+       arrowNo++;
+
+       const ev=[h.b[0]-h.a[0],h.b[1]-h.a[1],h.b[2]-h.a[2]];
+       const el=Math.hypot(...ev)||1;
+       const axisVec=[ev[0]/el,ev[1]/el,ev[2]/el];
+       arrowHits.push({x:px,y:py,r:18,axis:h.axis,u,no:arrowNo,axisVec});
+     }
+   }
+
+   // TEST ONLY: nearest-corner label.
+   // The confirmed initial nearest corner (3,3,0) maps internally to (-,+,-).
+   // Therefore use that actual viewing direction, not the shader's depth value.
+   const testCorners=[];
+   for(const X of [0,3]) for(const Y of [0,3]) for(const Z of [0,3]){
+     const r=rotateViewPoint(userToInternal(X,Y,Z));
+     const nearScore=(-r[0] + r[1] - r[2]);
+     testCorners.push({u:[X,Y,Z],score:nearScore});
+   }
+   testCorners.sort((a,b)=>b.score-a.score);
+   const n=testCorners[0].u;
+
+   ax.save();
+   ax.font='bold 16px sans-serif';
+   ax.textAlign='left';
+   ax.textBaseline='top';
+   ax.fillStyle='#111';
+   ax.restore();
+ }
+
+ function drawAxisArrow(ctx,A,B,color,label){
+   const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy)||1;
+   const ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+   const tip=[B[0],B[1]];
+   const base=[B[0]-ux*15,B[1]-uy*15];
+   ctx.save();
+   ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=4;
+   ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(base[0],base[1]);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(tip[0],tip[1]);
+   ctx.lineTo(base[0]+nx*7,base[1]+ny*7);
+   ctx.lineTo(base[0]-nx*7,base[1]-ny*7);
+   ctx.closePath();ctx.fill();
+   ctx.font='bold 18px sans-serif';
+   ctx.fillText(label,tip[0]+ux*8,tip[1]+uy*8);
+   ctx.restore();
+ }
+
+ function drawCoordinateAxes(){
+   ax.clearRect(0,0,ac.width,ac.height);
+   // User coordinate system at the initial displayed cube:
+   // O = visible left-bottom vertex.
+   const O =projectArrow3D([-1.5,-1.5, 1.5]);
+   const Xp=projectArrow3D([-1.5,-1.5,-1.5]); // +X: right-front
+   const Yp=projectArrow3D([-1.5, 1.5, 1.5]); // +Y: upward
+   const Zp=projectArrow3D([ 1.5,-1.5, 1.5]); // +Z: right-rear
+   ax.save();
+   ax.fillStyle='#111';ax.font='bold 17px sans-serif';
+
+   ax.restore();
+   drawAxisArrow(ax,O,Xp,'#e02020','X');
+   drawAxisArrow(ax,O,Yp,'#169447','Y');
+   drawAxisArrow(ax,O,Zp,'#1769d2','Z');
+ }
+
+ function overlayCoordinateAxes(){
+   // User coordinate system at the initial displayed cube:
+   // O = visible left-bottom vertex.
+   const O =projectArrow3D([-1.5,-1.5, 1.5]);
+   const Xp=projectArrow3D([-1.5,-1.5,-1.5]); // +X: right-front
+   const Yp=projectArrow3D([-1.5, 1.5, 1.5]); // +Y: upward
+   const Zp=projectArrow3D([ 1.5,-1.5, 1.5]); // +Z: right-rear
+   ax.save();
+   ax.fillStyle='#111';ax.font='bold 17px sans-serif';
+
+   ax.restore();
+   drawAxisArrow(ax,O,Xp,'#e02020','X');
+   drawAxisArrow(ax,O,Yp,'#169447','Y');
+   drawAxisArrow(ax,O,Zp,'#1769d2','Z');
+ }
+
+ function draw(){
+   gl.viewport(0,0,c.width,c.height);
+   gl.clearColor(1,1,1,0);
+   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);
+   gl.uniformMatrix3fv(uViewRot,false,viewMatrix());
+   gl.uniform1f(uScaleX,2*86.7/500);
+   gl.uniform1f(uScaleY,2*86.7/525);
+   gl.uniform1f(uXOffset,0.0104);
+   gl.uniform1f(uYOffset,0.234);
+   gl.uniform1f(uDepthBias,0);
+
+   // Wakakusa faces: unchanged from v32.
+   use(fb);gl.uniform4fv(uColor,new Float32Array(activeColor));
+   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);
+   for(const q of (transferred?[]:cells)){
+     gl.uniform3f(uCenter,q[0]-1,q[1]-1,q[2]-1);
+     gl.drawArrays(gl.TRIANGLES,0,fa.length/3);
+   }
+   gl.disable(gl.POLYGON_OFFSET_FILL);
+
+   // Transparent grid: unchanged from v32.
+   gl.depthMask(false);
+   drawMoveFrameRibbon(viewMatrix());
+   gl.depthMask(true);
+   gl.useProgram(pr);
+
+   // Wakakusa black edges: unchanged from v32.
+   use(eb);gl.uniform4f(uColor,0,0,0,1);
+   gl.depthMask(false);
+   for(const q of (transferred?[]:cells)){
+     gl.uniform3f(uCenter,q[0]-1,q[1]-1,q[2]-1);
+     gl.drawArrays(gl.LINES,0,ea.length/3);
+   }
+   gl.depthMask(true);
+   drawArrows();
+   // RGB coordinate axes hidden in v230; overlayCoordinateAxes() retained for later use.
+   drawPickedVertex();
+
+   // Synchronize the lower Storage Box viewing direction.
+   drawStorageBox(viewR.slice());
+ }
+
+ // v91: Storage Box uses WebGL too, so its depth behavior matches Move Box.
+ const scv=document.getElementById('storageGL');
+ const sg=(scv.getContext('webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true})||scv.getContext('experimental-webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true}));
+ if(!sg){const d=document.getElementById('webglDiag');if(d){d.style.display='block';d.textContent='収納boxの3D描画を開始できませんでした（WebGL未使用）。';}return;}
+ const svs=`attribute vec3 aPos;uniform mat3 uViewRot;uniform vec3 uCenter;
+ uniform float uScaleX,uScaleY,uYOffset,uXOffset,uDepthBias;
+ void main(){
+   vec3 p=uViewRot*(aPos+uCenter);
+   float X=(p.x*.72-p.z*.52)*uScaleX+uXOffset;
+   float Y=(p.y*.68+(p.x*.25+p.z*.34))*uScaleY+uYOffset;
+   float D=(-p.x*.75+p.z-p.y*.70)*.08+uDepthBias;
+   gl_Position=vec4(X,Y,D,1.0);
+ }`;
+ const sfs=`precision mediump float;uniform vec4 uColor;void main(){gl_FragColor=uColor;}`;
+ function sShader(t,x){const sh=sg.createShader(t);sg.shaderSource(sh,x);sg.compileShader(sh);return sh}
+ const sp=sg.createProgram();sg.attachShader(sp,sShader(sg.VERTEX_SHADER,svs));sg.attachShader(sp,sShader(sg.FRAGMENT_SHADER,sfs));sg.linkProgram(sp);sg.useProgram(sp);
+ const sa=sg.getAttribLocation(sp,'aPos'), suC=sg.getUniformLocation(sp,'uCenter'),
+ suR=sg.getUniformLocation(sp,'uViewRot'), suSX=sg.getUniformLocation(sp,'uScaleX'),
+ suSY=sg.getUniformLocation(sp,'uScaleY'),suYO=sg.getUniformLocation(sp,'uYOffset'),
+ suXO=sg.getUniformLocation(sp,'uXOffset'),suDB=sg.getUniformLocation(sp,'uDepthBias'),
+ suCol=sg.getUniformLocation(sp,'uColor');
+ function sbuf(arr){const b=sg.createBuffer();sg.bindBuffer(sg.ARRAY_BUFFER,b);sg.bufferData(sg.ARRAY_BUFFER,new Float32Array(arr),sg.STATIC_DRAW);return b}
+ function suse(b){sg.bindBuffer(sg.ARRAY_BUFFER,b);sg.enableVertexAttribArray(sa);sg.vertexAttribPointer(sa,3,sg.FLOAT,false,0,0)}
+ const sfb=sbuf(fa), seb=sbuf(ea), stgb=sbuf(tg);
+ const drawStorageFrameRibbon=makeRibbon(sg,scv);
+
+ window.drawStorageGL=function(R){
+   sg.viewport(0,0,scv.width,scv.height);
+   sg.clearColor(1,1,1,0);sg.clear(sg.COLOR_BUFFER_BIT|sg.DEPTH_BUFFER_BIT);
+   sg.enable(sg.DEPTH_TEST);sg.depthFunc(sg.LEQUAL);sg.depthMask(true);
+   const rr=R||[1,0,0,0,1,0,0,0,1];
+   // v100: WebGL expects column-major data.
+   // Upper Move Box already transposes row-major viewR in viewMatrix().
+   // Do exactly the same for the lower Storage Box.
+   const storageViewMatrix=[
+     rr[0],rr[3],rr[6],
+     rr[1],rr[4],rr[7],
+     rr[2],rr[5],rr[8]
+   ];
+   sg.uniformMatrix3fv(suR,false,storageViewMatrix);
+   sg.uniform1f(suSX,2*86.7/500);sg.uniform1f(suSY,2*86.7/525);
+   sg.uniform1f(suXO,0.0104);sg.uniform1f(suYO,0.234);sg.uniform1f(suDB,0);
+
+   if(storedBlocks.length){
+      sg.enable(sg.POLYGON_OFFSET_FILL);sg.polygonOffset(1,1);suse(sfb);
+      for(const sb of storedBlocks){
+        sg.uniform4fv(suCol,new Float32Array(sb.color));
+        for(const q of sb.cells){
+          sg.uniform3f(suC,q[0]-1,q[1]-1,q[2]-1);
+          sg.drawArrays(sg.TRIANGLES,0,fa.length/3);
+        }
+      }
+      sg.disable(sg.POLYGON_OFFSET_FILL);
+    }
+
+    // Same transparent framework as upper box.
+   sg.depthMask(false);
+   drawStorageFrameRibbon(storageViewMatrix);
+   sg.depthMask(true);
+   sg.useProgram(sp);
+
+   if(storedBlocks.length){
+      suse(seb);sg.uniform4f(suCol,0,0,0,1);sg.depthMask(false);
+      for(const sb of storedBlocks){
+        for(const q of sb.cells){
+          sg.uniform3f(suC,q[0]-1,q[1]-1,q[2]-1);
+          sg.drawArrays(sg.LINES,0,ea.length/3);
+        }
+      }
+      sg.depthMask(true);
+    }
+
+    // Lower Storage Box coordinate axes.
+   const ac=document.getElementById('storageAxes'), ax=ac.getContext('2d');
+   ax.clearRect(0,0,ac.width,ac.height);
+   // v95: draw lower axes from the SAME internal geometry used by the
+   // Storage Box itself.  User coordinates:
+   // O=(0,0,0), +X right-front, +Y up, +Z right-rear.
+   function storageAxisPoint(X,Y,Z){
+     // authoritative user -> internal mapping
+     const p=[Z-1.5,Y-1.5,1.5-X];
+     const rr=R||[1,0,0,0,1,0,0,0,1];
+     const q=[
+       rr[0]*p[0]+rr[1]*p[1]+rr[2]*p[2],
+       rr[3]*p[0]+rr[4]*p[1]+rr[5]*p[2],
+       rr[6]*p[0]+rr[7]*p[1]+rr[8]*p[2]
+     ];
+     // Exact CSS/canvas projection corresponding to the lower WebGL shader.
+     // GL Y is converted to canvas Y by reversing the sign.
+     return [
+       (0.0104+(q[0]*.72-q[2]*.52)*(2*86.7/500)+1)*250,
+       (1-(0.234+(q[1]*.68+(q[0]*.25+q[2]*.34))*(2*86.7/525)))*262.5
+     ];
+   }
+   function axisArrow(A,B,color,label){
+     const a=storageAxisPoint(...A),b=storageAxisPoint(...B);
+     ax.strokeStyle=color;ax.fillStyle=color;ax.lineWidth=4;
+     ax.beginPath();ax.moveTo(...a);ax.lineTo(...b);ax.stroke();
+     const ang=Math.atan2(b[1]-a[1],b[0]-a[0]),len=12;
+     ax.beginPath();ax.moveTo(...b);
+     ax.lineTo(b[0]-len*Math.cos(ang-.48),b[1]-len*Math.sin(ang-.48));
+     ax.lineTo(b[0]-len*Math.cos(ang+.48),b[1]-len*Math.sin(ang+.48));
+     ax.closePath();ax.fill();
+     ax.font='bold 20px sans-serif';ax.fillText(label,b[0]+6,b[1]-6);
+   }
+   // RGB coordinate axes hidden in v230. Drawing functions retained for later use.
+   // const O=[0,0,0];
+   // axisArrow(O,[1.15,0,0],'#d92727','X');
+   // axisArrow(O,[0,1.15,0],'#159447','Y');
+   // axisArrow(O,[0,0,1.15],'#1769d2','Z');
+
+ };
+
+ draw();
+
+ // v236: Record logical puzzle states; do not record raw screen video.
+ window.puzzleRecordBridge={
+   capture(){return {
+     activeIndex, transferred, cells:cells.map(q=>[...q]),
+     activeColor:[...activeColor], viewR:[...viewR],
+     storedBlocks:storedBlocks.map(sb=>({index:sb.index,cells:sb.cells.map(q=>[...q]),color:[...sb.color]}))
+   };},
+   restore(s){
+     if(!s)return;
+     activeIndex=s.activeIndex;
+     transferred=s.transferred;
+     cells=s.cells.map(q=>[...q]);
+     activeColor=[...s.activeColor];
+     viewR=[...s.viewR];
+     storedBlocks=s.storedBlocks.map(sb=>({index:sb.index,cells:sb.cells.map(q=>[...q]),color:[...sb.color]}));
+     storedBlockIndices.clear();
+     for(const sb of storedBlocks)storedBlockIndices.add(sb.index);
+     for(const card of group.querySelectorAll('.card')){
+       const idx=Number(card.dataset.blockIndex);
+       card.style.opacity=storedBlockIndices.has(idx)?'0.28':'1';
+     }
+     const completionMsg=document.getElementById('completionMsg');
+     if(completionMsg){
+       const all=storedBlocks.flatMap(sb=>sb.cells);
+       const unique=new Set(all.map(q=>q.join(',')));
+       completionMsg.style.display=(all.length===27 && unique.size===27 && all.every(q=>q.every(v=>v>=0&&v<=2)))?'block':'none';
+     }
+     const om=document.getElementById('overlapMsg');if(om)om.style.display='none';
+     document.body.classList.add('moveMode');
+     draw();
+   }
+ };
+
+ const transfer=document.getElementById('transferArrow');
+ function transferToStorage(){
+   if(transferred) return;
+
+   // v111: reject storage if even one piece occupies an already stored cell.
+   const occupied=new Set();
+   for(const sb of storedBlocks) for(const q of sb.cells) occupied.add(q.join(','));
+   const overlaps=cells.some(q=>occupied.has(q.join(',')));
+   const om=document.getElementById('overlapMsg');
+   if(overlaps){
+     om.style.display='block';
+     return;
+   }
+   om.style.display='none';
+
+   // transfer ONLY the block.
+   // Do not rotate/re-map coordinates and do not alter the shared view matrix.
+   const keepView=viewR.slice();
+   // v126: one logical block number may exist in Storage Box at most once.
+   // Remove only an old copy of THIS block; all other blocks remain untouched.
+   storedBlocks=storedBlocks.filter(sb=>sb.index!==activeIndex);
+   storedCells=cells.map(([x,y,z])=>[x,y,z]);
+   storedColor=[...activeColor];
+   storedBlocks.push({index:activeIndex,cells:storedCells.map(q=>[...q]),color:[...storedColor]});
+
+   // v128: all 27 distinct cells inside the 3x3x3 box means completion.
+   const completedCells=new Set();
+   let allInside=true;
+   for(const sb of storedBlocks){
+     for(const q of sb.cells){
+       if(q[0]<0||q[0]>2||q[1]<0||q[1]>2||q[2]<0||q[2]>2) allInside=false;
+       completedCells.add(q.join(','));
+     }
+   }
+   const completionMsg=document.getElementById('completionMsg');
+   if(completionMsg) completionMsg.style.display=(allInside && completedCells.size===27)?'block':'none';
+   transferred=true;
+   storedBlockIndices.add(activeIndex);
+   const storedCard=group.querySelector('.card[data-block-index="'+activeIndex+'"]');
+   if(storedCard){storedCard.style.opacity='0.28';storedCard.title='収納済み';}
+   transfer.style.visibility='visible';
+
+   // Preserve the exact shared viewing direction and redraw Storage Box.
+   viewR=keepView;
+   draw();
+
+   // v146: after storage, keep the empty Move Box frame and block group visible.
+   document.getElementById('moveBoxArea').style.display='flex';
+   group.style.display='flex';
+   document.body.classList.add('moveMode');
+   draw();
+ }
+ transfer.addEventListener('click',transferToStorage);
+
+ const returnToGroupBtn=document.getElementById('returnToGroup');
+ if(returnToGroupBtn){
+   const returnBlockToGroup=()=>{
+     // v146: right arrow removes the active block from Move Box; frame remains visible.
+     transferred=true;
+     const ta=document.getElementById('transferArrow');
+     if(ta) ta.style.visibility='visible';
+     const om=document.getElementById('overlapMsg');
+     if(om) om.style.display='none';
+     document.getElementById('moveBoxArea').style.display='flex';
+     group.style.display='flex';
+     document.body.classList.add('moveMode');
+     draw(); activeIndex=-1;
+   };
+   returnToGroupBtn.addEventListener('click',returnBlockToGroup);
+   returnToGroupBtn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();returnBlockToGroup();}});
+ }
+
+ const resetViewBtn=document.getElementById('resetView');
+ resetViewBtn.addEventListener('click',()=>{
+   // Reset ONLY the shared viewing direction. Block state is untouched.
+   viewR=[1,0,0, 0,1,0, 0,0,1];
+   draw();
+ });
+ transfer.addEventListener('keydown',e=>{
+   if(e.key==='Enter'||e.key===' '){e.preventDefault();transferToStorage();}
+ });
+
+ // View-rotation test:
+ // dragging the Move Box changes only the viewing direction.
+ // (The already-confirmed one-piece movement is temporarily disabled in this test.)
+ let lastX=0,lastY=0,viewDragging=false,vertexDragging=false;
+ let blockDragging=false,blockStartX=0,blockStartY=0;
+ c.style.touchAction='none';
+
+
+ function pointInQuad(px,py,Q){
+   let sign=0;
+   for(let i=0;i<4;i++){
+     const a=Q[i],b=Q[(i+1)%4];
+     const z=(b[0]-a[0])*(py-a[1])-(b[1]-a[1])*(px-a[0]);
+     if(Math.abs(z)<1e-6)continue;
+     const sgn=z>0?1:-1;
+     if(!sign)sign=sgn; else if(sign!==sgn)return false;
+   }
+   return true;
+ }
+ function pickSurfacePoint(px,py){
+   const faces=[
+     [[-1.5,-1.5,-1.5],[ 1.5,-1.5,-1.5],[ 1.5, 1.5,-1.5],[-1.5, 1.5,-1.5]],
+     [[-1.5,-1.5, 1.5],[-1.5, 1.5, 1.5],[ 1.5, 1.5, 1.5],[ 1.5,-1.5, 1.5]],
+     [[-1.5,-1.5,-1.5],[-1.5,-1.5, 1.5],[ 1.5,-1.5, 1.5],[ 1.5,-1.5,-1.5]],
+     [[-1.5, 1.5,-1.5],[ 1.5, 1.5,-1.5],[ 1.5, 1.5, 1.5],[-1.5, 1.5, 1.5]],
+     [[-1.5,-1.5,-1.5],[-1.5, 1.5,-1.5],[-1.5, 1.5, 1.5],[-1.5,-1.5, 1.5]],
+     [[ 1.5,-1.5,-1.5],[ 1.5,-1.5, 1.5],[ 1.5, 1.5, 1.5],[ 1.5, 1.5,-1.5]]
+   ];
+   let best=null;
+   for(const F of faces){
+     const Q=F.map(projectArrow3D);
+     if(!pointInQuad(px,py,Q))continue;
+     const q0=Q[0], q1=Q[1], q3=Q[3];
+     const ux=q1[0]-q0[0], uy=q1[1]-q0[1];
+     const vx=q3[0]-q0[0], vy=q3[1]-q0[1];
+     const wx=px-q0[0], wy=py-q0[1];
+     const det=ux*vy-uy*vx;
+     if(Math.abs(det)<1e-8)continue;
+     const a=(wx*vy-wy*vx)/det;
+     const b=(ux*wy-uy*wx)/det;
+     if(a<-.02||a>1.02||b<-.02||b>1.02)continue;
+     const p=[
+       F[0][0]+a*(F[1][0]-F[0][0])+b*(F[3][0]-F[0][0]),
+       F[0][1]+a*(F[1][1]-F[0][1])+b*(F[3][1]-F[0][1]),
+       F[0][2]+a*(F[1][2]-F[0][2])+b*(F[3][2]-F[0][2])
+     ];
+     const r=rotateViewPoint(p);
+     const score=(-r[0]+r[1]-r[2]);
+     if(!best||score>best.score)best={p,score};
+   }
+   return best?best.p:null;
+ }
+
+
+ function projectCellCenter(cell){
+   return projectArrow3D([cell[0]-1,cell[1]-1,cell[2]-1]);
+ }
+ function pointerHitsBlock(px,py){
+   // Generous projected-cell hit test; enough for this movement test.
+   for(const q of cells){
+     const p=projectCellCenter(q);
+     if(Math.hypot(px-p[0],py-p[1])<42)return true;
+   }
+   return false;
+ }
+ function tryMoveBlock(dx,dy){
+   // Project the three USER coordinate directions at the current view.
+   // cells use the existing internal piece coordinates; movement candidates
+   // are tested visually against the drag direction.
+   const center=[0,0,0];
+   const o=projectArrow3D(center);
+   const dirs=[
+     {d:[1,0,0],p:projectArrow3D([1,0,0])},
+     {d:[-1,0,0],p:projectArrow3D([-1,0,0])},
+     {d:[0,1,0],p:projectArrow3D([0,1,0])},
+     {d:[0,-1,0],p:projectArrow3D([0,-1,0])},
+     {d:[0,0,1],p:projectArrow3D([0,0,1])},
+     {d:[0,0,-1],p:projectArrow3D([0,0,-1])}
+   ];
+   const L=Math.hypot(dx,dy);
+   if(L<18)return false;
+   let best=null;
+   for(const a of dirs){
+     let vx=a.p[0]-o[0],vy=a.p[1]-o[1];
+     const vl=Math.hypot(vx,vy)||1; vx/=vl;vy/=vl;
+     const score=(dx/L)*vx+(dy/L)*vy;
+     if(!best||score>best.score)best={d:a.d,score};
+   }
+   if(!best||best.score<0.62)return false;
+   const moved=cells.map(q=>[q[0]+best.d[0],q[1]+best.d[1],q[2]+best.d[2]]);
+   if(moved.some(q=>q[0]<0||q[0]>2||q[1]<0||q[1]>2||q[2]<0||q[2]>2))return false;
+   cells=moved;
+   return true;
+ }
+
+
+ function pointerAboveY60(e){
+   const wrap=document.querySelector('.wrap');
+   if(!wrap)return true;
+   const wr=wrap.getBoundingClientRect();
+   return e.clientY < wr.top + wr.height*0.60;
+ }
+
+ c.addEventListener('pointerdown',e=>{
+   const r=c.getBoundingClientRect();
+   const px=(e.clientX-r.left)*c.width/r.width, py=(e.clientY-r.top)*c.height/r.height;
+   for(const h of arrowHits){
+     if(Math.hypot(px-h.x,py-h.y)<h.r){
+       // v83: all six arrows are active.
+       // Same principle as the old successful puzzle59af:
+       // determine the quarter-turn sign from
+       // (rotation-axis × arrow-direction) · viewing-direction.
+       const a=h.axisVec, u=h.u;
+       const cross=[
+         a[1]*u[2]-a[2]*u[1],
+         a[2]*u[0]-a[0]*u[2],
+         a[0]*u[1]-a[1]*u[0]
+       ];
+
+       // Projection's camera-facing direction in rotated coordinates is (-,+,-).
+       // Bring it back to the fixed internal coordinate system with transpose(viewR).
+       const d=[-1,1,-1];
+       const viewDir=[
+         viewR[0]*d[0]+viewR[3]*d[1]+viewR[6]*d[2],
+         viewR[1]*d[0]+viewR[4]*d[1]+viewR[7]*d[2],
+         viewR[2]*d[0]+viewR[5]*d[1]+viewR[8]*d[2]
+       ];
+       // Direction convention confirmed by the user with arrow 1 in v82.
+       const sign=(cross[0]*viewDir[0]+cross[1]*viewDir[1]+cross[2]*viewDir[2])>=0 ? -1 : 1;
+
+       // Generic exact 90-degree Rodrigues rotation around the selected edge axis,
+       // but through the 3x3x3 centre.
+       const old=cells.map(q=>[q[0]-1,q[1]-1,q[2]-1]);
+       function quarter(p){
+         const dot=a[0]*p[0]+a[1]*p[1]+a[2]*p[2];
+         const cr=[
+           a[1]*p[2]-a[2]*p[1],
+           a[2]*p[0]-a[0]*p[2],
+           a[0]*p[1]-a[1]*p[0]
+         ];
+         return [
+           a[0]*dot + sign*cr[0],
+           a[1]*dot + sign*cr[1],
+           a[2]*dot + sign*cr[2]
+         ];
+       }
+       const moved=old.map(quarter).map(q=>[
+         Math.round(q[0]+1),Math.round(q[1]+1),Math.round(q[2]+1)
+       ]);
+       if(moved.every(q=>q.every(v=>v>=0&&v<=2))) cells=moved;
+       draw(); return;
+     }
+   }
+   // INSIDE the transparent cube: reserve for block manipulation.
+   // OUTSIDE the transparent cube: rotate the whole view.
+   const insidePoint=pickSurfacePoint(px,py);
+   if(insidePoint){
+     pickedPoint=null;
+     pickedVertex=null;
+     vertexDragging=false;
+     viewDragging=false;
+     if(pointerHitsBlock(px,py)){
+       blockDragging=true;
+       blockStartX=e.clientX; blockStartY=e.clientY;
+       c.setPointerCapture(e.pointerId);
+     }
+     return;
+   }
+
+   pickedPoint=null;
+   pickedVertex=null;
+   vertexDragging=false;
+   if(!pointerAboveY60(e)){ viewDragging=false; return; }
+   viewDragging=true;
+   lastX=e.clientX; lastY=e.clientY;
+   c.setPointerCapture(e.pointerId);
+ });
+
+ c.addEventListener('pointermove',e=>{
+   if(blockDragging){
+     const dx=e.clientX-blockStartX,dy=e.clientY-blockStartY;
+     if(Math.hypot(dx,dy)>=24){
+       tryMoveBlock(dx,dy);
+       blockDragging=false; // exactly one piece per drag
+       draw();
+     }
+     return;
+   }
+   if(!viewDragging)return;
+   const dx=e.clientX-lastX, dy=e.clientY-lastY;
+   lastX=e.clientX; lastY=e.clientY;
+   viewR=mm(axisAngle([0,1,0],-dx*0.0065),viewR);
+   viewR=mm(axisAngle([1,0,0],-dy*0.0065),viewR);
+   draw();
+ });
+ c.addEventListener('pointerup',e=>{
+   viewDragging=false; vertexDragging=false; blockDragging=false; pickedPoint=null;
+   if(c.hasPointerCapture(e.pointerId))c.releasePointerCapture(e.pointerId);
+ });
+
+ c.addEventListener('pointercancel',()=>{viewDragging=false;vertexDragging=false;blockDragging=false;pickedPoint=null;draw();});
+
+ // Lower Storage Box: outside drag rotates the SAME shared view.
+ // Inside its projected cube is reserved for future stored-block operations.
+ const storageCanvas=document.getElementById('storageGL');
+ let storageDragging=false, storageLastX=0, storageLastY=0;
+ storageCanvas.style.touchAction='none';
+
+ function storageProjectPoint(p){
+   const q=rotateViewPoint(p);
+   const boxCx=252.6, boxCy=201.075, sc=86.7;
+   return [
+     boxCx+(q[0]*.72-q[2]*.52)*sc,
+     boxCy-(q[1]*.68+(q[0]*.25+q[2]*.34))*sc
+   ];
+ }
+ function storageInsideCube(px,py){
+   const faces=[
+     [[-1.5,-1.5,-1.5],[ 1.5,-1.5,-1.5],[ 1.5, 1.5,-1.5],[-1.5, 1.5,-1.5]],
+     [[-1.5,-1.5, 1.5],[-1.5, 1.5, 1.5],[ 1.5, 1.5, 1.5],[ 1.5,-1.5, 1.5]],
+     [[-1.5,-1.5,-1.5],[-1.5,-1.5, 1.5],[ 1.5,-1.5, 1.5],[ 1.5,-1.5,-1.5]],
+     [[-1.5, 1.5,-1.5],[ 1.5, 1.5,-1.5],[ 1.5, 1.5, 1.5],[-1.5, 1.5, 1.5]],
+     [[-1.5,-1.5,-1.5],[-1.5, 1.5,-1.5],[-1.5, 1.5, 1.5],[-1.5,-1.5, 1.5]],
+     [[ 1.5,-1.5,-1.5],[ 1.5,-1.5, 1.5],[ 1.5, 1.5, 1.5],[ 1.5, 1.5,-1.5]]
+   ];
+   for(const F of faces){
+     const Q=F.map(storageProjectPoint);
+     if(pointInQuad(px,py,Q)) return true;
+   }
+   return false;
+ }
+
+ storageCanvas.addEventListener('pointerdown',e=>{
+   const r=storageCanvas.getBoundingClientRect();
+   const px=(e.clientX-r.left)*storageCanvas.width/r.width;
+   const py=(e.clientY-r.top)*storageCanvas.height/r.height;
+
+   // v113: tap any stored block -> return only that block to Move Box.
+   // Test blocks from front to back by nearest projected piece distance.
+   let hitBlock=null, hitDist=Infinity;
+   for(const sb of storedBlocks){
+     for(const q of sb.cells){
+       const cp=storageProjectPoint([q[0]-1,q[1]-1,q[2]-1]);
+       const d=Math.hypot(px-cp[0],py-cp[1]);
+       if(d<46 && d<hitDist){hitDist=d;hitBlock=sb;}
+     }
+   }
+   if(hitBlock){
+     activeIndex=hitBlock.index;
+     cells=hitBlock.cells.map(q=>[...q]);
+     activeColor=[...hitBlock.color];
+     // v126: remove ONLY the selected block from storage.
+     // Other stored blocks remain exactly as they are.
+     storedBlocks=storedBlocks.filter(sb=>sb!==hitBlock);
+     const completionMsg=document.getElementById('completionMsg');
+     if(completionMsg) completionMsg.style.display='none';
+     storedCells=null; // legacy single-block cache must not retain a ghost
+     storedColor=[...activeColor];
+     transferred=false;
+     storedBlockIndices.delete(activeIndex);
+     const returnedCard=group.querySelector('.card[data-block-index="'+activeIndex+'"]');
+     if(returnedCard){returnedCard.style.opacity='1';returnedCard.title='';}
+     group.style.display='flex'; // v145: ブロック群は移動BOXと同時表示
+     document.getElementById('moveBoxArea').style.display='flex';
+     document.body.classList.add('moveMode');
+     transfer.style.visibility='visible';
+     const om=document.getElementById('overlapMsg');
+     if(om) om.style.display='none';
+     draw();
+     return;
+   }
+
+   // Storage-box interior not on a stored block: no view rotation.
+   if(storageInsideCube(px,py)) return;
+
+   if(!pointerAboveY60(e)){ storageDragging=false; return; }
+   storageDragging=true;
+   storageLastX=e.clientX; storageLastY=e.clientY;
+   storageCanvas.setPointerCapture(e.pointerId);
+ });
+
+ storageCanvas.addEventListener('pointermove',e=>{
+   if(!storageDragging)return;
+   const dx=e.clientX-storageLastX, dy=e.clientY-storageLastY;
+   storageLastX=e.clientX; storageLastY=e.clientY;
+   viewR=mm(axisAngle([0,1,0],-dx*0.0065),viewR);
+   viewR=mm(axisAngle([1,0,0],-dy*0.0065),viewR);
+   draw(); // redraws upper and lower boxes together
+ });
+
+ storageCanvas.addEventListener('pointerup',e=>{
+   storageDragging=false;
+   if(storageCanvas.hasPointerCapture(e.pointerId))
+     storageCanvas.releasePointerCapture(e.pointerId);
+ });
+ storageCanvas.addEventListener('pointercancel',()=>{storageDragging=false;});
+
+
+
+}
+
+
+
+document.querySelectorAll('canvas').forEach(cv=>cv.addEventListener('dragstart',e=>e.preventDefault()));
+
+// v146: show the empty Move Box frame from startup.
+transferred=true;
+document.getElementById('moveBoxArea').style.display='flex';
+group.style.display='flex';
+document.body.classList.add('moveMode');
+drawMoveBox();
+</script>
+<div id="versionBadge" style="position:fixed;right:6px;bottom:5px;z-index:5000;font:12px Arial,sans-serif;color:#555;background:rgba(255,255,255,.82);padding:2px 5px;border-radius:3px;pointer-events:none">v236</div>
+
+<script id="v151-active-card-fade-js">
+(function(){
+  function clearFade(){
+    document.querySelectorAll('#group .card.move-active')
+      .forEach(c=>c.classList.remove('move-active'));
+  }
+
+  function syncFade(){
+    clearFade();
+    try{
+      const cards=[...document.querySelectorAll('#group .card')];
+      const mb=document.getElementById('moveBoxArea');
+      const moveBoxVisible = mb && getComputedStyle(mb).display!=='none';
+
+      if(moveBoxVisible &&
+         typeof activeIndex!=='undefined' &&
+         activeIndex!==null && activeIndex>=0 &&          typeof transferred!=='undefined' && transferred===false &&          cards[activeIndex]){
+        cards[activeIndex].classList.add('move-active');
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('click', function(e){
+    const back=e.target.closest && e.target.closest('#returnToGroup');
+    if(back){
+      /* returnToGroup の本来の処理が終わった後、霞を確実に解除 */
+      requestAnimationFrame(function(){
+        clearFade();
+        setTimeout(clearFade,0);
+        setTimeout(clearFade,80);
+      });
+      return;
+    }
+    requestAnimationFrame(function(){
+      syncFade();
+      setTimeout(syncFade,0);
+      setTimeout(syncFade,80);
+    });
+  }, true);
+
+  window.addEventListener('load', syncFade);
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<style id="v191-fix">
+#group.group{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;display:block!important;transform:none!important;overflow:visible!important;z-index:9!important}
+#group.group .row{display:contents!important}
+#group.group .card{position:absolute!important;width:150px!important;height:150px!important;margin:0!important;padding:0!important;transform:none!important;pointer-events:none!important}
+#group.group .card canvas{width:150px!important;height:150px!important;display:block!important}
+.storage{left:20%!important;top:39%!important;transform:translate(-50%,-50%) scale(1.43)!important;transform-origin:center!important;z-index:10!important}
+#moveBoxArea.moveboxWrap{left:60%!important;top:39%!important;transform:translate(-50%,-50%) scale(1.43)!important;transform-origin:center!important;z-index:15!important}
+
+/* 矢印の「見える図形」の中心を target に置くため、要素位置ではなく描画後の中心をJSで補正する */
+#transferArrow,#returnToGroup{top:35%!important;z-index:1006!important}
+
+.coordTag{position:absolute;z-index:5000;pointer-events:none;font:10px/1.15 monospace;color:#222;background:rgba(255,255,255,.75);padding:1px 3px;white-space:nowrap}
+#coordParams{position:absolute;left:4px;top:4px;z-index:5001;font:10px/1.25 monospace;color:#333;background:rgba(255,255,255,.78);padding:3px 5px;pointer-events:none;white-space:pre}
+</style>
+<div id="coordParams">y_bd=13
+arrow visual centers: 40 / 80
+yb=35</div>
+
+<script id="v191-script">
+window.addEventListener('load',function(){
+ const wrap=document.querySelector('.wrap'),group=document.getElementById('group'); if(!wrap||!group)return;
+ const pos=[[87,10],[92,15],[87,23],[92,28],[87,36],[92,41],[87,49]];
+ const anchorX=44.34,anchorY=89.63;
+
+ function tag(id,s,x,y,dx=4,dy=2){
+   let e=document.getElementById(id);
+   if(!e){e=document.createElement('span');e.id=id;e.className='coordTag';wrap.appendChild(e)}
+   e.textContent=s;e.style.left=`calc(${x}% + ${dx}px)`;e.style.top=`calc(${y}% + ${dy}px)`;
+ }
+ function placeCards(){
+   const W=wrap.clientWidth,H=wrap.clientHeight,cards=[...group.querySelectorAll('.card')];
+   cards.forEach((c,i)=>{if(!pos[i])return;let [x,y]=pos[i];
+     c.style.setProperty('left',(W*x/100-anchorX)+'px','important');
+     c.style.setProperty('top',(H*y/100-anchorY)+'px','important');
+   });
+   tag('ybl','y_bl=10',87,10,4,-13);tag('xbl','x_bl=87',87,10,4,2);
+   tag('ybr','y_br=15',92,15,4,-13);tag('xbr','x_br=92',92,15,4,2);
+   tag('xs','x_s=20',20,35,4,2);tag('xm','x_m=60',60,35,4,2);tag('yb','yb=35',20,35,4,-13);
+   tag('xl','center=40',40,35,4,-13);tag('xr','center=80',80,35,4,-13);
+ }
+
+ /* CSS left値の推測ではなく、実際のgetBoundingClientRect中心を測って目標へ反復補正 */
+ function centerArrow(id,targetPct){
+   const el=document.getElementById(id); if(!el)return;
+   const wr=wrap.getBoundingClientRect();
+   el.style.setProperty('transform','none','important');
+   el.style.setProperty('left','0px','important');
+   requestAnimationFrame(()=>{
+     const r0=el.getBoundingClientRect();
+     const desired=wr.left+wr.width*targetPct/100;
+     const newLeft=desired-(r0.left+r0.width/2)+parseFloat(getComputedStyle(el).left||0);
+     el.style.setProperty('left',newLeft+'px','important');
+   });
+ }
+
+ /* 初期状態を明示的に「MoveBoxは空、7カードは群」にする。
+    描画関数より後に複数回適用して、既存初期化による薄緑復活を上書きする。 */
+ function emptyMoveBox(){
+   try{
+     if(typeof activeIndex!=='undefined') activeIndex=-1;
+     if(typeof cells!=='undefined') cells=[];
+     if(typeof activeColor!=='undefined') activeColor=null;
+     if(typeof transferred!=='undefined') transferred=false;
+     document.querySelectorAll('#group .card').forEach(c=>{
+       c.classList.remove('move-active');
+       c.style.removeProperty('opacity');
+       c.style.removeProperty('filter');
+     });
+     if(typeof draw==='function') draw();
+   }catch(e){}
+ }
+
+ function apply(){
+   placeCards();
+   /* v191: disabled old asynchronous arrow correction */
+   /* v191: disabled old asynchronous arrow correction */
+   emptyMoveBox();
+ }
+ setTimeout(apply,0);
+ setTimeout(apply,80);
+ setTimeout(apply,250);
+ window.addEventListener('resize',()=>setTimeout(apply,0));
+});
+</script>
+
+
+<style id="v191-note-style">
+#v191Note{position:absolute;right:5px;bottom:4px;z-index:6000;font:10px monospace;
+background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
+</style>
+<div id="v191Note">v191 BOX size ×1.30</div>
+
+
+<style id="v191-clean-display">
+/* 座標・目盛表示は非表示。v170-v191の定義はコード内に残してあるので再表示可能 */
+.coordTag,#coordParams{display:none!important}
+
+/* 位置リセット: 左矢印中心 x=40 の下、y=45 */
+#resetView{
+  position:absolute!important;
+  left:40%!important;
+  top:45%!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:1007!important;
+}
+
+/* BOX名称 */
+.boxName{
+  position:absolute; transform:translate(-50%,-50%);
+  z-index:5000; pointer-events:none;
+  font-weight:700; font-size:16px; white-space:nowrap;
+}
+#storageName{left:20%;top:60%}
+#moveName{left:60%;top:60%}
+</style>
+<div id="storageName" class="boxName">収納BOX</div>
+<div id="moveName" class="boxName">移動BOX</div>
+
+
+
+
+
+
+
+<script id="v191-initial-empty-by-return-action">
+(function(){
+  window.addEventListener('load', function(){
+    function clearByExistingReturn(){
+      const back=document.getElementById('returnToGroup');
+      if(back){
+        back.click();
+        /* The frame must remain visible even though the active block is gone. */
+        const mb=document.getElementById('moveBoxArea');
+        if(mb) mb.style.display='flex';
+        const st=document.querySelector('.storage');
+        if(st) st.style.display='block';
+      }
+    }
+    /* Run after the legacy startup has drawn its default light-green block. */
+    setTimeout(clearByExistingReturn, 180);
+  });
+})();
+</script>
+
+
+<style id="v191-ui">
+/* BOX名は画面座標 y=60 に固定 */
+#storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+#moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+
+/* 位置リセット */
+#resetView{background:#d9efff!important}
+
+/* 説明文字 */
+#rotateHint,#groupHint{
+ position:absolute;z-index:5000;pointer-events:none;white-space:nowrap;
+ transform:translate(-50%,-50%);
+}
+#rotateHint{
+ left:40%;top:50%;
+ font-size:13px;
+}
+#groupHint{
+ left:90%;top:60%;
+ font-size:15px;font-weight:600;
+}
+</style>
+<div id="rotateHint">枠の外をクリックしてぐりぐり回す</div>
+
+
+
+
+
+<style id="v191-position-fix">
+#rotateHint,#storageName,#moveName{position:absolute!important;margin:0!important;z-index:5000!important;pointer-events:none!important;white-space:nowrap!important}
+#rotateHint{left:40%!important;top:55%!important;transform:translate(-50%,-50%)!important;font-size:13px!important}
+#storageName{left:20%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+#moveName{left:60%!important;top:60%!important;transform:translate(-50%,-50%)!important}
+#groupHint{display:none!important}
+</style>
+<script id="v191-place-labels-in-wrap">
+window.addEventListener('load',function(){
+ const wrap=document.querySelector('.wrap'); if(!wrap)return;
+ ['rotateHint','storageName','moveName'].forEach(function(id){
+   const e=document.getElementById(id);
+   if(e && e.parentElement!==wrap) wrap.appendChild(e);
+ });
+ const gh=document.getElementById('groupHint'); if(gh)gh.remove();
+});
+</script>
+
+
+
+
+
+<style id="v191-arrow-centers">
+/* 外周目盛座標で矢印の「見た目の中心」を x=40,80 に固定 */
+#transferArrow{
+  left:40%!important;
+  transform:translate(-50%,-50%)!important;
+}
+#returnToGroup{
+  left:80%!important;
+  transform:translate(-50%,-50%)!important;
+}
+</style>
+<script id="v191-arrow-centers-js">
+(function(){
+ function placeArrows(){
+   const wrap=document.querySelector('.wrap'); if(!wrap)return;
+   ['transferArrow','returnToGroup'].forEach(function(id){
+     const e=document.getElementById(id);
+     if(e && e.parentElement!==wrap) wrap.appendChild(e);
+   });
+ }
+ window.addEventListener('load',placeArrows);
+})();
+</script>
+
+
+<style id="v191-arrow-final">
+#transferArrow{left:40%!important;top:35%!important;transform:translate(-50%,-50%)!important}
+#returnToGroup{left:80%!important;top:35%!important;transform:translate(-50%,-50%)!important}
+</style>
+<script id="v191-arrow-parent-final">
+window.addEventListener('load',function(){
+ const wrap=document.querySelector('.wrap'); if(!wrap)return;
+ ['transferArrow','returnToGroup'].forEach(function(id){
+   const e=document.getElementById(id);
+   if(e && e.parentElement!==wrap) wrap.appendChild(e);
+ });
+});
+</script>
+
+
+<script id="v191-arrow-from-boxes">
+(function(){
+ function putArrowCenter(el, desiredViewportX){
+   const wrap=document.querySelector('.wrap');
+   if(!wrap || !el)return;
+   /* 現在の見た目中心と目標との差を、wrapの実表示幅から%へ換算して補正 */
+   const wr=wrap.getBoundingClientRect();
+   const er=el.getBoundingClientRect();
+   const current=(er.left+er.right)/2;
+   const delta=desiredViewportX-current;
+   const old=parseFloat(getComputedStyle(el).left) || 0;
+   const localWidth=wrap.offsetWidth || 1;
+   const scale=wr.width/localWidth || 1;
+   el.style.setProperty('left',(old + delta/scale)+'px','important');
+ }
+ function place(){
+   const s=document.querySelector('.storage');
+   const m=document.getElementById('moveBoxArea');
+   const l=document.getElementById('transferArrow');
+   const r=document.getElementById('returnToGroup');
+   if(!s||!m||!l||!r)return;
+
+   const sr=s.getBoundingClientRect(), mr=m.getBoundingClientRect();
+   const sx=(sr.left+sr.right)/2;
+   const mx=(mr.left+mr.right)/2;
+   const leftTarget=(sx+mx)/2;
+   const rightTarget=2*mx-leftTarget;
+
+   putArrowCenter(l,leftTarget);
+   putArrowCenter(r,rightTarget);
+ }
+ window.addEventListener('load',function(){
+   [50,200,600].forEach(ms=>setTimeout(place,ms));
+ });
+ window.addEventListener('resize',()=>setTimeout(place,80));
+ window.addEventListener('orientationchange',()=>setTimeout(place,200));
+})();
+</script>
+
+
+
+
+
+<style id="v236-recorder-style">
+#recordPanel{position:absolute;left:3%;right:3%;top:62%;z-index:6500;box-sizing:border-box;
+ background:rgba(255,255,255,.96);border:1px solid #aab6c4;border-radius:10px;
+ padding:9px 14px;font:14px/1.4 sans-serif;text-align:left;color:#233244;box-shadow:0 2px 10px #0000000b}
+#recordPanel .recordTitle{font-size:16px;font-weight:700;margin-bottom:6px}
+#recordPanel .recordButtons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#recordPanel button,#recordPanel a{font:inherit;cursor:pointer;border:1px solid #74869b;border-radius:6px;background:#fff;padding:5px 10px;color:#1e344a}
+#recordPanel button:disabled{opacity:.4;cursor:default}
+#recordPanel #recordStart{background:#e5f5ea;border-color:#469264}
+#recordPanel #recordStatus{font-size:13px;margin-top:5px;color:#526274}
+@media(max-height:450px){#recordPanel{top:60%;padding:5px 8px;font-size:12px}#recordPanel .recordTitle{font-size:13px;margin-bottom:3px}#recordPanel button{padding:2px 5px}}
+</style>
+<div id="recordPanel" role="region" aria-label="操作記録モード">
+ <div class="recordTitle">操作記録モード　<span style="font-weight:400;font-size:12px">v239 カクカク・コマ送り試写</span></div>
+ <div class="recordButtons">
+  <button id="recordStart" type="button">● 記録開始</button>
+  <button id="recordStop" type="button" disabled>■ 記録終了</button>
+  <button id="recordPlay" type="button" disabled>▶ 自動再生</button>
+  <button id="recordSave" type="button" disabled>記録を保存</button>
+  <button id="recordReset" type="button">記録を消去</button>
+  <a href="index.html">表紙へ</a>
+ </div>
+ <div id="recordStatus" aria-live="polite">「記録開始」後、ブロックを選び、回転・移動・収納してください</div>
+</div>
+<script id="v236-recorder-js">
+(function(){
+ const $=id=>document.getElementById(id);
+ const start=$('recordStart'),stop=$('recordStop'),play=$('recordPlay'),save=$('recordSave'),reset=$('recordReset'),status=$('recordStatus');
+ let recording=false,playing=false,frames=[],startedAt=0,timers=[];
+ function ui(){start.disabled=recording||playing;stop.disabled=!recording;play.disabled=recording||playing||frames.length<2;save.disabled=recording||!frames.length;reset.disabled=playing;}
+ function sample(){
+   if(!recording||playing||!window.puzzleRecordBridge)return;
+   const s=window.puzzleRecordBridge.capture();
+   const old=frames.length?frames[frames.length-1].state:null;
+   if(old && JSON.stringify(old)===JSON.stringify(s))return;
+   frames.push({ms:Math.round(performance.now()-startedAt),state:s});
+   status.textContent='記録中：'+(frames.length-1)+' 操作状態を記録しました';
+ }
+ start.addEventListener('click',()=>{frames=[];recording=true;startedAt=performance.now();sample();ui();status.textContent='記録中：通常どおり操作してください';});
+ stop.addEventListener('click',()=>{sample();recording=false;ui();status.textContent='記録終了：'+frames.length+' 状態を保存しました。「自動再生」で確認できます';});
+ // The original game may replace its canvases, so listen on document, not a canvas.
+ document.addEventListener('click',e=>{if(!e.target.closest('#recordPanel'))setTimeout(sample,50);},true);
+ document.addEventListener('pointerup',e=>{if(!e.target.closest('#recordPanel'))setTimeout(sample,50);},true);
+ document.addEventListener('pointercancel',()=>setTimeout(sample,50),true);
+ play.addEventListener('click',()=>{
+   if(frames.length<2||playing)return;
+   playing=true;ui();status.textContent='自動再生中…';
+   // Preserve the recorded rhythm, with a short minimum pause for legibility.
+   let elapsed=0;
+   frames.forEach((frame,i)=>{
+     if(i){elapsed+=Math.max(350,Math.min(1800,frame.ms-frames[i-1].ms));}
+     timers.push(setTimeout(()=>{
+       if(window.puzzleRecordBridge)window.puzzleRecordBridge.restore(frame.state);
+       status.textContent='自動再生：'+(i+1)+' / '+frames.length;
+       if(i===frames.length-1){playing=false;timers=[];ui();status.textContent='再生終了：'+frames.length+' 状態';}
+     },elapsed+150));
+   });
+ });
+ save.addEventListener('click',()=>{
+   const blob=new Blob([JSON.stringify({format:'puzzle-v236-record',frames},null,2)],{type:'application/json'});
+   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='puzzle_operation_record.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ });
+ reset.addEventListener('click',()=>{recording=false;frames=[];ui();status.textContent='記録を消去しました';});
+ ui();
+})();
+</script>
+
+<style id="v237-demo-css">
+#recordPanel{top:62%}
+#demoPanel{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;border-top:1px solid #bcc8d2;padding-top:7px}
+#demoPanel button{background:#e5efff;border:1px solid #547aaf;border-radius:6px;padding:5px 12px;font:inherit;cursor:pointer}
+#demoPanel select{font:inherit;padding:4px}
+#demoProgress{font-size:13px;color:#344b65}
+</style>
+<script id="v237-demo-data" type="application/json">{"format":"puzzle-v236-record","frames":[{"ms":0,"state":{"activeIndex":-1,"transferred":true,"cells":[[2,0,2],[1,0,2],[0,0,2],[2,0,1]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[]}},{"ms":4661,"state":{"activeIndex":0,"transferred":false,"cells":[[2,0,2],[1,0,2],[2,0,1]],"activeColor":[0.47058823529411764,0.788235294117647,0.4823529411764706,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[]}},{"ms":8208,"state":{"activeIndex":0,"transferred":false,"cells":[[1,0,2],[0,0,2],[1,0,1]],"activeColor":[0.47058823529411764,0.788235294117647,0.4823529411764706,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[]}},{"ms":10241,"state":{"activeIndex":0,"transferred":false,"cells":[[0,0,1],[0,0,0],[1,0,1]],"activeColor":[0.47058823529411764,0.788235294117647,0.4823529411764706,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[]}},{"ms":13190,"state":{"activeIndex":0,"transferred":false,"cells":[[0,0,2],[0,0,1],[1,0,2]],"activeColor":[0.47058823529411764,0.788235294117647,0.4823529411764706,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[]}},{"ms":14309,"state":{"activeIndex":0,"transferred":false,"cells":[[1,0,2],[1,0,1],[2,0,2]],"activeColor":[0.47058823529411764,0.788235294117647,0.4823529411764706,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[]}},{"ms":16725,"state":{"activeIndex":0,"transferred":true,"cells":[[1,0,2],[1,0,1],[2,0,2]],"activeColor":[0.47058823529411764,0.788235294117647,0.4823529411764706,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]}]}},{"ms":20442,"state":{"activeIndex":1,"transferred":false,"cells":[[2,0,2],[1,0,2],[0,0,2],[2,0,1]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]}]}},{"ms":24340,"state":{"activeIndex":1,"transferred":false,"cells":[[2,0,1],[1,0,1],[0,0,1],[2,0,0]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]}]}},{"ms":25907,"state":{"activeIndex":1,"transferred":false,"cells":[[1,0,0],[1,0,1],[1,0,2],[0,0,0]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]}]}},{"ms":29308,"state":{"activeIndex":1,"transferred":false,"cells":[[0,0,1],[1,0,1],[2,0,1],[0,0,2]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]}]}},{"ms":31408,"state":{"activeIndex":1,"transferred":false,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]}]}},{"ms":36491,"state":{"activeIndex":1,"transferred":true,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"activeColor":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":42659,"state":{"activeIndex":2,"transferred":false,"cells":[[2,0,2],[1,0,2],[1,0,1],[0,0,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":47275,"state":{"activeIndex":2,"transferred":false,"cells":[[2,0,2],[1,0,2],[1,0,1],[0,0,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":52045,"state":{"activeIndex":2,"transferred":false,"cells":[[2,2,2],[2,1,2],[2,1,1],[2,0,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":56125,"state":{"activeIndex":2,"transferred":false,"cells":[[2,2,0],[2,2,1],[2,1,1],[2,1,2]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":64675,"state":{"activeIndex":2,"transferred":false,"cells":[[0,2,0],[0,2,1],[1,2,1],[1,2,2]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":67858,"state":{"activeIndex":2,"transferred":false,"cells":[[0,0,0],[0,1,0],[1,1,0],[1,2,0]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":74941,"state":{"activeIndex":2,"transferred":false,"cells":[[0,0,1],[0,1,1],[1,1,1],[1,2,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":79690,"state":{"activeIndex":2,"transferred":false,"cells":[[1,0,0],[1,1,0],[1,1,1],[1,2,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":83308,"state":{"activeIndex":2,"transferred":false,"cells":[[0,0,1],[0,1,1],[1,1,1],[1,2,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":83959,"state":{"activeIndex":2,"transferred":false,"cells":[[1,0,2],[1,1,2],[1,1,1],[1,2,1]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":87374,"state":{"activeIndex":2,"transferred":false,"cells":[[1,0,1],[1,1,1],[1,1,0],[1,2,0]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":89995,"state":{"activeIndex":2,"transferred":false,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]}]}},{"ms":95224,"state":{"activeIndex":2,"transferred":true,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9922760410662839,-0.0012229148876858095,0.12404339081548162,0.005193786348508103,0.9994841360420114,-0.031693633173235494,-0.12394064268508087,0.03209308772198519,0.9917705131789709],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":103641,"state":{"activeIndex":2,"transferred":true,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"activeColor":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1],"viewR":[0.9079179802812567,-0.4068268128748859,-0.10088055019710457,0.37622561336627436,0.8970843866726529,-0.23171942308602123,0.184768040876063,0.17242838372556601,0.9675377116973831],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":111557,"state":{"activeIndex":4,"transferred":false,"cells":[[2,0,2],[1,0,2],[2,0,1],[2,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":115206,"state":{"activeIndex":4,"transferred":false,"cells":[[2,0,2],[1,0,2],[2,0,1],[2,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":117707,"state":{"activeIndex":4,"transferred":false,"cells":[[1,0,2],[0,0,2],[1,0,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":119890,"state":{"activeIndex":4,"transferred":false,"cells":[[0,0,1],[0,0,0],[1,0,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":128575,"state":{"activeIndex":4,"transferred":false,"cells":[[1,0,2],[0,0,2],[1,0,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":129792,"state":{"activeIndex":4,"transferred":false,"cells":[[2,0,1],[2,0,2],[1,0,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":131674,"state":{"activeIndex":4,"transferred":false,"cells":[[1,0,0],[2,0,0],[1,0,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":135525,"state":{"activeIndex":4,"transferred":false,"cells":[[2,1,0],[2,2,0],[2,1,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":137092,"state":{"activeIndex":4,"transferred":false,"cells":[[1,2,0],[0,2,0],[1,2,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":138159,"state":{"activeIndex":4,"transferred":false,"cells":[[0,1,0],[0,0,0],[0,1,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":140451,"state":{"activeIndex":4,"transferred":false,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]}]}},{"ms":145559,"state":{"activeIndex":4,"transferred":true,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.9749039290561521,-0.013579607788256867,-0.22221143841664653,-0.016896159407180932,0.9907459159727187,-0.1346738645048288,0.22198389335302043,0.13504859953252002,0.9656526429602624],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]}]}},{"ms":157051,"state":{"activeIndex":4,"transferred":true,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"activeColor":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1],"viewR":[0.666408109954935,-0.5917024102672651,0.45363916130577014,0.6668309059529542,0.7451699666148287,-0.007633067614581397,-0.33352177418011936,0.3075873510714567,0.8911527633400357],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]}]}},{"ms":158859,"state":{"activeIndex":5,"transferred":false,"cells":[[2,0,2],[1,0,2],[0,0,2],[1,0,1]],"activeColor":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]}]}},{"ms":163660,"state":{"activeIndex":5,"transferred":false,"cells":[[2,0,1],[1,0,1],[0,0,1],[1,0,0]],"activeColor":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]}]}},{"ms":166108,"state":{"activeIndex":5,"transferred":false,"cells":[[2,1,0],[1,1,0],[0,1,0],[1,2,0]],"activeColor":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]}]}},{"ms":173559,"state":{"activeIndex":5,"transferred":false,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"activeColor":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]}]}},{"ms":176875,"state":{"activeIndex":5,"transferred":true,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"activeColor":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]}]}},{"ms":184759,"state":{"activeIndex":5,"transferred":true,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"activeColor":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1],"viewR":[0.9375909314698704,-0.033972994495716016,-0.3460766979593658,-0.05073750790515763,0.9712009283359397,-0.23279704055459743,0.3440188229109533,0.23582746329551876,0.9088654779661077],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]}]}},{"ms":187942,"state":{"activeIndex":6,"transferred":false,"cells":[[2,0,2],[1,0,2],[2,0,1],[1,0,1]],"activeColor":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]}]}},{"ms":191143,"state":{"activeIndex":6,"transferred":false,"cells":[[2,1,2],[1,1,2],[2,1,1],[1,1,1]],"activeColor":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]}]}},{"ms":192409,"state":{"activeIndex":6,"transferred":false,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"activeColor":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]}]}},{"ms":194326,"state":{"activeIndex":6,"transferred":true,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"activeColor":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":198692,"state":{"activeIndex":6,"transferred":true,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"activeColor":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1],"viewR":[0.46798394816150934,-0.21134152493879643,-0.8580942745990737,-0.35530338121633065,0.8440559425430288,-0.4016579056287076,0.8091665660167926,0.4928532496538299,0.319914274058301],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":200931,"state":{"activeIndex":6,"transferred":true,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"activeColor":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1],"viewR":[0.08150484131360736,-0.42851916473564117,-0.8998490352813143,-0.5211318224338933,0.7512792488335889,-0.4049705099371597,0.8495755319506149,0.5019470248206499,-0.16208207730814755],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":202542,"state":{"activeIndex":3,"transferred":false,"cells":[[2,0,2],[1,0,2],[2,0,1],[2,1,2]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":210126,"state":{"activeIndex":3,"transferred":false,"cells":[[2,0,1],[1,0,1],[2,0,0],[2,1,1]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":214709,"state":{"activeIndex":3,"transferred":false,"cells":[[2,1,0],[1,1,0],[2,2,0],[2,1,1]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":216542,"state":{"activeIndex":3,"transferred":false,"cells":[[2,2,1],[1,2,1],[2,2,2],[2,1,1]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":222176,"state":{"activeIndex":3,"transferred":false,"cells":[[1,2,0],[1,2,1],[2,2,0],[1,1,0]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":225226,"state":{"activeIndex":3,"transferred":false,"cells":[[1,2,2],[1,1,2],[2,2,2],[1,2,1]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":227859,"state":{"activeIndex":3,"transferred":false,"cells":[[0,2,2],[0,1,2],[1,2,2],[0,2,1]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":229260,"state":{"activeIndex":3,"transferred":false,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":239396,"state":{"activeIndex":3,"transferred":false,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[0.7578608338768503,-0.5312671006276302,-0.3786848614167129,0.5131148665648574,0.8438464546246762,-0.15695953213323746,0.4029393132788262,-0.07535535022855074,0.9121192252147282],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]}]}},{"ms":242644,"state":{"activeIndex":3,"transferred":true,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[0.7578608338768503,-0.5312671006276302,-0.3786848614167129,0.5131148665648574,0.8438464546246762,-0.15695953213323746,0.4029393132788262,-0.07535535022855074,0.9121192252147282],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]},{"index":3,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"color":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1]}]}},{"ms":254324,"state":{"activeIndex":3,"transferred":true,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[0.5595470853103877,-0.19948018840834963,-0.8044344061222244,-0.2581245490121354,0.8803857439574541,-0.3978600998262456,0.7875777907723958,0.4302657275092192,0.44112654331045253],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]},{"index":3,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"color":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1]}]}},{"ms":256192,"state":{"activeIndex":3,"transferred":true,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"activeColor":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1],"viewR":[1,0,0,0,1,0,0,0,1],"storedBlocks":[{"index":0,"cells":[[1,0,2],[1,0,1],[2,0,2]],"color":[0.47058823529411764,0.788235294117647,0.4823529411764706,1]},{"index":1,"cells":[[0,1,2],[1,1,2],[2,1,2],[0,2,2]],"color":[0.9411764705882353,0.8117647058823529,0.23921568627450981,1]},{"index":2,"cells":[[2,0,1],[2,1,1],[2,1,0],[2,2,0]],"color":[0.9411764705882353,0.12549019607843137,0.12549019607843137,1]},{"index":4,"cells":[[0,0,1],[0,0,2],[0,1,1],[1,1,1]],"color":[0.5843137254901961,0.3843137254901961,0.7098039215686275,1]},{"index":5,"cells":[[2,0,0],[1,0,0],[0,0,0],[1,1,0]],"color":[0.35294117647058826,0.6078431372549019,0.9176470588235294,1]},{"index":6,"cells":[[2,2,2],[1,2,2],[2,2,1],[1,2,1]],"color":[0.4392156862745098,0.27058823529411763,0.1843137254901961,1]},{"index":3,"cells":[[0,2,0],[0,1,0],[0,2,1],[1,2,0]],"color":[0.1568627450980392,0.47843137254901963,0.25882352941176473,1]}]}}]}</script>
+<script id="v239-demo-js">
+(function(){
+ const panel=document.getElementById('recordPanel');
+ const p=document.createElement('div');p.id='demoPanel';
+ p.innerHTML='<strong>完成記録のコマ送り試写</strong><button id="demoPlay">▶ 再生</button><button id="demoPause" disabled>一時停止</button><button id="demoRestart">最初から</button><label>速さ <select id="demoSpeed"><option value="1">標準</option><option value="2" selected>2倍</option><option value="4">4倍</option></select></label><span id="demoProgress">64状態・ブロックの形を保つコマ送り</span>';
+ panel.appendChild(p);
+ const frames=JSON.parse(document.getElementById('v237-demo-data').textContent).frames;
+ const $=id=>document.getElementById(id),play=$('demoPlay'),pause=$('demoPause'),restart=$('demoRestart'),speed=$('demoSpeed'),label=$('demoProgress');
+ let playing=false,index=0,last=0,acc=0,handle=0;
+ // Never interpolate cube positions: restore only exact recorded integer-coordinate states.
+ // Each frame is one rigid, completed manipulation, creating a clear click-by-click feel.
+ const baseStep=750;
+ function show(i){
+   index=i;
+   window.puzzleRecordBridge.restore(frames[index].state);
+   const t=frames[index].ms;
+   label.textContent='記録 '+(index+1)+' / '+frames.length+' 状態　'+Math.floor(t/60000)+'分'+String(Math.floor(t/1000)%60).padStart(2,'0')+'秒';
+ }
+ function tick(now){
+   if(!playing)return;
+   acc+=Math.min(100,now-last)*Number(speed.value);last=now;
+   while(acc>=baseStep&&index<frames.length-1){acc-=baseStep;show(index+1);}
+   if(index===frames.length-1){playing=false;play.disabled=false;pause.disabled=true;label.textContent+='　完成！';return;}
+   handle=requestAnimationFrame(tick);
+ }
+ play.addEventListener('click',()=>{if(playing)return;if(index===frames.length-1)show(0);playing=true;last=performance.now();play.disabled=true;pause.disabled=false;handle=requestAnimationFrame(tick);});
+ pause.addEventListener('click',()=>{playing=false;cancelAnimationFrame(handle);play.disabled=false;pause.disabled=true;});
+ restart.addEventListener('click',()=>{playing=false;cancelAnimationFrame(handle);acc=0;show(0);play.disabled=false;pause.disabled=true;});
+ show(0);
+})();
+</script>
+</body></html>
