@@ -268,12 +268,17 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
  html,body{margin-left:0!important;margin-right:0!important;overflow-x:hidden!important;}
 }
 </style>
-<style>#recordPanel{display:none!important}</style></head><body>
+<style>#recordPanel{display:none!important}</style><style id="v254-bilingual-box-labels">
+#storageName,#moveName{font-size:clamp(12px,1.35vw,16px)!important;font-weight:700!important;white-space:nowrap!important}
+#resetView .resetEnglish{display:block;font-size:11px;font-weight:500;line-height:1.1;white-space:nowrap}
+#resetView{white-space:nowrap!important;text-align:center!important;line-height:1.15!important;padding:3px 8px!important}
+</style>
+</head><body>
 <div class="wrap">
 <div id="v144Version">v236 操作記録</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
-  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">位置リセット</button>
+  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">正規位置へ<span class="resetEnglish">(normal position)</span></button>
   <div id="returnToGroup" class="bigFlowArrow rightFlowArrow" role="button" tabindex="0" aria-label="ブロック群へ戻す">→</div>
 </div>
 <div id="overlapMsg" style="display:none;position:relative;z-index:1003;text-align:center;font-size:20px;font-weight:bold;margin:-28px auto 8px">重なっています</div>
@@ -1589,8 +1594,8 @@ background:rgba(255,255,255,.72);padding:2px 4px;pointer-events:none}
 #storageName{left:20%;top:60%}
 #moveName{left:60%;top:60%}
 </style>
-<div id="storageName" class="boxName">収納BOX</div>
-<div id="moveName" class="boxName">移動BOX</div>
+<div id="storageName" class="boxName">収納(storage)BOX</div>
+<div id="moveName" class="boxName">移動(moving)BOX</div>
 
 
 
@@ -1842,6 +1847,63 @@ window.addEventListener('load',function(){
     // Ensure a fresh six-block starting point on each page load.
   }
   window.addEventListener('load',()=>setTimeout(initializeTrial,450));
+})();
+</script>
+
+<style id="v246-three-column-help-style">
+/* v248: guide percentages, 3 columns; explicitly sized text */
+#rotateHint{display:none!important}
+#v246Help{position:absolute!important;left:0!important;top:63%!important;width:100%!important;height:37%!important;z-index:8000!important;pointer-events:none!important;font-family:system-ui,Meiryo,sans-serif!important;color:#080808!important;font-size:clamp(19px,2vw,25px)!important;font-weight:800!important;line-height:1.45!important;text-align:left!important}
+#v246Help .helpCol{position:absolute!important;top:0!important;bottom:0!important;box-sizing:border-box!important;padding:8px 7px!important;overflow-wrap:anywhere!important;white-space:normal!important;color:#080808!important}
+#v246Help .helpLeft{left:0!important;width:35%!important;text-align:center!important;font-size:clamp(19px,2.1vw,26px)!important;font-weight:800!important}
+#v246Help .helpMiddle{left:36%!important;width:46%!important;font-size:clamp(14px,1.34vw,17px)!important;font-weight:750!important;line-height:1.30!important;padding-top:3px!important;padding-bottom:2px!important}
+#v246Help .helpRight{left:83%!important;width:17%!important;text-align:center!important;font-size:clamp(15px,1.55vw,19px)!important;font-weight:800!important;line-height:1.5!important}
+#v246Help .helpMiddle p{margin:0 0 3px!important;color:#101010!important;font-size:inherit!important;font-weight:inherit!important}
+#v246Help .helpRight p:first-child{white-space:nowrap!important;letter-spacing:-.04em!important}
+#v246Help .helpRight p{margin:0 0 9px!important;color:#080808!important;font-size:inherit!important;font-weight:inherit!important}
+</style>
+<div id="v246Help" aria-label="操作説明">
+ <div class="helpCol helpLeft">⑦ブロックをクリック⇒へ</div>
+ <div class="helpCol helpMiddle">
+  <p>②枠の外をドラッグしてぐりぐり回す⇒視点が変わる</p>
+  <p>③ブロックをドラッグして辺に平行に動かす⇒1個分動く（6方向）</p>
+  <p>④<svg width="23" height="17" viewBox="0 0 34 24" aria-label="青い回転矢印" role="img" style="display:inline-block;vertical-align:-3px;margin:0 2px"><path d="M31 12 L5 2 L9 9 L5 22 Z" fill="#1478ff" stroke="#0757b8" stroke-width="1.5"/></svg>矢印をクリックする⇒BOXの中心周りで90度回転する（6方向）</p>
+  <p>⑤BOX左の矢印をクリックする⇒収納BOXへ</p>
+  <p>⑥BOX右の矢印をクリックする⇒元へ戻る</p>
+ </div>
+ <div class="helpCol helpRight"><p>①ブロックをクリック</p><p>←へ</p></div>
+</div>
+<script id="v246-help-in-wrap">(function(){var w=document.querySelector('.wrap'),h=document.getElementById('v246Help');if(w&&h&&h.parentElement!==w)w.appendChild(h);})();</script>
+<style id="v253-english-guide-style">
+#v246Help.guideEnglish .helpRight p:first-child{white-space:normal!important;letter-spacing:normal!important}
+#v246Help.guideEnglish .helpRight{font-size:clamp(12px,1.25vw,16px)!important;line-height:1.3!important}
+#v246Help.guideEnglish .helpLeft{font-size:clamp(12px,1.25vw,16px)!important;line-height:1.3!important}
+#v246Help.guideEnglish .helpMiddle{font-size:clamp(12px,1.2vw,16px)!important;line-height:1.27!important}
+</style>
+<script id="v253-language-guide">
+(function(){
+  function selectedLanguage(){
+    try {const p=new URLSearchParams(location.search).get('lang');if(p==='en'||p==='ja')return p;
+      return localStorage.getItem('puzzleLanguage')==='en'?'en':'ja';}
+    catch(e){return 'ja';}
+  }
+  const guide=document.getElementById('v246Help');if(!guide)return;
+  const lang=selectedLanguage();document.documentElement.lang=lang;
+  if(lang!=='en')return;
+  guide.setAttribute('aria-label','Game instructions');
+  const left=guide.querySelector('.helpLeft');
+  const middle=guide.querySelectorAll('.helpMiddle p');
+  const right=guide.querySelectorAll('.helpRight p');
+  if(left)left.textContent='⑦ Click a block to return it to the moving box.';
+  const enTexts=["② Drag outside the box to rotate your view.", "③ Drag a block parallel to an edge to move it one cube (6 directions).", "④ Click the blue arrow to rotate 90° around the box center (6 directions).", "⑤ Click the left arrow to move the block into the storage box.", "⑥ Click the right arrow to return the block to its original position."];
+  middle.forEach((p,i)=>{
+    if(i===2){const arrow=p.querySelector('svg');p.textContent='④ ';if(arrow){arrow.setAttribute('aria-label','Blue rotation arrow');p.appendChild(arrow)}p.appendChild(document.createTextNode(' Click the arrow to rotate 90° around the box center (6 directions).'));}
+    else if(enTexts[i])p.textContent=enTexts[i];
+  });
+  if(right.length>0)right[0].textContent='① Click a block';
+  if(right.length>1)right[1].textContent='← to move it here';
+  // English words need room in the narrow right-hand column.
+  guide.classList.add('guideEnglish');
 })();
 </script>
 </body></html>
