@@ -278,16 +278,17 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 <div id="v144Version">v236 操作記録</div><div id="webglDiag"></div><div id="groupPrompt">ブロックをタップ</div><div class="xyGuide" aria-hidden="true"><span class="origin">0,0</span><span class="vline" style="left:10%"></span><span class="hline" style="top:10%"></span><span class="xlabel" style="left:10%">10</span><span class="ylabel" style="top:10%">10</span><span class="vline" style="left:20%"></span><span class="hline" style="top:20%"></span><span class="xlabel" style="left:20%">20</span><span class="ylabel" style="top:20%">20</span><span class="vline" style="left:30%"></span><span class="hline" style="top:30%"></span><span class="xlabel" style="left:30%">30</span><span class="ylabel" style="top:30%">30</span><span class="vline" style="left:40%"></span><span class="hline" style="top:40%"></span><span class="xlabel" style="left:40%">40</span><span class="ylabel" style="top:40%">40</span><span class="vline" style="left:50%"></span><span class="hline" style="top:50%"></span><span class="xlabel" style="left:50%">50</span><span class="ylabel" style="top:50%">50</span><span class="vline" style="left:60%"></span><span class="hline" style="top:60%"></span><span class="xlabel" style="left:60%">60</span><span class="ylabel" style="top:60%">60</span><span class="vline" style="left:70%"></span><span class="hline" style="top:70%"></span><span class="xlabel" style="left:70%">70</span><span class="ylabel" style="top:70%">70</span><span class="vline" style="left:80%"></span><span class="hline" style="top:80%"></span><span class="xlabel" style="left:80%">80</span><span class="ylabel" style="top:80%">80</span><span class="vline" style="left:90%"></span><span class="hline" style="top:90%"></span><span class="xlabel" style="left:90%">90</span><span class="ylabel" style="top:90%">90</span><span class="xlabel" style="left:98%;top:3px">100</span><span class="ylabel" style="top:98%;left:3px">100</span><span class="axisX">x →</span><span class="axisY">y ↓</span></div><div class="headerSpacer" aria-hidden="true"></div><div id="group" class="group"></div>
 <div id="moveBoxArea" class="moveboxWrap"><div class="moveStage"><canvas id="moveBox" width="500" height="525"></canvas><canvas id="moveArrows" width="500" height="525"></canvas></div></div>
 <div style="position:static;z-index:1002">
-  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">正規位置へ<span class="resetEnglish">(normal position)</span></button>
+  <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">初期位置<span class="resetEnglish">(base position)</span></button>
   <div id="returnToGroup" class="bigFlowArrow rightFlowArrow" role="button" tabindex="0" aria-label="ブロック群へ戻す">→</div>
 </div>
 <div id="overlapMsg" style="display:none;position:relative;z-index:1003;text-align:center;font-size:20px;font-weight:bold;margin:-28px auto 8px">重なっています</div>
 <div id="transferArrow" class="bigFlowArrow leftFlowArrow" role="button" tabindex="0" aria-label="収納BOXへ移動">←</div>
-<div id="completionMsg" style="display:none;text-align:center;font-size:36px;font-weight:bold;margin:8px auto 4px">完成です！！</div>
+<div id="completionMsg" style="display:none;text-align:center;font-size:clamp(18px,2.4vw,36px);font-weight:bold;margin:8px auto 4px;white-space:nowrap">完成です！！<div id="answerIdMsg" style="font-size:clamp(13px,1.6vw,23px);font-weight:700;margin-top:3px"></div></div>
 <div class="storage" style="position:relative;width:420px;height:440px;max-width:96vw">
 <canvas id="storageGL" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%"></canvas>
 <canvas id="storageAxes" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
 </div></div>
+<script src="answer_ids.js"></script>
 <script>
 
 const blockDefs=[
@@ -407,6 +408,24 @@ for(const bs of rows){
  group.appendChild(row);
 }
 
+// v260: Determine exact BASIC answer ID from the 27 occupied cells.
+function updateAnswerId(){
+  const label=document.getElementById('answerIdMsg');
+  if(!label)return;
+  const cells27=Array(27).fill(0);
+  if(storedBlocks.length!==7){label.textContent='';return;}
+  for(const sb of storedBlocks){
+    if(sb.index<0||sb.index>6){label.textContent='';return;}
+    for(const [x,y,z] of sb.cells){
+      if(!Number.isInteger(x)||!Number.isInteger(y)||!Number.isInteger(z)||x<0||x>2||y<0||y>2||z<0||z>2){label.textContent='';return;}
+      const i=9*z+3*y+x;
+      if(cells27[i]){label.textContent='';return;}
+      cells27[i]=sb.index+1;
+    }
+  }
+  const id=window.PUZZLE_ANSWER_IDS?.[cells27.join('')];
+  label.textContent=id?'解答ID = '+id:'解答IDを照合できません';
+}
 let storedBlocks=[];
 let storedCells=null;
 let storedColor=[.47,.79,.48,1];
@@ -1021,6 +1040,7 @@ function drawMoveBox(){
        const all=storedBlocks.flatMap(sb=>sb.cells);
        const unique=new Set(all.map(q=>q.join(',')));
        completionMsg.style.display=(all.length===27 && unique.size===27 && all.every(q=>q.every(v=>v>=0&&v<=2)))?'block':'none';
+       if(completionMsg.style.display==='block')updateAnswerId();
      }
      const om=document.getElementById('overlapMsg');if(om)om.style.display='none';
      document.body.classList.add('moveMode');
@@ -1063,7 +1083,7 @@ function drawMoveBox(){
      }
    }
    const completionMsg=document.getElementById('completionMsg');
-   if(completionMsg) completionMsg.style.display=(allInside && completedCells.size===27)?'block':'none';
+   if(completionMsg){ completionMsg.style.display=(allInside && completedCells.size===27)?'block':'none'; if(completionMsg.style.display==='block')updateAnswerId(); }
    transferred=true;
    storedBlockIndices.add(activeIndex);
    const storedCard=group.querySelector('.card[data-block-index="'+activeIndex+'"]');
