@@ -1954,7 +1954,7 @@ window.addEventListener('load',function(){
 #v246Help .helpRight p{margin:0 0 9px!important;color:#080808!important;font-size:inherit!important;font-weight:inherit!important}
 </style>
 <div id="v246Help" aria-label="操作説明">
- <div class="helpCol helpLeft">⑦ブロックをクリック⇒へ</div>
+ <div class="helpCol helpLeft"><p class="leftGuide7">⑦ブロックをクリック⇒へ</p><p class="leftGuide8">⑧「Help me🤷‍♀️」をクリックすると、移動boxのブロックが解に向かって収納boxへ移る</p></div>
  <div class="helpCol helpMiddle">
   <p>②枠の外をドラッグしてぐりぐり回す⇒視点が変わる</p>
   <p>③ブロックをドラッグして辺に平行に動かす⇒1個分動く（6方向）</p>
@@ -1985,7 +1985,7 @@ window.addEventListener('load',function(){
   const left=guide.querySelector('.helpLeft');
   const middle=guide.querySelectorAll('.helpMiddle p');
   const right=guide.querySelectorAll('.helpRight p');
-  if(left)left.textContent='⑦ Click a block to return it to the moving box.';
+  if(left){const p7=left.querySelector('.leftGuide7'),p8=left.querySelector('.leftGuide8');if(p7)p7.textContent='⑦ Click a block to return it to the moving box.';if(p8)p8.textContent='⑧ Click Help me🤷‍♀️ to place the moving block correctly in the storage box.';}
   const enTexts=["② Drag outside the box to rotate your view.", "③ Drag a block parallel to an edge to move it one cube (6 directions).", "④ Click the blue arrow to rotate 90° around the box center (6 directions).", "⑤ Click the left arrow to move the block into the storage box.", "⑥ Click the right arrow to return the block to its original position."];
   middle.forEach((p,i)=>{
     if(i===2){const arrow=p.querySelector('svg');p.textContent='④ ';if(arrow){arrow.setAttribute('aria-label','Blue rotation arrow');p.appendChild(arrow)}p.appendChild(document.createTextNode(' Click the arrow to rotate 90° around the box center (6 directions).'));}
@@ -1998,4 +1998,22 @@ window.addEventListener('load',function(){
 })();
 </script>
 <script>updateRemainingSolutions();</script>
+
+<style id="v263-left-guide-style">
+/* Left instructions: same type size as center, 5px left inset. */
+#v246Help .helpLeft,#v246Help.guideEnglish .helpLeft{font-size:clamp(14px,1.34vw,17px)!important;line-height:1.30!important;text-align:left!important;padding-left:5px!important;padding-top:3px!important;font-weight:750!important}
+#v246Help.guideEnglish .helpLeft{font-size:clamp(12px,1.2vw,16px)!important;line-height:1.27!important}
+#v246Help .helpLeft p{position:absolute!important;left:5px!important;right:7px!important;margin:0!important;font-size:inherit!important;line-height:inherit!important;font-weight:inherit!important}
+</style>
+<script id="v263-align-left-guide">
+(function(){
+ const guide=document.getElementById('v246Help');if(!guide)return;
+ const left=guide.querySelector('.helpLeft'),middle=guide.querySelector('.helpMiddle');
+ if(!left||!middle)return;
+ const lines=left.querySelectorAll('p'),refs=middle.querySelectorAll('p');
+ function align(){for(let i=0;i<2;i++){if(lines[i]&&refs[i])lines[i].style.top=(refs[i].getBoundingClientRect().top-left.getBoundingClientRect().top)+'px';}}
+ align();window.addEventListener('resize',align);
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(align);
+})();
+</script>
 </body></html>
