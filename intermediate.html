@@ -2016,4 +2016,15 @@ window.addEventListener('load',function(){
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(align);
 })();
 </script>
+
+<style id="v264-guide-layout">
+/* x/y are 0..100 of the entire game frame, not pixels. */
+#v246Help .helpLeft{left:0!important;width:40%!important;color:#101010!important;font-weight:750!important;}
+#v246Help .helpMiddle{left:40%!important;width:45%!important;}
+#v246Help .helpRight{left:85%!important;width:15%!important;}
+#v246Help .helpLeft p{left:12.5%!important;right:2%!important;color:#101010!important;opacity:1!important;font-weight:750!important;}
+#v246Help .helpLeft::after,#v246Help .helpMiddle::after{content:"";position:absolute;right:0;top:0;bottom:0;border-right:1px solid rgba(70,80,90,.35);pointer-events:none;}
+</style>
+
+<style id="v264-hide-developer-grid">.xyGuide,.coordTag,#coordParams{display:none!important}</style>
 </body></html>

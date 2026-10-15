@@ -1957,4 +1957,15 @@ window.addEventListener('load',function(){
 <div id="v241home" style="position:fixed;right:12px;top:10px;z-index:10000;background:#fff;border:1px solid #889;padding:5px 12px;border-radius:6px;font:14px sans-serif"><a href="index.html">← 表紙へ戻る</a></div>
 <script id="v241-autoplay">window.addEventListener('load',()=>{setTimeout(()=>{const b=document.getElementById('demoPlay');if(b&&!b.disabled)b.click();},700);});</script>
 <script>updateRemainingSolutions();</script>
+
+<style id="v264-guide-layout">
+/* x/y are 0..100 of the entire game frame, not pixels. */
+#v246Help .helpLeft{left:0!important;width:40%!important;color:#101010!important;font-weight:750!important;}
+#v246Help .helpMiddle{left:40%!important;width:45%!important;}
+#v246Help .helpRight{left:85%!important;width:15%!important;}
+#v246Help .helpLeft p{left:12.5%!important;right:2%!important;color:#101010!important;opacity:1!important;font-weight:750!important;}
+#v246Help .helpLeft::after,#v246Help .helpMiddle::after{content:"";position:absolute;right:0;top:0;bottom:0;border-right:1px solid rgba(70,80,90,.35);pointer-events:none;}
+</style>
+
+<style id="v264-hide-developer-grid">.xyGuide,.coordTag,#coordParams{display:none!important}</style>
 </body></html>
