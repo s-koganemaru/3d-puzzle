@@ -288,10 +288,11 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
   <button id="resetView" type="button" style="position:absolute;left:calc(50% - 205px);top:-113px;font-size:20px;padding:7px 12px;cursor:pointer;background:#fff;border:1px solid #777;border-radius:5px">初期位置<span class="resetEnglish">(base position)</span></button>
   <div id="returnToGroup" class="bigFlowArrow rightFlowArrow" role="button" tabindex="0" aria-label="ブロック群へ戻す">→</div>
 </div>
-<div id="remainingSolutionsPanel" aria-live="polite"><span>このまま進むと後</span><span id="remainingSolutionsCount">8088</span><span>種類の解答</span><button type="button" id="helpMeButton">Help me🤷‍♀️</button><span id="helpMeStatus" aria-live="polite"></span></div>
+<div id="remainingSolutionsPanel" aria-live="polite"><span>Ans. remain</span><button type="button" id="remainingSolutionsCount" aria-label="Show remaining solutions" aria-pressed="false">?</button></div>
+<button type="button" id="helpMeButton">Help me🤷‍♀️</button><span id="helpMeStatus" aria-live="polite"></span>
 <div id="overlapMsg" style="display:none;position:relative;z-index:1003;text-align:center;font-size:20px;font-weight:bold;margin:-28px auto 8px">重なっています</div>
 <div id="transferArrow" class="bigFlowArrow leftFlowArrow" role="button" tabindex="0" aria-label="収納BOXへ移動">←</div>
-<div id="completionMsg" style="display:none;text-align:center;font-size:clamp(18px,2.4vw,36px);font-weight:bold;margin:8px auto 4px;white-space:nowrap">完成です！！<div id="answerIdMsg" style="font-size:clamp(13px,1.6vw,23px);font-weight:700;margin-top:3px"></div></div>
+<div id="completionMsg" style="display:none;text-align:center;font-size:clamp(18px,2.4vw,36px);font-weight:bold;margin:8px auto 4px;white-space:nowrap"><span class="completionCheck" role="img" aria-label="Completed">✓</span><div id="answerIdMsg" style="font-size:clamp(13px,1.6vw,23px);font-weight:700;margin-top:3px"></div></div>
 <div class="storage" style="position:relative;width:420px;height:440px;max-width:96vw">
 <canvas id="storageGL" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%"></canvas>
 <canvas id="storageAxes" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
@@ -432,25 +433,29 @@ function updateAnswerId(){
     }
   }
   const id=window.PUZZLE_ANSWER_IDS?.[cells27.join('')];
-  label.textContent=id?'解答ID = '+id:'解答IDを照合できません';
+  label.textContent=id?'Ans.ID = '+id:'Ans.ID = ?';
 }
 
 // v261: Number of the 8088 full solutions compatible with all blocks in storage.
 // Only stored blocks are fixed; a block still in the moving box is not fixed.
 const v261Solutions = Object.keys(window.PUZZLE_ANSWER_IDS || {});
+let remainingCountValue=8088;
 function updateRemainingSolutions(){
+  const display=document.getElementById('remainingSolutionsCount');
+  if(display){display.textContent='?';display.setAttribute('aria-pressed','false');}
+  function setCount(value){remainingCountValue=value;}
   const label=document.getElementById('remainingSolutionsCount');
   if(!label)return;
   const fixed=Array(27).fill(0);
   const seenBlocks=new Set();
   for(const sb of storedBlocks){
     const id=sb.index+1;
-    if(id<1||id>7||seenBlocks.has(id)){label.textContent='0';return;}
+    if(id<1||id>7||seenBlocks.has(id)){setCount(0);return;}
     seenBlocks.add(id);
     for(const [x,y,z] of sb.cells){
-      if(!Number.isInteger(x)||!Number.isInteger(y)||!Number.isInteger(z)||x<0||x>2||y<0||y>2||z<0||z>2){label.textContent='0';return;}
+      if(!Number.isInteger(x)||!Number.isInteger(y)||!Number.isInteger(z)||x<0||x>2||y<0||y>2||z<0||z>2){setCount(0);return;}
       const pos=9*z+3*y+x;
-      if(fixed[pos] && fixed[pos]!==id){label.textContent='0';return;}
+      if(fixed[pos] && fixed[pos]!==id){setCount(0);return;}
       fixed[pos]=id;
     }
   }
@@ -461,8 +466,13 @@ function updateRemainingSolutions(){
     for(const [i,id] of requirements)if(solution[i]!==id)continue outer;
     count++;
   }
-  label.textContent=String(count);
+  setCount(count);
 }
+
+document.getElementById('remainingSolutionsCount')?.addEventListener('click',function(){
+  if(this.textContent.trim()==='?'){this.textContent=String(remainingCountValue);this.setAttribute('aria-pressed','true');}
+  else{this.textContent='?';this.setAttribute('aria-pressed','false');}
+});
 
 let storedBlocks=[];
 let storedCells=null;
@@ -1969,7 +1979,7 @@ window.addEventListener('load',function(){
 #v246Help .helpRight p{margin:0 0 9px!important;color:#080808!important;font-size:inherit!important;font-weight:inherit!important}
 </style>
 <div id="v246Help" aria-label="操作説明">
- <div class="helpCol helpLeft"><p class="leftGuide7">⑦ブロックをクリック⇒へ</p><p class="leftGuide8">⑧「Help me🤷‍♀️」をクリックすると、移動boxのブロックが解に向かって収納boxへ移る</p></div>
+ <div class="helpCol helpLeft"><p class="leftGuide7">⑦ブロックをクリック⇒へ</p><p class="leftGuide8">⑧ Ans. remain の「？」をクリックすると残りの解答種類数を表示</p><p class="leftGuide9">⑨「Help me🤷‍♀️」をクリックすると、移動boxのブロックが解に向かって収納boxへ移る</p></div>
  <div class="helpCol helpMiddle">
   <p>②枠の外をドラッグしてぐりぐり回す⇒視点が変わる</p>
   <p>③ブロックをドラッグして辺に平行に動かす⇒1個分動く（6方向）</p>
@@ -2000,7 +2010,7 @@ window.addEventListener('load',function(){
   const left=guide.querySelector('.helpLeft');
   const middle=guide.querySelectorAll('.helpMiddle p');
   const right=guide.querySelectorAll('.helpRight p');
-  if(left){const p7=left.querySelector('.leftGuide7'),p8=left.querySelector('.leftGuide8');if(p7)p7.textContent='⑦ Click a block to return it to the moving box.';if(p8)p8.textContent='⑧ Click Help me🤷‍♀️ to place the moving block correctly in the storage box.';}
+  if(left){const p7=left.querySelector('.leftGuide7'),p8=left.querySelector('.leftGuide8');if(p7)p7.textContent='⑦ Click a block to return it to the moving box.';if(p8)p8.textContent='⑧ Click ? under Ans. remain to show the number of solutions left.';const p9=left.querySelector('.leftGuide9');if(p9)p9.textContent='⑨ Click Help me🤷‍♀️ to place the moving block correctly in the storage box.';}
   const enTexts=["② Drag outside the box to rotate your view.", "③ Drag a block parallel to an edge to move it one cube (6 directions).", "④ Click the blue arrow to rotate 90° around the box center (6 directions).", "⑤ Click the left arrow to move the block into the storage box.", "⑥ Click the right arrow to return the block to its original position."];
   middle.forEach((p,i)=>{
     if(i===2){const arrow=p.querySelector('svg');p.textContent='④ ';if(arrow){arrow.setAttribute('aria-label','Blue rotation arrow');p.appendChild(arrow)}p.appendChild(document.createTextNode(' Click the arrow to rotate 90° around the box center (6 directions).'));}
@@ -2026,7 +2036,7 @@ window.addEventListener('load',function(){
  const left=guide.querySelector('.helpLeft'),middle=guide.querySelector('.helpMiddle');
  if(!left||!middle)return;
  const lines=left.querySelectorAll('p'),refs=middle.querySelectorAll('p');
- function align(){for(let i=0;i<2;i++){if(lines[i]&&refs[i])lines[i].style.top=(refs[i].getBoundingClientRect().top-left.getBoundingClientRect().top)+'px';}}
+ function align(){for(let i=0;i<3;i++){if(lines[i]&&refs[i])lines[i].style.top=(refs[i].getBoundingClientRect().top-left.getBoundingClientRect().top)+'px';}}
  align();window.addEventListener('resize',align);
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(align);
 })();
@@ -2042,4 +2052,16 @@ window.addEventListener('load',function(){
 </style>
 
 <style id="v264-hide-developer-grid">.xyGuide,.coordTag,#coordParams{display:none!important}</style>
+
+<style id="v265-final-layout">
+/* Common Japanese/English game display. x uses 0..100 game-frame coordinates. */
+#v246Help .helpLeft p{left:2.5%!important;right:2%!important;color:#101010!important;opacity:1!important;font-weight:750!important;}
+#v246Help .helpLeft::after,#v246Help .helpMiddle::after{display:none!important;content:none!important;}
+#remainingSolutionsCount{pointer-events:auto!important;cursor:pointer!important;color:#222!important;font-family:inherit!important;font-weight:800!important;}
+#remainingSolutionsCount:hover{background:#f2f6fa!important;}
+#helpMeButton{position:absolute!important;left:32.5%!important;top:70%!important;transform:translateX(-50%)!important;z-index:1009!important;font-size:clamp(10px,1.1vw,13px)!important;font-weight:600!important;padding:2px 5px!important;color:#526579!important;background:#f8f8f8!important;border-color:#aaa!important;white-space:nowrap!important;}
+#helpMeStatus{position:absolute!important;left:32.5%!important;top:75%!important;transform:translateX(-50%)!important;z-index:1009!important;pointer-events:none!important;}
+.completionCheck{display:block;font-size:clamp(28px,3.5vw,46px);color:#178447;font-weight:900;line-height:1.1;}
+#v144Version,#versionBadge{display:none!important;}
+</style>
 </body></html>
