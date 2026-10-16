@@ -292,7 +292,7 @@ body:not(.moveMode) #returnToGroup{display:flex!important;}
 <button type="button" id="helpMeButton">Help me🤷‍♀️</button><span id="helpMeStatus" aria-live="polite"></span>
 <div id="overlapMsg" style="display:none;position:relative;z-index:1003;text-align:center;font-size:20px;font-weight:bold;margin:-28px auto 8px">重なっています</div>
 <div id="transferArrow" class="bigFlowArrow leftFlowArrow" role="button" tabindex="0" aria-label="収納BOXへ移動">←</div>
-<div id="completionMsg" style="display:none;text-align:center;font-size:clamp(18px,2.4vw,36px);font-weight:bold;margin:8px auto 4px;white-space:nowrap"><span class="completionCheck" role="img" aria-label="Completed">✓</span><div id="answerIdMsg" style="font-size:clamp(13px,1.6vw,23px);font-weight:700;margin-top:3px"></div></div>
+<div id="completionMsg" style="display:none;text-align:center;font-size:clamp(18px,2.4vw,36px);font-weight:bold;margin:8px auto 4px;white-space:nowrap"><span class="completionCheck" role="img" aria-label="Completed">✌️</span><div id="answerIdMsg" style="font-size:clamp(13px,1.6vw,23px);font-weight:700;margin-top:3px"></div></div>
 <div class="storage" style="position:relative;width:420px;height:440px;max-width:96vw">
 <canvas id="storageGL" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%"></canvas>
 <canvas id="storageAxes" width="500" height="525" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
@@ -440,7 +440,9 @@ function updateAnswerId(){
 // Only stored blocks are fixed; a block still in the moving box is not fixed.
 const v261Solutions = Object.keys(window.PUZZLE_ANSWER_IDS || {});
 let remainingCountValue=8088;
+let remainingHideTimer=null;
 function updateRemainingSolutions(){
+  if(remainingHideTimer!==null){clearTimeout(remainingHideTimer);remainingHideTimer=null;}
   const display=document.getElementById('remainingSolutionsCount');
   if(display){display.textContent='?';display.setAttribute('aria-pressed','false');}
   function setCount(value){remainingCountValue=value;}
@@ -470,8 +472,15 @@ function updateRemainingSolutions(){
 }
 
 document.getElementById('remainingSolutionsCount')?.addEventListener('click',function(){
-  if(this.textContent.trim()==='?'){this.textContent=String(remainingCountValue);this.setAttribute('aria-pressed','true');}
-  else{this.textContent='?';this.setAttribute('aria-pressed','false');}
+  // Recalculate at the instant of clicking, independently of any earlier cache.
+  updateRemainingSolutions();
+  this.textContent=String(remainingCountValue);
+  this.setAttribute('aria-pressed','true');
+  if(remainingHideTimer!==null)clearTimeout(remainingHideTimer);
+  remainingHideTimer=setTimeout(()=>{
+    this.textContent='?';this.setAttribute('aria-pressed','false');
+    remainingHideTimer=null;
+  },1000);
 });
 
 let storedBlocks=[];
@@ -2044,9 +2053,30 @@ window.addEventListener('load',function(){
 #v246Help .helpLeft::after,#v246Help .helpMiddle::after{display:none!important;content:none!important;}
 #remainingSolutionsCount{pointer-events:auto!important;cursor:pointer!important;color:#222!important;font-family:inherit!important;font-weight:800!important;}
 #remainingSolutionsCount:hover{background:#f2f6fa!important;}
-#helpMeButton{position:absolute!important;left:32.5%!important;top:70%!important;transform:translateX(-50%)!important;z-index:1009!important;font-size:clamp(10px,1.1vw,13px)!important;font-weight:600!important;padding:2px 5px!important;color:#526579!important;background:#f8f8f8!important;border-color:#aaa!important;white-space:nowrap!important;}
-#helpMeStatus{position:absolute!important;left:32.5%!important;top:75%!important;transform:translateX(-50%)!important;z-index:1009!important;pointer-events:none!important;}
+#helpMeButton{position:absolute!important;left:40%!important;top:55%!important;transform:translateX(-50%)!important;z-index:1009!important;font-size:clamp(10px,1.1vw,13px)!important;font-weight:600!important;padding:2px 5px!important;color:#526579!important;background:#f8f8f8!important;border-color:#aaa!important;white-space:nowrap!important;}
+#helpMeStatus{position:absolute!important;left:40%!important;top:60%!important;transform:translateX(-50%)!important;z-index:1009!important;pointer-events:none!important;}
 .completionCheck{display:block;font-size:clamp(28px,3.5vw,46px);color:#178447;font-weight:900;line-height:1.1;}
 #v144Version,#versionBadge{display:none!important;}
 </style>
+<script id="v266-help-under-reset">
+(function(){
+ const reset=document.getElementById('resetView');
+ const help=document.getElementById('helpMeButton');
+ const status=document.getElementById('helpMeStatus');
+ const wrap=document.querySelector('.wrap');
+ if(!reset||!help||!wrap)return;
+ function positionHelp(){
+   const rr=reset.getBoundingClientRect(),wr=wrap.getBoundingClientRect();
+   const x=rr.left+rr.width/2-wr.left;
+   const y=rr.bottom-wr.top+7;
+   help.style.setProperty('left',x+'px','important');
+   help.style.setProperty('top',y+'px','important');
+   if(status){status.style.setProperty('left',x+'px','important');status.style.setProperty('top',(y+help.offsetHeight+3)+'px','important');}
+ }
+ positionHelp();
+ window.addEventListener('resize',positionHelp);
+ window.addEventListener('orientationchange',positionHelp);
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(positionHelp);
+})();
+</script>
 </body></html>
