@@ -2103,40 +2103,106 @@ window.addEventListener('load',function(){
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(positionHelp);
 })();
 </script>
-<script id="swim-step1-controller">
+<style id="swim-step2-style">
+#swimViewportPanel{display:none;position:fixed;z-index:99999;left:50%;bottom:78px;transform:translateX(-50%);width:min(660px,96vw);max-height:65vh;overflow:auto;background:#fff;border:2px solid #397b9a;border-radius:10px;padding:8px;box-shadow:0 5px 18px #0003;text-align:center;font:13px system-ui,sans-serif}
+body.swimActive #swimViewportPanel{display:block}
+#swimView{display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
+#swimControls{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:7px auto}
+#swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
+#swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
+</style>
+<div id="swimViewportPanel"><strong id="swimViewTitle">収納box内部からの眺め</strong><canvas id="swimView" width="280" height="158"></canvas>
+<div id="swimControls">
+<button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
+<button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
+</div><div id="swimMessage"></div></div>
+<script id="swim-step2-controller">
 (function(){
-  const button=document.getElementById('swimSwitch');
-  const label=document.getElementById('swimModeLabel');
-  const status=document.getElementById('swimStatus');
-  const home=document.getElementById('swimHome');
-  const english=new URLSearchParams(location.search).get('lang')==='en';
-  home.href='index.html?lang='+(english?'en':'ja');
-  home.textContent=english?'Cover':'表紙へ';
-  let swimming=false;
-  function start(){
-    const occupied=new Set();
-    for(const block of storedBlocks)for(const cell of block.cells)occupied.add(cell.join(','));
-    const free=[];
-    for(let x=0;x<3;x++)for(let y=0;y<3;y++)for(let z=0;z<3;z++){
-      if(!occupied.has([x,y,z].join(',')))free.push([x,y,z]);
-    }
-    if(!free.length){status.textContent=english?'No empty space to start.':'空き空間がありません。';return;}
-    free.sort((a,b)=>a.reduce((s,v)=>s+(v-1)**2,0)-b.reduce((s,v)=>s+(v-1)**2,0));
-    const pos=free[0];
-    swimming=true;
-    document.body.classList.add('swimActive');
-    label.textContent=english?'Swim mode':'遊泳モード';
-    button.textContent=english?'Back to placement':'配置に戻る';
-    status.textContent=(english?'Initial viewpoint: ':'視点初期位置：')+'('+pos.join(', ')+') '+(english?'(movement in next step)':'（移動は次の段階）');
+ const button=document.getElementById('swimSwitch'),label=document.getElementById('swimModeLabel'),status=document.getElementById('swimStatus'),home=document.getElementById('swimHome');
+ const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
+ const english=new URLSearchParams(location.search).get('lang')==='en';
+ home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
+ if(english){document.getElementById('swimViewTitle').textContent='View from inside storage box';
+  const words=['X+','X−','Y+','Y−','Z+','Z−','Look left','Look right','Look up','Look down'];
+  document.querySelectorAll('[data-swim]').forEach((el,i)=>el.textContent=words[i]);}
+ let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
+ const bound=(v,a,b)=>Math.min(b,Math.max(a,v));
+ function collision(p){
+  const radius=.13;
+  if(p.some(v=>v<-.5+radius||v>2.5-radius))return true;
+  return solids.some(cell=>cell.every((v,i)=>p[i]>v-.5-radius&&p[i]<v+.5+radius));
+ }
+ function rayBox(o,d,min,max){
+  let near=-Infinity,far=Infinity,axis=-1,sgn=1;
+  for(let i=0;i<3;i++){
+   if(Math.abs(d[i])<1e-9){if(o[i]<min[i]||o[i]>max[i])return null;continue;}
+   let t1=(min[i]-o[i])/d[i],t2=(max[i]-o[i])/d[i];
+   const sign=t1<t2?-1:1;
+   if(t1>t2)[t1,t2]=[t2,t1];
+   if(t1>near){near=t1;axis=i;sgn=sign;}
+   far=Math.min(far,t2);if(far<near)return null;
   }
-  function stop(){
-    swimming=false;
-    document.body.classList.remove('swimActive');
-    label.textContent=english?'Placement mode':'配置モード';
-    button.textContent=english?'Start swimming':'遊泳開始';
-    status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';
+  return {near,far,axis,sgn};
+ }
+ function render(){
+  const w=canvas.width,h=canvas.height,im=ctx.createImageData(w,h),data=im.data;
+  const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+  const forward=[sy*cp,sp,cy*cp],right=[cy,0,-sy],up=[-sy*sp,cp,-cy*sp];
+  const wallMin=[-.5,-.5,-.5],wallMax=[2.5,2.5,2.5];
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+   const u=(px+.5-w/2)/(h*.95),v=(h/2-py-.5)/(h*.95);
+   let d=[0,1,2].map(i=>forward[i]+u*right[i]+v*up[i]);
+   const inv=1/Math.hypot(...d);d=d.map(q=>q*inv);
+   let best=Infinity,hit=null,axis=0,sign=1;
+   for(const block of solids){
+    const r=rayBox(pos,d,block.map(q=>q-.5),block.map(q=>q+.5));
+    if(r&&r.near>0.001&&r.near<best){best=r.near;hit=block;axis=r.axis;sign=r.sgn;}
+   }
+   if(!hit){const r=rayBox(pos,d,wallMin,wallMax);if(r){best=r.far;axis=0;for(let i=0;i<3;i++)if(Math.abs(pos[i]+d[i]*best-wallMin[i])<.002||Math.abs(pos[i]+d[i]*best-wallMax[i])<.002)axis=i;}}
+   const point=pos.map((q,i)=>q+d[i]*best);
+   const frac=q=>Math.abs(q-Math.round(q));
+   const other=[0,1,2].filter(i=>i!==axis);
+   const edge=other.some(i=>frac(point[i]+.5)<.018)||other.some(i=>frac(point[i]-.5)<.018);
+   let rgb;
+   if(hit){
+    const sb=storedBlocks.find(block=>block.cells.some(cell=>cell.every((v,i)=>v===hit[i])));
+    const c=sb?.color||[.7,.7,.7];const shade=[.82,.95,.72][axis]*(1-.08*best);
+    rgb=c.slice(0,3).map(q=>Math.round(255*q*shade));
+    if(edge)rgb=rgb.map(q=>Math.round(q*.33));
+   }else{
+    const shade=[.95,.99,.91][axis];rgb=[236,246,252].map(q=>Math.round(q*shade));
+    if(edge)rgb=[117,150,168];
+   }
+   const k=(py*w+px)*4;data[k]=rgb[0];data[k+1]=rgb[1];data[k+2]=rgb[2];data[k+3]=255;
   }
-  button.addEventListener('click',()=>swimming?stop():start());
-  stop();
+  ctx.putImageData(im,0,0);
+  ctx.strokeStyle='#1e5269';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w/2-6,h/2);ctx.lineTo(w/2+6,h/2);ctx.moveTo(w/2,h/2-6);ctx.lineTo(w/2,h/2+6);ctx.stroke();
+  status.textContent=(english?'Viewpoint: ':'視点位置：')+'('+pos.map(v=>v.toFixed(2)).join(', ')+')';
+ }
+ function start(){
+  solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
+  const candidates=[];for(let x=0;x<3;x++)for(let y=0;y<3;y++)for(let z=0;z<3;z++)candidates.push([x,y,z]);
+  candidates.sort((a,b)=>a.reduce((s,v)=>s+(v-1)**2,0)-b.reduce((s,v)=>s+(v-1)**2,0));
+  const free=candidates.find(p=>!collision(p));
+  if(!free){status.textContent=english?'No free starting point.':'視点を置ける空間がありません。';return;}
+  pos=[...free];yaw=0;pitch=0;swimming=true;
+  document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
+  message.textContent=english?'Move the viewpoint with X/Y/Z buttons.':'X・Y・Zのボタンで視点を移動します。';render();
+ }
+ function stop(){swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
+ button.addEventListener('click',()=>swimming?stop():start());
+ document.querySelectorAll('[data-swim]').forEach(b=>b.addEventListener('click',()=>{
+  if(!swimming)return;const a=b.dataset.swim;
+  if(a==='left')yaw-=Math.PI/12;else if(a==='right')yaw+=Math.PI/12;
+  else if(a==='up')pitch=bound(pitch+Math.PI/12,-Math.PI*.46,Math.PI*.46);
+  else if(a==='down')pitch=bound(pitch-Math.PI/12,-Math.PI*.46,Math.PI*.46);
+  else{
+   const next=[...pos],i={xp:0,xm:0,yp:1,ym:1,zp:2,zm:2}[a],sgn=a.endsWith('p')?1:-1;
+   next[i]+=sgn*.2;
+   if(collision(next)){message.textContent=english?'Stopped: block or box boundary.':'停止：ブロックまたは収納boxの境界です。';render();return;}
+   pos=next;message.textContent=english?'Moving through empty space.':'透明空間を移動中';
+  }
+  render();
+ }));stop();
 })();
 </script></body></html>
