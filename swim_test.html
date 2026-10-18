@@ -2111,7 +2111,7 @@ body.swimActive #swimViewportPanel{display:block}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳：収納boxと移動box</strong><canvas id="swimView" width="280" height="158"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v270：収納boxと移動box</strong><canvas id="swimView" width="280" height="158"></canvas>
 <div id="swimControls">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
@@ -2122,7 +2122,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Space swim: storage and moving boxes';
+ if(english){document.getElementById('swimViewTitle').textContent='Space swim v270: storage and moving boxes';
   const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
@@ -2173,8 +2173,8 @@ body.swimActive #swimViewportPanel{display:block}
     const r=rayBox(pos,d,block.map(q=>q-.5),block.map(q=>q+.5));
     if(r){const t=r.near>.001?r.near:r.far;if(t>.001&&t<best){best=t;hit=block;axis=r.axis;}}
    }
-   // Empty space is open sky. Draw only the thin grid lines of both box frames.
-   let wireDistance=Infinity,wireAxis=0;
+   // v270: draw only the twelve outer edges of each box, with depth-tested visibility.
+   let wireDistance=Infinity;
    for(const origin of boxOrigins){
     const mn=origin.map(v=>v-.5),mx=origin.map(v=>v+2.5);
     for(let axis0=0;axis0<3;axis0++)for(const plane of [mn[axis0],mx[axis0]]){
@@ -2183,23 +2183,24 @@ body.swimActive #swimViewportPanel{display:block}
      const q=pos.map((v,i)=>v+t*d[i]);
      const other=[0,1,2].filter(i=>i!==axis0);
      if(other.some(i=>q[i]<mn[i]-.001||q[i]>mx[i]+.001))continue;
-     // Grid lines at the cell boundaries, including outer frame.
-     const onLine=other.some(i=>{
-      const local=q[i]-origin[i]+.5;
-      return Math.abs(local-Math.round(local))<Math.max(.012,t*.006);
-     });
-     if(onLine&&t<wireDistance){wireDistance=t;wireAxis=axis0;}
+     // An outer edge lies at the boundary on BOTH remaining axes.
+     // The threshold accounts for one pixel of projected line width.
+     const tolerance=Math.max(.008,t*.0045);
+     const onLine=other.every(i=>
+      Math.min(Math.abs(q[i]-mn[i]),Math.abs(q[i]-mx[i]))<tolerance
+     );
+     if(onLine&&t<wireDistance){wireDistance=t;}
     }
    }
    let rgb;
-   if(hit){
+   if(wireDistance<best){
+    const fog=Math.min(.65,wireDistance/35);rgb=[52,105,143].map((q,i)=>Math.round(q*(1-fog)+[228,241,250][i]*fog));
+   }else if(hit){
     const sb=storedBlocks.find(block=>block.cells.some(cell=>cell.every((v,i)=>v===hit[i])));
     const c=sb?.color||[.7,.7,.7],shade=[.82,.95,.72][axis]*Math.max(.5,1-.018*best);
     rgb=c.slice(0,3).map(q=>Math.round(255*q*shade));
     const point=pos.map((q,i)=>q+d[i]*best),other=[0,1,2].filter(i=>i!==axis);
     if(other.some(i=>frac(point[i]+.5)<.025||frac(point[i]-.5)<.025))rgb=rgb.map(q=>Math.round(q*.36));
-   }else if(wireDistance<Infinity){
-    const fog=Math.min(.65,wireDistance/35);rgb=[52,105,143].map((q,i)=>Math.round(q*(1-fog)+[228,241,250][i]*fog));
    }else{
     const gradient=py/h;rgb=[224+gradient*13,239+gradient*7,250-gradient*2].map(Math.round);
    }
@@ -2213,7 +2214,7 @@ body.swimActive #swimViewportPanel{display:block}
   solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   pos=findHome();yaw=0;pitch=0;swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Box frames are passable; blocks are solid.':'枠は通過できます。ブロックだけが障害物です。';render();
+  message.textContent=english?'Box frames are passable; blocks are solid.':'v270：外枠12本のみ表示。枠は通過可能、ブロックは通過不可。';render();
  }
  function stop(){swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  button.addEventListener('click',()=>swimming?stop():start());
