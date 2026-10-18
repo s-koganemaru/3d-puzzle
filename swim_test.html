@@ -2111,7 +2111,7 @@ body.swimActive #swimViewportPanel{display:block}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v270：収納boxと移動box</strong><canvas id="swimView" width="280" height="158"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v270a：収納boxと移動box</strong><canvas id="swimView" width="280" height="158"></canvas>
 <div id="swimControls">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
@@ -2122,7 +2122,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Space swim v270: storage and moving boxes';
+ if(english){document.getElementById('swimViewTitle').textContent='Space swim v270a: storage and moving boxes';
   const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
@@ -2186,7 +2186,7 @@ body.swimActive #swimViewportPanel{display:block}
      // An outer edge lies at the boundary on BOTH remaining axes.
      // The threshold accounts for one pixel of projected line width.
      const tolerance=Math.max(.008,t*.0045);
-     const onLine=other.every(i=>
+     const onLine=other.some(i=>
       Math.min(Math.abs(q[i]-mn[i]),Math.abs(q[i]-mx[i]))<tolerance
      );
      if(onLine&&t<wireDistance){wireDistance=t;}
