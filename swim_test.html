@@ -2103,7 +2103,7 @@ window.addEventListener('load',function(){
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(positionHelp);
 })();
 </script>
-<style id="swim-step2-style">
+<style id="swim-step3-style">
 #swimViewportPanel{display:none;position:fixed;z-index:99999;left:50%;bottom:78px;transform:translateX(-50%);width:min(660px,96vw);max-height:65vh;overflow:auto;background:#fff;border:2px solid #397b9a;border-radius:10px;padding:8px;box-shadow:0 5px 18px #0003;text-align:center;font:13px system-ui,sans-serif}
 body.swimActive #swimViewportPanel{display:block}
 #swimView{display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
@@ -2111,67 +2111,97 @@ body.swimActive #swimViewportPanel{display:block}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">収納box内部からの眺め</strong><canvas id="swimView" width="280" height="158"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳：収納boxと移動box</strong><canvas id="swimView" width="280" height="158"></canvas>
 <div id="swimControls">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
-<button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
+<button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
 </div><div id="swimMessage"></div></div>
-<script id="swim-step2-controller">
+<script id="swim-step3-controller">
 (function(){
  const button=document.getElementById('swimSwitch'),label=document.getElementById('swimModeLabel'),status=document.getElementById('swimStatus'),home=document.getElementById('swimHome');
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='View from inside storage box';
-  const words=['X+','X−','Y+','Y−','Z+','Z−','Look left','Look right','Look up','Look down'];
-  document.querySelectorAll('[data-swim]').forEach((el,i)=>el.textContent=words[i]);}
+ if(english){document.getElementById('swimViewTitle').textContent='Space swim: storage and moving boxes';
+  const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
+  document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
+ // Both transparent boxes share a world: storage x=-0.5..2.5, moving x=6.5..9.5.
+ const boxOrigins=[[0,0,0],[7,0,0]],centers=[[1,1,1],[8,1,1]];
  const bound=(v,a,b)=>Math.min(b,Math.max(a,v));
  function collision(p){
   const radius=.13;
-  if(p.some(v=>v<-.5+radius||v>2.5-radius))return true;
   return solids.some(cell=>cell.every((v,i)=>p[i]>v-.5-radius&&p[i]<v+.5+radius));
+ }
+ function safeMove(next){
+  // Sweep in short steps so a fast move cannot tunnel through a block.
+  const dist=Math.hypot(...next.map((v,i)=>v-pos[i])),steps=Math.max(1,Math.ceil(dist/.04));
+  for(let n=1;n<=steps;n++)if(collision(pos.map((v,i)=>v+(next[i]-v)*n/steps)))return false;
+  pos=next;return true;
  }
  function rayBox(o,d,min,max){
   let near=-Infinity,far=Infinity,axis=-1,sgn=1;
   for(let i=0;i<3;i++){
    if(Math.abs(d[i])<1e-9){if(o[i]<min[i]||o[i]>max[i])return null;continue;}
-   let t1=(min[i]-o[i])/d[i],t2=(max[i]-o[i])/d[i];
-   const sign=t1<t2?-1:1;
+   let t1=(min[i]-o[i])/d[i],t2=(max[i]-o[i])/d[i];const sign=t1<t2?-1:1;
    if(t1>t2)[t1,t2]=[t2,t1];
    if(t1>near){near=t1;axis=i;sgn=sign;}
    far=Math.min(far,t2);if(far<near)return null;
   }
   return {near,far,axis,sgn};
  }
+ function aimAt(center){
+  const dx=center[0]-pos[0],dy=center[1]-pos[1],dz=center[2]-pos[2];
+  yaw=Math.atan2(dx,dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));
+ }
+ function findHome(){
+  const candidates=[];for(let x=0;x<3;x++)for(let y=0;y<3;y++)for(let z=0;z<3;z++)candidates.push([x,y,z]);
+  candidates.sort((a,b)=>a.reduce((t,v)=>t+(v-1)**2,0)-b.reduce((t,v)=>t+(v-1)**2,0));
+  return candidates.find(p=>!collision(p))||[1,1,4];
+ }
  function render(){
   const w=canvas.width,h=canvas.height,im=ctx.createImageData(w,h),data=im.data;
   const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
   const forward=[sy*cp,sp,cy*cp],right=[cy,0,-sy],up=[-sy*sp,cp,-cy*sp];
-  const wallMin=[-.5,-.5,-.5],wallMax=[2.5,2.5,2.5];
+  const frac=q=>Math.abs(q-Math.round(q));
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){
    const u=(px+.5-w/2)/(h*.95),v=(h/2-py-.5)/(h*.95);
    let d=[0,1,2].map(i=>forward[i]+u*right[i]+v*up[i]);
    const inv=1/Math.hypot(...d);d=d.map(q=>q*inv);
-   let best=Infinity,hit=null,axis=0,sign=1;
+   let best=Infinity,hit=null,axis=0;
    for(const block of solids){
     const r=rayBox(pos,d,block.map(q=>q-.5),block.map(q=>q+.5));
-    if(r&&r.near>0.001&&r.near<best){best=r.near;hit=block;axis=r.axis;sign=r.sgn;}
+    if(r){const t=r.near>.001?r.near:r.far;if(t>.001&&t<best){best=t;hit=block;axis=r.axis;}}
    }
-   if(!hit){const r=rayBox(pos,d,wallMin,wallMax);if(r){best=r.far;axis=0;for(let i=0;i<3;i++)if(Math.abs(pos[i]+d[i]*best-wallMin[i])<.002||Math.abs(pos[i]+d[i]*best-wallMax[i])<.002)axis=i;}}
-   const point=pos.map((q,i)=>q+d[i]*best);
-   const frac=q=>Math.abs(q-Math.round(q));
-   const other=[0,1,2].filter(i=>i!==axis);
-   const edge=other.some(i=>frac(point[i]+.5)<.018)||other.some(i=>frac(point[i]-.5)<.018);
+   // Empty space is open sky. Draw only the thin grid lines of both box frames.
+   let wireDistance=Infinity,wireAxis=0;
+   for(const origin of boxOrigins){
+    const mn=origin.map(v=>v-.5),mx=origin.map(v=>v+2.5);
+    for(let axis0=0;axis0<3;axis0++)for(const plane of [mn[axis0],mx[axis0]]){
+     if(Math.abs(d[axis0])<1e-8)continue;
+     const t=(plane-pos[axis0])/d[axis0];if(t<=.001||t>=best)continue;
+     const q=pos.map((v,i)=>v+t*d[i]);
+     const other=[0,1,2].filter(i=>i!==axis0);
+     if(other.some(i=>q[i]<mn[i]-.001||q[i]>mx[i]+.001))continue;
+     // Grid lines at the cell boundaries, including outer frame.
+     const onLine=other.some(i=>{
+      const local=q[i]-origin[i]+.5;
+      return Math.abs(local-Math.round(local))<Math.max(.012,t*.006);
+     });
+     if(onLine&&t<wireDistance){wireDistance=t;wireAxis=axis0;}
+    }
+   }
    let rgb;
    if(hit){
     const sb=storedBlocks.find(block=>block.cells.some(cell=>cell.every((v,i)=>v===hit[i])));
-    const c=sb?.color||[.7,.7,.7];const shade=[.82,.95,.72][axis]*(1-.08*best);
+    const c=sb?.color||[.7,.7,.7],shade=[.82,.95,.72][axis]*Math.max(.5,1-.018*best);
     rgb=c.slice(0,3).map(q=>Math.round(255*q*shade));
-    if(edge)rgb=rgb.map(q=>Math.round(q*.33));
+    const point=pos.map((q,i)=>q+d[i]*best),other=[0,1,2].filter(i=>i!==axis);
+    if(other.some(i=>frac(point[i]+.5)<.025||frac(point[i]-.5)<.025))rgb=rgb.map(q=>Math.round(q*.36));
+   }else if(wireDistance<Infinity){
+    const fog=Math.min(.65,wireDistance/35);rgb=[52,105,143].map((q,i)=>Math.round(q*(1-fog)+[228,241,250][i]*fog));
    }else{
-    const shade=[.95,.99,.91][axis];rgb=[236,246,252].map(q=>Math.round(q*shade));
-    if(edge)rgb=[117,150,168];
+    const gradient=py/h;rgb=[224+gradient*13,239+gradient*7,250-gradient*2].map(Math.round);
    }
    const k=(py*w+px)*4;data[k]=rgb[0];data[k+1]=rgb[1];data[k+2]=rgb[2];data[k+3]=255;
   }
@@ -2181,26 +2211,26 @@ body.swimActive #swimViewportPanel{display:block}
  }
  function start(){
   solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
-  const candidates=[];for(let x=0;x<3;x++)for(let y=0;y<3;y++)for(let z=0;z<3;z++)candidates.push([x,y,z]);
-  candidates.sort((a,b)=>a.reduce((s,v)=>s+(v-1)**2,0)-b.reduce((s,v)=>s+(v-1)**2,0));
-  const free=candidates.find(p=>!collision(p));
-  if(!free){status.textContent=english?'No free starting point.':'視点を置ける空間がありません。';return;}
-  pos=[...free];yaw=0;pitch=0;swimming=true;
+  pos=findHome();yaw=0;pitch=0;swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Move the viewpoint with X/Y/Z buttons.':'X・Y・Zのボタンで視点を移動します。';render();
+  message.textContent=english?'Box frames are passable; blocks are solid.':'枠は通過できます。ブロックだけが障害物です。';render();
  }
  function stop(){swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  button.addEventListener('click',()=>swimming?stop():start());
  document.querySelectorAll('[data-swim]').forEach(b=>b.addEventListener('click',()=>{
   if(!swimming)return;const a=b.dataset.swim;
-  if(a==='left')yaw-=Math.PI/12;else if(a==='right')yaw+=Math.PI/12;
+  if(a==='turn')yaw+=Math.PI;
+  else if(a==='target')aimAt(centers[0]);
+  else if(a==='targetmove')aimAt(centers[1]);
+  else if(a==='home'){pos=findHome();aimAt(centers[1]);}
+  else if(a==='left')yaw-=Math.PI/12;else if(a==='right')yaw+=Math.PI/12;
   else if(a==='up')pitch=bound(pitch+Math.PI/12,-Math.PI*.46,Math.PI*.46);
   else if(a==='down')pitch=bound(pitch-Math.PI/12,-Math.PI*.46,Math.PI*.46);
   else{
    const next=[...pos],i={xp:0,xm:0,yp:1,ym:1,zp:2,zm:2}[a],sgn=a.endsWith('p')?1:-1;
-   next[i]+=sgn*.2;
-   if(collision(next)){message.textContent=english?'Stopped: block or box boundary.':'停止：ブロックまたは収納boxの境界です。';render();return;}
-   pos=next;message.textContent=english?'Moving through empty space.':'透明空間を移動中';
+   next[i]=Math.round((next[i]+sgn*.2)*100000)/100000;
+   if(!safeMove(next)){message.textContent=english?'Stopped by a solid block.':'停止：ブロックに衝突しました。';render();return;}
+   message.textContent=english?'Swimming through open space.':'透明空間を遊泳中（枠は通過可能）';
   }
   render();
  }));stop();
