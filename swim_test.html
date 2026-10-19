@@ -2111,7 +2111,7 @@ body.swimActive #swimViewportPanel{display:block}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v270a：収納boxと移動box</strong><canvas id="swimView" width="280" height="158"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v270a：収納boxと移動box</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimControls">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
@@ -2161,11 +2161,15 @@ body.swimActive #swimViewportPanel{display:block}
  }
  function render(){
   const w=canvas.width,h=canvas.height,im=ctx.createImageData(w,h),data=im.data;
+  const depth=new Float32Array(w*h);
   const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
   const forward=[sy*cp,sp,cy*cp],right=[cy,0,-sy],up=[-sy*sp,cp,-cy*sp];
-  const frac=q=>Math.abs(q-Math.round(q));
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const f=h*.95,frac=q=>Math.abs(q-Math.round(q));
+  const cellColors=new Map();
+  for(const sb of storedBlocks)for(const c of sb.cells)cellColors.set(c.join(','),sb.color);
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){
-   const u=(px+.5-w/2)/(h*.95),v=(h/2-py-.5)/(h*.95);
+   const u=(px+.5-w/2)/f,v=(h/2-py-.5)/f;
    let d=[0,1,2].map(i=>forward[i]+u*right[i]+v*up[i]);
    const inv=1/Math.hypot(...d);d=d.map(q=>q*inv);
    let best=Infinity,hit=null,axis=0;
@@ -2173,38 +2177,75 @@ body.swimActive #swimViewportPanel{display:block}
     const r=rayBox(pos,d,block.map(q=>q-.5),block.map(q=>q+.5));
     if(r){const t=r.near>.001?r.near:r.far;if(t>.001&&t<best){best=t;hit=block;axis=r.axis;}}
    }
-   // v270: draw only the twelve outer edges of each box, with depth-tested visibility.
-   let wireDistance=Infinity;
-   for(const origin of boxOrigins){
-    const mn=origin.map(v=>v-.5),mx=origin.map(v=>v+2.5);
-    for(let axis0=0;axis0<3;axis0++)for(const plane of [mn[axis0],mx[axis0]]){
-     if(Math.abs(d[axis0])<1e-8)continue;
-     const t=(plane-pos[axis0])/d[axis0];if(t<=.001||t>=best)continue;
-     const q=pos.map((v,i)=>v+t*d[i]);
-     const other=[0,1,2].filter(i=>i!==axis0);
-     if(other.some(i=>q[i]<mn[i]-.001||q[i]>mx[i]+.001))continue;
-     // An outer edge lies at the boundary on BOTH remaining axes.
-     // The threshold accounts for one pixel of projected line width.
-     const tolerance=Math.max(.008,t*.0045);
-     const onLine=other.some(i=>
-      Math.min(Math.abs(q[i]-mn[i]),Math.abs(q[i]-mx[i]))<tolerance
-     );
-     if(onLine&&t<wireDistance){wireDistance=t;}
-    }
-   }
+   depth[py*w+px]=best;
    let rgb;
-   if(wireDistance<best){
-    const fog=Math.min(.65,wireDistance/35);rgb=[52,105,143].map((q,i)=>Math.round(q*(1-fog)+[228,241,250][i]*fog));
-   }else if(hit){
-    const sb=storedBlocks.find(block=>block.cells.some(cell=>cell.every((v,i)=>v===hit[i])));
-    const c=sb?.color||[.7,.7,.7],shade=[.82,.95,.72][axis]*Math.max(.5,1-.018*best);
+   if(hit){
+    const c=cellColors.get(hit.join(','))||[.7,.7,.7];
+    const shade=[.88,1,.78][axis]*Math.max(.64,1-.012*best);
     rgb=c.slice(0,3).map(q=>Math.round(255*q*shade));
-    const point=pos.map((q,i)=>q+d[i]*best),other=[0,1,2].filter(i=>i!==axis);
-    if(other.some(i=>frac(point[i]+.5)<.025||frac(point[i]-.5)<.025))rgb=rgb.map(q=>Math.round(q*.36));
    }else{
     const gradient=py/h;rgb=[224+gradient*13,239+gradient*7,250-gradient*2].map(Math.round);
    }
    const k=(py*w+px)*4;data[k]=rgb[0];data[k+1]=rgb[1];data[k+2]=rgb[2];data[k+3]=255;
+  }
+  // Project actual 3-D segments, instead of detecting edges with per-pixel ray thresholds.
+  // Depth-test every projected sample against the block ray-cast depth buffer.
+  function cameraPoint(p){
+   const q=p.map((v,i)=>v-pos[i]);
+   return [dot(q,right),dot(q,up),dot(q,forward)];
+  }
+  function drawEdge(A,B,color,width){
+   let a=cameraPoint(A),b=cameraPoint(B);
+   const near=.04;
+   if(a[2]<=near&&b[2]<=near)return;
+   if(a[2]<=near){const t=(near-a[2])/(b[2]-a[2]);a=a.map((v,i)=>v+(b[i]-v)*t);}
+   if(b[2]<=near){const t=(near-b[2])/(a[2]-b[2]);b=b.map((v,i)=>v+(a[i]-v)*t);}
+   const ax=w/2+f*a[0]/a[2],ay=h/2-f*a[1]/a[2];
+   const bx=w/2+f*b[0]/b[2],by=h/2-f*b[1]/b[2];
+   const length=Math.hypot(bx-ax,by-ay);
+   if(!Number.isFinite(length)||length===0)return;
+   // A line crossing the near plane can be very long; sample only its visible screen portion.
+   const steps=Math.min(12000,Math.ceil(length*2));
+   const rgb=color;
+   for(let i=0;i<=steps;i++){
+    const t=i/steps,x=ax+(bx-ax)*t,y=ay+(by-ay)*t;
+    if(x<-.5||x>=w+.5||y<-.5||y>=h+.5)continue;
+    const denom=(1-t)/a[2]+t/b[2];
+    const z=1/denom;
+    const X=z*((1-t)*a[0]/a[2]+t*b[0]/b[2]);
+    const Y=z*((1-t)*a[1]/a[2]+t*b[1]/b[2]);
+    const dist=Math.hypot(X,Y,z);
+    const ix=Math.round(x),iy=Math.round(y);
+    for(let dy=-width;dy<=width;dy++)for(let dx=-width;dx<=width;dx++){
+     const px=ix+dx,py=iy+dy;if(px<0||py<0||px>=w||py>=h)continue;
+     // A small tolerance avoids accidental self-occlusion at a solid's silhouette.
+     if(dist>depth[py*w+px]+.025)continue;
+     const k=(py*w+px)*4;
+     data[k]=rgb[0];data[k+1]=rgb[1];data[k+2]=rgb[2];data[k+3]=255;
+    }
+   }
+  }
+  function cubeEdges(mn,mx,callback){
+   for(let axis=0;axis<3;axis++){
+    const others=[0,1,2].filter(i=>i!==axis);
+    for(const i of [0,1])for(const j of [0,1]){
+     const a=[...mn],b=[...mn];
+     a[axis]=mn[axis];b[axis]=mx[axis];
+     a[others[0]]=b[others[0]]=i?mx[others[0]]:mn[others[0]];
+     a[others[1]]=b[others[1]]=j?mx[others[1]]:mn[others[1]];
+     callback(a,b);
+    }
+   }
+  }
+  // Colored block boundaries: project every unit cube edge, preserving piece divisions.
+  for(const sb of storedBlocks)for(const cell of sb.cells){
+   const mn=cell.map(q=>q-.5),mx=cell.map(q=>q+.5);
+   cubeEdges(mn,mx,(a,b)=>drawEdge(a,b,[35,37,41],0));
+  }
+  // Twelve outer edges for each transparent box. Edges behind blocks stay hidden.
+  for(const origin of boxOrigins){
+   const mn=origin.map(v=>v-.5),mx=origin.map(v=>v+2.5);
+   cubeEdges(mn,mx,(a,b)=>drawEdge(a,b,[38,88,117],1));
   }
   ctx.putImageData(im,0,0);
   ctx.strokeStyle='#1e5269';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w/2-6,h/2);ctx.lineTo(w/2+6,h/2);ctx.moveTo(w/2,h/2-6);ctx.lineTo(w/2,h/2+6);ctx.stroke();
@@ -2214,7 +2255,7 @@ body.swimActive #swimViewportPanel{display:block}
   solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   pos=findHome();yaw=0;pitch=0;swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Box frames are passable; blocks are solid.':'v270：外枠12本のみ表示。枠は通過可能、ブロックは通過不可。';render();
+  message.textContent=english?'Box frames are passable; blocks are solid.':'v271：線分投影方式。枠は通過可能、ブロックは通過不可。';render();
  }
  function stop(){swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  button.addEventListener('click',()=>swimming?stop():start());
