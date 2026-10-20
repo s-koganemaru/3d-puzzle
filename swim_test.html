@@ -2106,12 +2106,12 @@ window.addEventListener('load',function(){
 <style id="swim-step3-style">
 #swimViewportPanel{display:none;position:fixed;z-index:99999;left:50%;bottom:12px;transform:translateX(-50%);width:min(650px,98vw);max-height:92vh;overflow:auto;background:#fff;border:2px solid #397b9a;border-radius:10px;padding:8px;box-shadow:0 5px 18px #0003;text-align:center;font:13px system-ui,sans-serif}
 body.swimActive #swimViewportPanel{display:block}
-#swimView{display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
+#swimView{touch-action:none;cursor:grab;display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
 #swimControls{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:7px auto}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v276（自由移動）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v277（ドラッグ見回し）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimControls" style="display:flex">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="orbitback">◎ 中心を見る</button><button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
@@ -2126,7 +2126,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v276';
+ if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v277';
   const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
@@ -2278,7 +2278,7 @@ body.swimActive #swimViewportPanel{display:block}
   solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   phi=15*Math.PI/180;theta=-90*Math.PI/180;R=7;setOrbit();swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Look around or move X/Y/Z by 0.2.':'v276：視線方向を変えずに、X・Y・Z方向へ0.2ずつ移動できます。';render();
+  message.textContent=english?'Look around or move X/Y/Z by 0.2.':'v277：画面をドラッグすると、目の位置を変えずに見回せます。';render();
  }
  function stop(){swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  document.querySelectorAll('[data-orbit]').forEach(b=>b.addEventListener('click',()=>{
@@ -2297,6 +2297,36 @@ body.swimActive #swimViewportPanel{display:block}
   phi=nextPhi;theta=nextTheta;R=nextR;setOrbit();
   message.textContent='中心を見ながら目の位置を移動中';render();
  }));
+ // v277: drag the view to change only the viewing direction; never move the eye.
+ let dragPointer=null,dragX=0,dragY=0;
+ canvas.addEventListener('pointerdown',e=>{
+  if(!swimming||dragPointer!==null||e.button!==0)return;
+  if(orbitCamera){
+   const ct=Math.cos(theta),st=Math.sin(theta),cf=Math.cos(phi),sf=Math.sin(phi);
+   const fx=-cf*ct,fy=-sf,fz=-cf*st;
+   yaw=Math.atan2(fx,fz);pitch=Math.atan2(fy,Math.hypot(fx,fz));
+   orbitCamera=false;
+  }
+  dragPointer=e.pointerId;dragX=e.clientX;dragY=e.clientY;
+  canvas.setPointerCapture(e.pointerId);canvas.style.cursor='grabbing';e.preventDefault();
+ });
+ canvas.addEventListener('pointermove',e=>{
+  if(!swimming||dragPointer!==e.pointerId)return;
+  const dx=e.clientX-dragX,dy=e.clientY-dragY;
+  dragX=e.clientX;dragY=e.clientY;
+  // Mouse right: look right. Mouse down: look down.
+  yaw+=dx*.006;
+  pitch=bound(pitch-dy*.006,-Math.PI*.46,Math.PI*.46);
+  orbitInfo.textContent='ドラッグ見回し：目の位置=('+pos.map(v=>v.toFixed(2)).join(', ')+')';
+  message.textContent='目の位置は固定。ドラッグで視線方向だけ変更中。';
+  render();e.preventDefault();
+ });
+ function endDrag(e){if(dragPointer!==e.pointerId)return;
+  if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+  dragPointer=null;canvas.style.cursor='grab';
+ }
+ canvas.addEventListener('pointerup',endDrag);
+ canvas.addEventListener('pointercancel',endDrag);
  button.addEventListener('click',()=>swimming?stop():start());
  document.querySelectorAll('[data-swim]').forEach(b=>b.addEventListener('click',()=>{
   if(!swimming)return;const a=b.dataset.swim;
