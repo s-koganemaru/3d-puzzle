@@ -2104,14 +2104,14 @@ window.addEventListener('load',function(){
 })();
 </script>
 <style id="swim-step3-style">
-#swimViewportPanel{display:none;position:fixed;z-index:99999;left:50%;bottom:78px;transform:translateX(-50%);width:min(660px,96vw);max-height:65vh;overflow:auto;background:#fff;border:2px solid #397b9a;border-radius:10px;padding:8px;box-shadow:0 5px 18px #0003;text-align:center;font:13px system-ui,sans-serif}
+#swimViewportPanel{display:none;position:fixed;z-index:99999;left:50%;bottom:12px;transform:translateX(-50%);width:min(930px,98vw);max-height:92vh;overflow:auto;background:#fff;border:2px solid #397b9a;border-radius:10px;padding:8px;box-shadow:0 5px 18px #0003;text-align:center;font:13px system-ui,sans-serif}
 body.swimActive #swimViewportPanel{display:block}
-#swimView{display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
+#swimView{display:block;width:min(100%,840px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
 #swimControls{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:7px auto}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v274（自由見回し）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v275（画面1.5倍）</strong><canvas id="swimView" width="840" height="472"></canvas>
 <div id="swimControls" style="display:flex">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="orbitback">◎ 中心を見る</button><button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
@@ -2126,7 +2126,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v274';
+ if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v275';
   const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
