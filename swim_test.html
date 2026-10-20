@@ -2111,9 +2111,9 @@ body.swimActive #swimViewportPanel{display:block}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v278（滑らかドラッグ）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v279（視線方向へ前進・後退）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimControls" style="display:flex">
-<button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
+<button data-swim="forward">↑ 前進 0.2</button><button data-swim="backward">↓ 後退 0.2</button><button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="orbitback">◎ 中心を見る</button><button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
 </div><div id="sphericalControls" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0">
 <button data-orbit="phip">縦回転 Φ＋15°</button><button data-orbit="phim">縦回転 Φ－15°</button>
@@ -2127,12 +2127,12 @@ body.swimActive #swimViewportPanel{display:block}
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
  if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v278';
-  const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
+  const names={forward:'Forward',backward:'Backward',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
  let phi=15*Math.PI/180,theta=-90*Math.PI/180,R=7;
  let orbitCamera=true; // Continuous vertical orbit uses its own up-vector through the poles.
- const lookButtons=new Set(['left','right','up','down','turn','orbitback','xp','xm','yp','ym','zp','zm']);
+ const lookButtons=new Set(['left','right','up','down','turn','orbitback','xp','xm','yp','ym','zp','zm','forward','backward']);
  document.querySelectorAll('[data-swim]').forEach(b=>{if(!lookButtons.has(b.dataset.swim))b.style.display='none';});
  const orbitCenter=[1,1,1],orbitInfo=document.getElementById("orbitInfo");
  // Both transparent boxes share a world: storage x=-0.5..2.5, moving x=6.5..9.5.
@@ -2285,7 +2285,7 @@ body.swimActive #swimViewportPanel{display:block}
   solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   phi=15*Math.PI/180;theta=-90*Math.PI/180;R=7;setOrbit();swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Look around or move X/Y/Z by 0.2.':'v278：画面をドラッグすると、目の位置を変えずに見回せます。';render();
+  message.textContent=english?'Forward/backward follow the viewing direction.':'v279：前進・後退は視線方向へ移動します。ドラッグで向きを変えられます。';render();
  }
  function stop(){if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;}dragPointer=null;swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  document.querySelectorAll('[data-orbit]').forEach(b=>b.addEventListener('click',()=>{
@@ -2358,6 +2358,17 @@ body.swimActive #swimViewportPanel{display:block}
   else if(a==='left')yaw-=Math.PI/12;else if(a==='right')yaw+=Math.PI/12;
   else if(a==='up')pitch=bound(pitch+Math.PI/12,-Math.PI*.46,Math.PI*.46);
   else if(a==='down')pitch=bound(pitch-Math.PI/12,-Math.PI*.46,Math.PI*.46);
+  else if(a==='forward'||a==='backward'){
+   // Forward is the current view vector, including its vertical component.
+   // Keep the direction unchanged while the eye travels through fixed world coordinates.
+   const dir=[Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)];
+   const sign=a==='forward'?1:-1;
+   const next=pos.map((v,i)=>v+sign*.2*dir[i]);
+   if(!safeMove(next)){message.textContent='停止：ブロックに衝突しました。';render();return;}
+   orbitInfo.textContent='視線方向へ'+(sign>0?'前進':'後退')+'：目の位置=('+pos.map(v=>v.toFixed(2)).join(', ')+')';
+   message.textContent='boxは固定。目の位置だけを視線方向に0.2移動しました。';
+   render();return;
+  }
   else{
    const next=[...pos],i={xp:0,xm:0,yp:1,ym:1,zp:2,zm:2}[a],sgn=a.endsWith('p')?1:-1;
    next[i]=Math.round((next[i]+sgn*.2)*100000)/100000;
