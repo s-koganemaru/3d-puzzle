@@ -2111,10 +2111,10 @@ body.swimActive #swimViewportPanel{display:block}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v272</strong><canvas id="swimView" width="560" height="315"></canvas>
-<div id="swimControls" style="display:none">
+<div id="swimViewportPanel"><strong id="swimViewTitle">球面座標・空間遊泳テスト v274（自由見回し）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimControls" style="display:flex">
 <button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
-<button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
+<button data-swim="orbitback">◎ 中心を見る</button><button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
 </div><div id="sphericalControls" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0">
 <button data-orbit="phip">縦回転 Φ＋15°</button><button data-orbit="phim">縦回転 Φ－15°</button>
 <button data-orbit="thetap">横回転 θ＋15°</button><button data-orbit="thetam">横回転 θ－15°</button>
@@ -2126,12 +2126,14 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v273';
+ if(english){document.getElementById('swimViewTitle').textContent='Spherical camera test v274';
   const names={xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
  let phi=15*Math.PI/180,theta=-90*Math.PI/180,R=7;
  let orbitCamera=true; // Continuous vertical orbit uses its own up-vector through the poles.
+ const lookButtons=new Set(['left','right','up','down','turn','orbitback']);
+ document.querySelectorAll('[data-swim]').forEach(b=>{if(!lookButtons.has(b.dataset.swim))b.style.display='none';});
  const orbitCenter=[1,1,1],orbitInfo=document.getElementById("orbitInfo");
  // Both transparent boxes share a world: storage x=-0.5..2.5, moving x=6.5..9.5.
  const boxOrigins=[[0,0,0],[7,0,0]],centers=[[1,1,1],[8,1,1]];
@@ -2165,7 +2167,7 @@ body.swimActive #swimViewportPanel{display:block}
   orbitCamera=true;
   pos=[orbitCenter[0]+R*Math.cos(phi)*Math.cos(theta),orbitCenter[1]+R*Math.sin(phi),orbitCenter[2]+R*Math.cos(phi)*Math.sin(theta)];
   aimAt(orbitCenter);
-  orbitInfo.textContent=`縦回転 Φ=${Math.round(phi*180/Math.PI)}°　横回転 θ=${Math.round(theta*180/Math.PI)}°　半径 R=${R.toFixed(1)}　注視点=(1,1,1)`;
+  orbitInfo.textContent=`縦回転 Φ=${Math.round(phi*180/Math.PI)}°　横回転 θ=${Math.round(theta*180/Math.PI)}°　半径 R=${R.toFixed(1)}　目の位置=${pos.map(v=>v.toFixed(2)).join(',')}　注視点=(1,1,1)`;
  }
  function findHome(){
   const candidates=[];for(let x=0;x<3;x++)for(let y=0;y<3;y++)for(let z=0;z<3;z++)candidates.push([x,y,z]);
@@ -2276,7 +2278,7 @@ body.swimActive #swimViewportPanel{display:block}
   solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   phi=15*Math.PI/180;theta=-90*Math.PI/180;R=7;setOrbit();swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Box frames are passable; blocks are solid.':'v273：Φは縦方向に何周でも回転できます。';render();
+  message.textContent=english?'Use look buttons to look around without moving.':'v274：左右・上下を見ると、目の位置を変えずに見回せます。';render();
  }
  function stop(){swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  document.querySelectorAll('[data-orbit]').forEach(b=>b.addEventListener('click',()=>{
@@ -2293,12 +2295,19 @@ body.swimActive #swimViewportPanel{display:block}
   const proposed=[orbitCenter[0]+nextR*Math.cos(nextPhi)*Math.cos(nextTheta),orbitCenter[1]+nextR*Math.sin(nextPhi),orbitCenter[2]+nextR*Math.cos(nextPhi)*Math.sin(nextTheta)];
   if(!safeMove(proposed)){message.textContent='ブロックに衝突するため移動できません。';return;}
   phi=nextPhi;theta=nextTheta;R=nextR;setOrbit();
-  message.textContent='注視点を固定して目の位置を移動中';render();
+  message.textContent='中心を見ながら目の位置を移動中';render();
  }));
  button.addEventListener('click',()=>swimming?stop():start());
  document.querySelectorAll('[data-swim]').forEach(b=>b.addEventListener('click',()=>{
   if(!swimming)return;const a=b.dataset.swim;
-  orbitCamera=false; // Other look/move buttons retain their existing free-look behavior.
+  if(a==='orbitback'){setOrbit();message.textContent='収納boxの中心を見る状態に戻りました。';render();return;}
+  if(orbitCamera){
+   // Preserve the current forward direction on the first free-look button press.
+   const ct=Math.cos(theta),st=Math.sin(theta),cf=Math.cos(phi),sf=Math.sin(phi);
+   const fx=-cf*ct,fy=-sf,fz=-cf*st;
+   yaw=Math.atan2(fx,fz);pitch=Math.atan2(fy,Math.hypot(fx,fz));
+   orbitCamera=false;
+  }
   if(a==='turn')yaw+=Math.PI;
   else if(a==='target')aimAt(centers[0]);
   else if(a==='targetmove')aimAt(centers[1]);
@@ -2312,6 +2321,7 @@ body.swimActive #swimViewportPanel{display:block}
    if(!safeMove(next)){message.textContent=english?'Stopped by a solid block.':'停止：ブロックに衝突しました。';render();return;}
    message.textContent=english?'Swimming through open space.':'透明空間を遊泳中（枠は通過可能）';
   }
+  message.textContent='目の位置は固定したまま視線方向を変更中';
   render();
  }));stop();
 })();
