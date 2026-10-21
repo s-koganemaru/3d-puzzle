@@ -2125,17 +2125,19 @@ body.swimActive #swimViewportPanel{display:block}
 #swimPedal button:first-child{border-bottom:2px dashed #a6bfcb;background:#dbeef8}
 #swimPilot button:active{background:#aed6eb!important}
 #swimJoystick button,#swimPedal button{touch-action:none;user-select:none}
+#swimFar{height:64px;padding:8px 12px;border:2px solid #397b9a;border-radius:9px;background:#fff;color:#194e67;font-size:15px;font-weight:bold;cursor:pointer}
 #swimReset{height:64px;padding:8px 12px;border:2px solid #397b9a;border-radius:9px;background:#fff;color:#194e67;font-size:15px;font-weight:bold;cursor:pointer}
 #swimJoystick button.pilotSelected,#swimPedal button.pilotSelected{background:#8cc6e5!important}
 #swimAdvanced{margin:5px auto;text-align:center}
 #swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v282（ドラッグ連続操縦）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v283（遥か遠方から）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
 <div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="押す・上へドラッグで連続前進">▲<br>前進</button><button data-swim="backward" title="押す・下へドラッグで連続後退">後退<br>▼</button></div><small>前後</small></div>
 <div><button id="swimReset" type="button">初期位置</button><small style="display:block">迷ったら戻る</small></div>
+<div><button id="swimFar" type="button">遥か遠方から</button><small style="display:block">視線を保って後退</small></div>
 </div>
 <details id="swimAdvanced"><summary>詳細操作（検証用）</summary>
 <div id="swimControls" style="display:flex">
@@ -2152,7 +2154,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v282';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v283';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
@@ -2491,6 +2493,44 @@ body.swimActive #swimViewportPanel{display:block}
   el.addEventListener('pointercancel',e=>{if(pilotPointer===e.pointerId)endPilot();});
   el.addEventListener('lostpointercapture',e=>{if(pilotPointer===e.pointerId)endPilot();});
  }
+ // v283: Retreat along the current viewing direction, without changing the gaze.
+ // Search for the nearest distance at which both box outlines fit inside the view.
+ document.getElementById('swimFar').addEventListener('click',()=>{
+  if(!swimming)return;
+  endPilot();freeView();
+  const cp=Math.cos(pitch),sp=Math.sin(pitch),sy=Math.sin(yaw),cy=Math.cos(yaw);
+  const forward=[sy*cp,sp,cy*cp],right=[cy,0,-sy],up=[-sy*sp,cp,-cy*sp];
+  const corners=[];
+  for(const origin of boxOrigins)for(const x of [-.5,2.5])for(const y of [-.5,2.5])for(const z of [-.5,2.5])
+   corners.push([origin[0]+x,origin[1]+y,origin[2]+z]);
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const fits=(distance)=>corners.every(q=>{
+   const v=q.map((a,i)=>a-pos[i]+distance*forward[i]);
+   const depth=dot(v,forward);if(depth<=.1)return false;
+   const sx=dot(v,right)/depth,sz=dot(v,up)/depth;
+   // Perspective view: f = height * .95; leave a 10% border.
+   return Math.abs(sx)<(canvas.width*.45)/(canvas.height*.95)&&Math.abs(sz)<.45/.95;
+  });
+  let distance=0;
+  if(!fits(0)){
+   let lo=0,hi=1;
+   while(hi<4096&&!fits(hi)){lo=hi;hi*=2;}
+   if(!fits(hi)){
+    message.textContent=english?'Both boxes cannot be seen from this viewing direction. Look toward the boxes first.':'この視線方向では両boxを同時に見ることができません。boxの方向を向いてからお試しください。';
+    return;
+   }
+   for(let k=0;k<25;k++){const mid=(lo+hi)/2;if(fits(mid))hi=mid;else lo=mid;}
+   distance=hi+1; // A little breathing room around both boxes.
+  }
+  if(distance>0){
+   const next=pos.map((v,i)=>v-distance*forward[i]);
+   if(!safeMove(next)){
+    message.textContent=english?'A block prevents retreating.':'後退経路にブロックがあるため移動できません。';return;
+   }
+  }
+  orbitInfo.textContent='遥か遠方から：目の位置=('+pos.map(v=>v.toFixed(2)).join(', ')+')';
+  message.textContent=english?'Retreated with the viewing direction unchanged.':'視線方向を変えずに後退しました。';render(false);
+ });
  document.getElementById('swimReset').addEventListener('click',()=>{
   if(!swimming)return;
   endPilot();phi=15*Math.PI/180;theta=-Math.PI/2;R=7;setOrbit();
