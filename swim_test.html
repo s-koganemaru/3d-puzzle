@@ -600,8 +600,12 @@ function drawMoveBox(){
  // Transparent pieces: same cube-edge method as successful Wakakusa test.
  let cells=blockDefs[activeIndex].cells.map(q=>[...q]);
  let transferred=false;
-
-
+ // v284: Read-only snapshot for the separate swimming renderer. The original
+ // moving-box state and controls remain unchanged.
+ window.getSwimMovingBlock=function(){
+   if(transferred||activeIndex<0||activeIndex>=blockDefs.length)return null;
+   return {cells:cells.map(q=>[q[0]+7,q[1],q[2]]),color:[...activeColor]};
+ };
 
  // Transparent framework: all SIX outer faces. Geometry is fixed.
  const segs=new Map();
@@ -2132,7 +2136,7 @@ body.swimActive #swimViewportPanel{display:block}
 #swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v283（遥か遠方から）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v284（両boxのブロック表示）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
 <div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="押す・上へドラッグで連続前進">▲<br>前進</button><button data-swim="backward" title="押す・下へドラッグで連続後退">後退<br>▼</button></div><small>前後</small></div>
@@ -2154,10 +2158,10 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v283';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v284';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
- let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
+ let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[],swimBlocks=[];
  let pilotPointer=null,pilotAction=null,pilotFrame=0,pilotLast=0,pilotElapsed=0;
  let phi=15*Math.PI/180,theta=-90*Math.PI/180,R=7;
  let orbitCamera=true; // Continuous vertical orbit uses its own up-vector through the poles.
@@ -2225,7 +2229,7 @@ body.swimActive #swimViewportPanel{display:block}
   const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
   const f=h*.95,frac=q=>Math.abs(q-Math.round(q));
   const cellColors=new Map();
-  for(const sb of storedBlocks)for(const c of sb.cells)cellColors.set(c.join(','),sb.color);
+  for(const sb of swimBlocks)for(const c of sb.cells)cellColors.set(c.join(','),sb.color);
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){
    const u=(px+.5-w/2)/f,v=(h/2-py-.5)/f;
    let d=[0,1,2].map(i=>forward[i]+u*right[i]+v*up[i]);
@@ -2296,7 +2300,7 @@ body.swimActive #swimViewportPanel{display:block}
    }
   }
   // Colored block boundaries: project every unit cube edge, preserving piece divisions.
-  for(const sb of storedBlocks)for(const cell of sb.cells){
+  for(const sb of swimBlocks)for(const cell of sb.cells){
    const mn=cell.map(q=>q-.5),mx=cell.map(q=>q+.5);
    cubeEdges(mn,mx,(a,b)=>drawEdge(a,b,[35,37,41],0));
   }
@@ -2311,7 +2315,10 @@ body.swimActive #swimViewportPanel{display:block}
   status.textContent=(english?'Eye position: ':'目の位置：')+'('+pos.map(v=>v.toFixed(2)).join(', ')+')';
  }
  function start(){
-  solids=storedBlocks.flatMap(b=>b.cells.map(c=>[...c]));
+  const moving=typeof window.getSwimMovingBlock==='function'?window.getSwimMovingBlock():null;
+  swimBlocks=[...storedBlocks.map(b=>({cells:b.cells.map(c=>[...c]),color:[...b.color]}))];
+  if(moving)swimBlocks.push(moving);
+  solids=swimBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   phi=15*Math.PI/180;theta=-90*Math.PI/180;R=7;setOrbit();swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
   message.textContent=english?'Drag and hold to keep moving; release to stop.':'円形ジョイスティックとアクセルをドラッグし、押している間は連続移動。離すと停止します。';render();
