@@ -2109,26 +2109,48 @@ body.swimActive #swimViewportPanel{display:block}
 #swimView{touch-action:none;cursor:grab;display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
 #swimControls{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:7px auto}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
+#swimPilot{display:flex;align-items:center;justify-content:center;gap:22px;margin:8px auto;flex-wrap:wrap}
+#swimJoystick{width:146px;height:146px;border:3px solid #397b9a;border-radius:50%;position:relative;background:#f0f7fb;flex:none;touch-action:manipulation}
+#swimJoystick:before,#swimJoystick:after{content:"";position:absolute;background:#b3c8d5;pointer-events:none}
+#swimJoystick:before{width:2px;height:108px;left:calc(50% - 1px);top:19px}
+#swimJoystick:after{height:2px;width:108px;top:calc(50% - 1px);left:19px}
+#swimJoystick button{position:absolute;width:42px;height:42px;border:1px solid #6793ab;border-radius:50%;background:#fff;color:#164c67;font-size:24px;font-weight:bold;cursor:pointer;z-index:1}
+#swimJoystick button[data-swim=ascend]{top:3px;left:50%;transform:translateX(-50%)}
+#swimJoystick button[data-swim=descend]{bottom:3px;left:50%;transform:translateX(-50%)}
+#swimJoystick button[data-swim=strafeleft]{left:3px;top:50%;transform:translateY(-50%)}
+#swimJoystick button[data-swim=straferight]{right:3px;top:50%;transform:translateY(-50%)}
+#swimJoystick .hub{position:absolute;inset:56px;border-radius:50%;background:#7ca4b9;border:2px solid #397b9a;z-index:2;pointer-events:none}
+#swimPedal{width:88px;height:146px;border:3px solid #397b9a;border-radius:32px;background:#f0f7fb;display:flex;flex-direction:column;overflow:hidden;flex:none}
+#swimPedal button{flex:1;border:0;background:transparent;color:#164c67;font-size:15px;font-weight:bold;cursor:pointer}
+#swimPedal button:first-child{border-bottom:2px dashed #a6bfcb;background:#dbeef8}
+#swimPilot button:active{background:#aed6eb!important}
+#swimAdvanced{margin:5px auto;text-align:center}
+#swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v280（前後・左右・上下移動）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v281（ジョイスティック操縦）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimPilot" aria-label="空間遊泳の操縦装置">
+<div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
+<div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="前進 0.2">▲<br>前進</button><button data-swim="backward" title="後退 0.2">後退<br>▼</button></div><small>前後</small></div>
+</div>
+<details id="swimAdvanced"><summary>詳細操作（検証用）</summary>
 <div id="swimControls" style="display:flex">
-<button data-swim="forward">↑ 前進 0.2</button><button data-swim="backward">↓ 後退 0.2</button><button data-swim="strafeleft">← 左移動 0.2</button><button data-swim="straferight">→ 右移動 0.2</button><button data-swim="ascend">上昇 0.2</button><button data-swim="descend">下降 0.2</button><button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
+<button data-swim="xp">X＋</button><button data-swim="xm">X－</button><button data-swim="yp">Y＋</button><button data-swim="ym">Y－</button><button data-swim="zp">Z＋</button><button data-swim="zm">Z－</button>
 <button data-swim="orbitback">◎ 中心を見る</button><button data-swim="turn">↶ 180°振り返る</button><button data-swim="target">◎ 収納boxを見る</button><button data-swim="targetmove">◎ 移動boxを見る</button><button data-swim="home">⌂ 帰還</button><button data-swim="left">↶ 左を見る</button><button data-swim="right">↷ 右を見る</button><button data-swim="up">↑ 上を見る</button><button data-swim="down">↓ 下を見る</button>
 </div><div id="sphericalControls" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0">
 <button data-orbit="phip">縦回転 Φ＋15°</button><button data-orbit="phim">縦回転 Φ－15°</button>
 <button data-orbit="thetap">横回転 θ＋15°</button><button data-orbit="thetam">横回転 θ－15°</button>
 <button data-orbit="near">半径 R－0.5</button><button data-orbit="far">半径 R＋0.5</button>
-<button data-orbit="reset">初期位置</button></div><div id="orbitInfo" style="font-weight:600;color:#194e67;margin:5px"></div><div id="swimMessage"></div></div>
+<button data-orbit="reset">初期位置</button></div></details><div id="orbitInfo" style="font-weight:600;color:#194e67;margin:5px"></div><div id="swimMessage"></div></div>
 <script id="swim-step3-controller">
 (function(){
  const button=document.getElementById('swimSwitch'),label=document.getElementById('swimModeLabel'),status=document.getElementById('swimStatus'),home=document.getElementById('swimHome');
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v280';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v281';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
-  document.querySelectorAll('[data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);}
+  document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[];
  let phi=15*Math.PI/180,theta=-90*Math.PI/180,R=7;
  let orbitCamera=true; // Continuous vertical orbit uses its own up-vector through the poles.
