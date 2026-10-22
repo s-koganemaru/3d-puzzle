@@ -604,7 +604,7 @@ function drawMoveBox(){
  // moving-box state and controls remain unchanged.
  window.getSwimMovingBlock=function(){
    if(transferred||activeIndex<0||activeIndex>=blockDefs.length)return null;
-   return {cells:cells.map(q=>[q[0]+7,q[1],q[2]]),color:[...activeColor]};
+   return {cells:cells.map(q=>[q[0]+14,q[1],q[2]]),color:[...activeColor]};
  };
 
  // Transparent framework: all SIX outer faces. Geometry is fixed.
@@ -2136,7 +2136,7 @@ body.swimActive #swimViewportPanel{display:block}
 #swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v284（両boxのブロック表示）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v285（両box間の距離2倍）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
 <div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="押す・上へドラッグで連続前進">▲<br>前進</button><button data-swim="backward" title="押す・下へドラッグで連続後退">後退<br>▼</button></div><small>前後</small></div>
@@ -2158,7 +2158,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v284';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v285';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[],swimBlocks=[];
@@ -2168,8 +2168,8 @@ body.swimActive #swimViewportPanel{display:block}
  const lookButtons=new Set(['left','right','up','down','turn','orbitback','xp','xm','yp','ym','zp','zm','forward','backward','strafeleft','straferight','ascend','descend']);
  document.querySelectorAll('[data-swim]').forEach(b=>{if(!lookButtons.has(b.dataset.swim))b.style.display='none';});
  const orbitCenter=[1,1,1],orbitInfo=document.getElementById("orbitInfo");
- // Both transparent boxes share a world: storage x=-0.5..2.5, moving x=6.5..9.5.
- const boxOrigins=[[0,0,0],[7,0,0]],centers=[[1,1,1],[8,1,1]];
+ // Both transparent boxes share a world: storage x=-0.5..2.5, moving x=13.5..16.5.
+ const boxOrigins=[[0,0,0],[14,0,0]],centers=[[1,1,1],[15,1,1]];
  const bound=(v,a,b)=>Math.min(b,Math.max(a,v));
  function collision(p){
   const radius=.13;
