@@ -2113,7 +2113,17 @@ body.swimActive #swimViewportPanel{display:block}
 #swimView{touch-action:none;cursor:grab;display:block;width:min(100%,560px);height:auto;aspect-ratio:16/9;margin:auto;background:#e9f2f8;border:1px solid #789;image-rendering:auto}
 #swimControls{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:7px auto}
 #swimControls button{border:1px solid #6793ab;border-radius:5px;background:#eef6fb;padding:6px 9px;font-size:13px;cursor:pointer;color:#123f58}
-#swimPilot{display:flex;align-items:center;justify-content:center;gap:22px;margin:8px auto;flex-wrap:wrap}
+#swimPilot{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px auto;flex-wrap:wrap}
+#swimLookStick{width:146px;height:146px;border:3px solid #397b9a;border-radius:50%;position:relative;background:#f5f2fc;flex:none;touch-action:none;user-select:none;cursor:crosshair}
+#swimLookStick:before,#swimLookStick:after{content:"";position:absolute;background:#c8bddb;pointer-events:none}
+#swimLookStick:before{width:2px;height:108px;left:calc(50% - 1px);top:19px}
+#swimLookStick:after{height:2px;width:108px;top:calc(50% - 1px);left:19px}
+#swimLookStick .hub{position:absolute;width:34px;height:34px;left:calc(50% - 17px);top:calc(50% - 17px);border-radius:50%;background:#a99ac8;border:2px solid #74649c;pointer-events:none;box-sizing:border-box}
+#swimLookStick .direction{position:absolute;color:#514374;font-size:24px;font-weight:bold;pointer-events:none;line-height:1}
+#swimLookStick .direction.top{top:5px;left:50%;transform:translateX(-50%)}
+#swimLookStick .direction.bottom{bottom:5px;left:50%;transform:translateX(-50%)}
+#swimLookStick .direction.left{left:7px;top:50%;transform:translateY(-50%)}
+#swimLookStick .direction.right{right:7px;top:50%;transform:translateY(-50%)}
 #swimJoystick{width:146px;height:146px;border:3px solid #397b9a;border-radius:50%;position:relative;background:#f0f7fb;flex:none;touch-action:none;user-select:none}
 #swimJoystick:before,#swimJoystick:after{content:"";position:absolute;background:#b3c8d5;pointer-events:none}
 #swimJoystick:before{width:2px;height:108px;left:calc(50% - 1px);top:19px}
@@ -2136,9 +2146,10 @@ body.swimActive #swimViewportPanel{display:block}
 #swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v285（両box間の距離2倍）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v286（視線用ジョイスティック）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
+<div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線方向（目の位置は固定）</small></div>
 <div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="押す・上へドラッグで連続前進">▲<br>前進</button><button data-swim="backward" title="押す・下へドラッグで連続後退">後退<br>▼</button></div><small>前後</small></div>
 <div><button id="swimReset" type="button">初期位置</button><small style="display:block">迷ったら戻る</small></div>
 <div><button id="swimFar" type="button">遥か遠方から</button><small style="display:block">視線を保って後退</small></div>
@@ -2158,7 +2169,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v285';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v286';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[],swimBlocks=[];
@@ -2321,9 +2332,9 @@ body.swimActive #swimViewportPanel{display:block}
   solids=swimBlocks.flatMap(b=>b.cells.map(c=>[...c]));
   phi=15*Math.PI/180;theta=-90*Math.PI/180;R=7;setOrbit();swimming=true;
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
-  message.textContent=english?'Drag and hold to keep moving; release to stop.':'円形ジョイスティックとアクセルをドラッグし、押している間は連続移動。離すと停止します。';render();
+  message.textContent=english?'Drag and hold to keep moving; release to stop.':'左のジョイスティックで目を移動、右のジョイスティックで視線を変更。アクセルで前後移動。離すと停止します。';render();
  }
- function stop(){endPilot();if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;}dragPointer=null;swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
+ function stop(){endPilot();endLook();if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;}dragPointer=null;swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
  document.querySelectorAll('[data-orbit]').forEach(b=>b.addEventListener('click',()=>{
   if(!swimming)return;
   const a=b.dataset.orbit,step=Math.PI/12;
@@ -2500,6 +2511,46 @@ body.swimActive #swimViewportPanel{display:block}
   el.addEventListener('pointercancel',e=>{if(pilotPointer===e.pointerId)endPilot();});
   el.addEventListener('lostpointercapture',e=>{if(pilotPointer===e.pointerId)endPilot();});
  }
+ // v286: Independent look joystick. Its motion changes only yaw/pitch, not pos.
+ const lookStick=document.getElementById('swimLookStick');
+ const lookHub=lookStick.querySelector('.hub');
+ let lookPointer=null,lookX=0,lookY=0,lookFrame=0,lookLast=0;
+ function lookInput(e){
+  const r=lookStick.getBoundingClientRect();
+  const x=(e.clientX-r.left-r.width/2)/(r.width*.34);
+  const y=(e.clientY-r.top-r.height/2)/(r.height*.34);
+  const mag=Math.hypot(x,y),scale=mag>1?1/mag:1;
+  lookX=Math.abs(x)<.12?0:x*scale;
+  lookY=Math.abs(y)<.12?0:y*scale;
+  lookHub.style.transform='translate('+(lookX*33)+'px,'+(lookY*33)+'px)';
+ }
+ function lookTick(t){
+  if(lookPointer===null||!swimming){lookFrame=0;return;}
+  const dt=Math.max(0,Math.min(70,t-lookLast))/1000;lookLast=t;
+  if(lookX||lookY){
+   // Constant eye position. Up on the stick looks upward.
+   yaw+=lookX*1.15*dt;
+   pitch=bound(pitch-lookY*1.15*dt,-Math.PI*.46,Math.PI*.46);
+   orbitInfo.textContent='視線操作中：目の位置=('+pos.map(v=>v.toFixed(2)).join(', ')+')（固定）';
+   render(true);
+  }
+  lookFrame=requestAnimationFrame(lookTick);
+ }
+ function endLook(){
+  if(lookFrame){cancelAnimationFrame(lookFrame);lookFrame=0;}
+  lookPointer=null;lookX=0;lookY=0;lookLast=0;
+  lookHub.style.transform='translate(0,0)';
+  if(swimming)render(false);
+ }
+ lookStick.addEventListener('pointerdown',e=>{
+  if(!swimming||lookPointer!==null||e.button!==0)return;
+  freeView();lookPointer=e.pointerId;lookStick.setPointerCapture(e.pointerId);
+  lookInput(e);lookLast=performance.now();lookFrame=requestAnimationFrame(lookTick);
+  e.preventDefault();
+ });
+ lookStick.addEventListener('pointermove',e=>{if(lookPointer===e.pointerId){lookInput(e);e.preventDefault();}});
+ for(const name of ['pointerup','pointercancel','lostpointercapture'])
+  lookStick.addEventListener(name,e=>{if(lookPointer===e.pointerId)endLook();});
  // v283: Retreat along the current viewing direction, without changing the gaze.
  // Search for the nearest distance at which both box outlines fit inside the view.
  document.getElementById('swimFar').addEventListener('click',()=>{
