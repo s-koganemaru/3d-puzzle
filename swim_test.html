@@ -2145,12 +2145,55 @@ body.swimActive #swimViewportPanel{display:block}
 #swimAdvanced{margin:5px auto;text-align:center}
 #swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
+/* v290: Public-facing pilot layout. Only CSS and labels; navigation math unchanged. */
+#swimViewportPanel{width:min(1120px,98vw);max-height:96dvh;bottom:1.5dvh;padding:10px 12px;box-sizing:border-box;overflow:auto}
+#swimView{width:min(100%,1040px);max-height:calc(96dvh - 178px);object-fit:contain;box-sizing:border-box}
+#swimPilot{gap:clamp(10px,2.3vw,26px);margin:7px auto 4px;flex-wrap:nowrap;align-items:center}
+#swimPilot>div{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#swimPilot small{font-size:clamp(10px,1.05vw,13px);font-weight:650;white-space:nowrap;color:#244e67}
+#swimJoystick,#swimLookStick{width:106px;height:106px;box-sizing:border-box;border-width:2px}
+#swimJoystick:before,#swimLookStick:before{height:72px;top:15px}
+#swimJoystick:after,#swimLookStick:after{width:72px;left:15px}
+#swimJoystick .hub{inset:41px}
+#swimLookStick .hub{width:26px;height:26px;left:calc(50% - 13px);top:calc(50% - 13px)}
+#swimJoystick button{width:33px;height:33px;font-size:20px;padding:0}
+#swimJoystick button[data-swim=ascend]{top:1px}
+#swimJoystick button[data-swim=descend]{bottom:1px}
+#swimJoystick button[data-swim=strafeleft]{left:1px}
+#swimJoystick button[data-swim=straferight]{right:1px}
+#swimLookStick .direction{font-size:19px}
+#swimLookStick .direction.top{top:3px}
+#swimLookStick .direction.bottom{bottom:3px}
+#swimLookStick .direction.left{left:5px}
+#swimLookStick .direction.right{right:5px}
+#swimPedal{width:76px;height:106px;box-sizing:border-box;border-width:2px}
+#swimPedal button{font-size:12px;line-height:1.2;padding:0 3px}
+#swimReset,#swimFar{height:44px;padding:5px 9px;font-size:13px;white-space:nowrap}
+#swimAdvanced{margin:2px auto}
+#swimAdvanced summary{padding:2px;font-size:12px}
+#orbitInfo{font-size:11px;margin:2px!important}
+#swimMessage{font-size:11px;min-height:1em}
+@media(max-width:680px){
+ #swimViewportPanel{width:99vw;padding:5px;max-height:98dvh;bottom:0.5dvh}
+ #swimView{max-height:calc(98dvh - 156px)}
+ #swimPilot{gap:clamp(3px,1.2vw,8px)}
+ #swimJoystick,#swimLookStick{width:clamp(65px,16vw,96px);height:clamp(65px,16vw,96px)}
+ #swimJoystick:before,#swimLookStick:before{height:64%;top:18%}
+ #swimJoystick:after,#swimLookStick:after{width:64%;left:18%}
+ #swimJoystick .hub{inset:39%}
+ #swimJoystick button{width:30%;height:30%;font-size:15px}
+ #swimLookStick .direction{font-size:15px}
+ #swimPedal{width:clamp(45px,11vw,66px);height:clamp(65px,16vw,96px)}
+ #swimPedal button{font-size:10px}
+ #swimReset,#swimFar{font-size:clamp(9px,1.7vw,12px);height:35px;padding:3px 4px;white-space:normal}
+ #swimPilot small{font-size:clamp(8px,1.6vw,11px);white-space:normal}
+}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v289（操縦速度再調整）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v290（公開画面レイアウト試作）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
-<div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
-<div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線方向（目の位置は固定）</small></div>
-<div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="押す・上へドラッグで連続前進">▲<br>前進</button><button data-swim="backward" title="押す・下へドラッグで連続後退">後退<br>▼</button></div><small>前後</small></div>
+<div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>位置移動（左右・上下）</small></div>
+<div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線変更（目は固定）</small></div>
+<div><div id="swimPedal" aria-label="前後移動のアクセル"><button data-swim="forward" title="押す・上へドラッグで連続前進">▲<br>前進</button><button data-swim="backward" title="押す・下へドラッグで連続後退">後退<br>▼</button></div><small>前進・後退</small></div>
 <div><button id="swimReset" type="button">初期位置</button><small style="display:block">迷ったら戻る</small></div>
 <div><button id="swimFar" type="button">遥か遠方から</button><small style="display:block">視線を保って後退</small></div>
 </div>
@@ -2169,7 +2212,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v286';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v290';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[],swimBlocks=[];
