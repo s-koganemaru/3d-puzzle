@@ -2529,8 +2529,8 @@ body.swimActive #swimViewportPanel{display:block}
   const dt=Math.max(0,Math.min(70,t-lookLast))/1000;lookLast=t;
   if(lookX||lookY){
    // Constant eye position. Up on the stick looks upward.
-   yaw+=lookX*.35*dt;
-   pitch=bound(pitch-lookY*.35*dt,-Math.PI*.46,Math.PI*.46);
+   yaw+=lookX*.70*dt;
+   pitch=bound(pitch-lookY*.70*dt,-Math.PI*.46,Math.PI*.46);
    orbitInfo.textContent='視線操作中：目の位置=('+pos.map(v=>v.toFixed(2)).join(', ')+')（固定）';
    render(true);
   }
