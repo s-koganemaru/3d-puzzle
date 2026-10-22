@@ -2146,7 +2146,7 @@ body.swimActive #swimViewportPanel{display:block}
 #swimAdvanced summary{cursor:pointer;color:#245a76;font-weight:bold;padding:5px}
 #swimMessage{min-height:1.5em;color:#25465a;font-weight:600}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v286（視線用ジョイスティック）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v287（操縦速度調整）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>左右・上下</small></div>
 <div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線方向（目の位置は固定）</small></div>
@@ -2486,7 +2486,7 @@ body.swimActive #swimViewportPanel{display:block}
   if(pilotPointer===null||!swimming){pilotFrame=0;return;}
   const dt=Math.min(80,t-pilotLast);pilotLast=t;pilotElapsed+=dt;
   if(pilotAction&&pilotElapsed>=65){
-   movePilot(pilotAction,Math.min(.15,dt*.0016));
+   movePilot(pilotAction,Math.min(pilotAction==='forward'||pilotAction==='backward'?.30:.15,dt*(pilotAction==='forward'||pilotAction==='backward'?.0032:.0016)));
    render(true);pilotElapsed=0;
   }
   pilotFrame=requestAnimationFrame(pilotTick);
@@ -2529,8 +2529,8 @@ body.swimActive #swimViewportPanel{display:block}
   const dt=Math.max(0,Math.min(70,t-lookLast))/1000;lookLast=t;
   if(lookX||lookY){
    // Constant eye position. Up on the stick looks upward.
-   yaw+=lookX*1.15*dt;
-   pitch=bound(pitch-lookY*1.15*dt,-Math.PI*.46,Math.PI*.46);
+   yaw+=lookX*.35*dt;
+   pitch=bound(pitch-lookY*.35*dt,-Math.PI*.46,Math.PI*.46);
    orbitInfo.textContent='視線操作中：目の位置=('+pos.map(v=>v.toFixed(2)).join(', ')+')（固定）';
    render(true);
   }
