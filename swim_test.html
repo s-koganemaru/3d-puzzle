@@ -2188,8 +2188,19 @@ body.swimActive #swimViewportPanel{display:block}
  #swimReset,#swimFar{font-size:clamp(9px,1.7vw,12px);height:35px;padding:3px 4px;white-space:normal}
  #swimPilot small{font-size:clamp(8px,1.6vw,11px);white-space:normal}
 }
+/* v291: widen horizontal field of view and keep the persistent mode bar clear of controls. */
+body.swimActive #swimPanel{
+ bottom:auto;top:0;left:50%;transform:translateX(-50%);
+ max-width:min(96vw,900px);padding:3px 8px;gap:6px;
+ font-size:11px;border-width:1px;border-radius:0 0 7px 7px;
+ box-shadow:none;
+}
+body.swimActive #swimPanel button,body.swimActive #swimPanel a{padding:3px 7px;font-size:11px}
+body.swimActive #swimViewportPanel{bottom:0;max-height:calc(100dvh - 35px);overflow:auto}
+body.swimActive #swimView{max-height:calc(100dvh - 235px)}
+@media(max-height:600px){body.swimActive #swimView{max-height:calc(100dvh - 175px)}}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v290（公開画面レイアウト試作）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v291（視野・操作パネル修正）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>位置移動（左右・上下）</small></div>
 <div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線変更（目は固定）</small></div>
@@ -2212,7 +2223,7 @@ body.swimActive #swimViewportPanel{display:block}
  const canvas=document.getElementById('swimView'),ctx=canvas.getContext('2d',{alpha:false}),message=document.getElementById('swimMessage');
  const english=new URLSearchParams(location.search).get('lang')==='en';
  home.href='index.html?lang='+(english?'en':'ja');home.textContent=english?'Cover':'表紙へ';
- if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v290';
+ if(english){document.getElementById('swimViewTitle').textContent='Swimming camera test v291';
   const names={forward:'Forward',backward:'Backward',strafeleft:'Move left',straferight:'Move right',ascend:'Ascend',descend:'Descend',xp:'X+',xm:'X−',yp:'Y+',ym:'Y−',zp:'Z+',zm:'Z−',turn:'Turn 180°',target:'Look at storage',targetmove:'Look at moving box',home:'Return home',left:'Look left',right:'Look right',up:'Look up',down:'Look down'};
   document.querySelectorAll('#swimControls [data-swim]').forEach(el=>el.textContent=names[el.dataset.swim]||el.textContent);document.querySelector('#swimAdvanced summary').textContent='Advanced controls';}
  let swimming=false,pos=[1,1,1],yaw=0,pitch=0,solids=[],swimBlocks=[];
@@ -2281,7 +2292,7 @@ body.swimActive #swimViewportPanel{display:block}
    up=[-sf*ct,cf,-sf*st];
   }
   const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
-  const f=h*.95,frac=q=>Math.abs(q-Math.round(q));
+  const f=h*.65,frac=q=>Math.abs(q-Math.round(q));
   const cellColors=new Map();
   for(const sb of swimBlocks)for(const c of sb.cells)cellColors.set(c.join(','),sb.color);
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){
