@@ -2200,7 +2200,7 @@ body.swimActive #swimViewportPanel{bottom:0;max-height:calc(100dvh - 35px);overf
 body.swimActive #swimView{max-height:calc(100dvh - 235px)}
 @media(max-height:600px){body.swimActive #swimView{max-height:calc(100dvh - 175px)}}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v291（視野・操作パネル修正）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v291a（配置矢印復帰修正）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>位置移動（左右・上下）</small></div>
 <div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線変更（目は固定）</small></div>
@@ -2388,7 +2388,21 @@ body.swimActive #swimView{max-height:calc(100dvh - 235px)}
   document.body.classList.add('swimActive');label.textContent=english?'Swim mode':'遊泳モード';button.textContent=english?'Back to placement':'配置に戻る';
   message.textContent=english?'Drag and hold to keep moving; release to stop.':'左のジョイスティックで目を移動、右のジョイスティックで視線を変更。アクセルで前後移動。離すと停止します。';render();
  }
- function stop(){endPilot();endLook();if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;}dragPointer=null;swimming=false;document.body.classList.remove('swimActive');label.textContent=english?'Placement mode':'配置モード';button.textContent=english?'Start swimming':'遊泳開始';status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';}
+ function stop(){
+  endPilot();endLook();
+  if(dragFrame){cancelAnimationFrame(dragFrame);dragFrame=0;}
+  dragPointer=null;swimming=false;
+  document.body.classList.remove('swimActive');
+  // v291a: explicitly restore the placement arrows after swimming.
+  document.body.classList.add('moveMode');
+  for(const id of ['transferArrow','returnToGroup']){
+    const arrow=document.getElementById(id);
+    if(arrow){arrow.style.visibility='visible';arrow.style.setProperty('display','flex','important');}
+  }
+  label.textContent=english?'Placement mode':'配置モード';
+  button.textContent=english?'Start swimming':'遊泳開始';
+  status.textContent=english?'Arrange blocks, then start swimming.':'ブロックを配置してから遊泳開始';
+}
  document.querySelectorAll('[data-orbit]').forEach(b=>b.addEventListener('click',()=>{
   if(!swimming)return;
   const a=b.dataset.orbit,step=Math.PI/12;
