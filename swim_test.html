@@ -2200,7 +2200,7 @@ body.swimActive #swimViewportPanel{bottom:0;max-height:calc(100dvh - 35px);overf
 body.swimActive #swimView{max-height:calc(100dvh - 235px)}
 @media(max-height:600px){body.swimActive #swimView{max-height:calc(100dvh - 175px)}}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v292（広角視野テスト）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v293（16:9・小型操作）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>位置移動（左右・上下）</small></div>
 <div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線変更（目は固定）</small></div>
@@ -2292,7 +2292,7 @@ body.swimActive #swimView{max-height:calc(100dvh - 235px)}
    up=[-sf*ct,cf,-sf*st];
   }
   const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
-  const f=h*.38,frac=q=>Math.abs(q-Math.round(q)); // v292: wider horizontal field of view; eye position unchanged
+  const f=h*.65,frac=q=>Math.abs(q-Math.round(q));
   const cellColors=new Map();
   for(const sb of swimBlocks)for(const c of sb.cells)cellColors.set(c.join(','),sb.color);
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){
@@ -2664,4 +2664,55 @@ body.swimActive #swimView{max-height:calc(100dvh - 235px)}
  });
  stop();
 })();
-</script></body></html>
+</script>
+<style id="v293-layout">
+/* v293: Keep the actual movie viewport at 16:9; controls never overlap it. */
+body.swimActive #swimViewportPanel{width:min(1240px,99vw);max-height:calc(100dvh - 38px);display:grid;grid-template-columns:minmax(0,1fr) 118px;grid-template-rows:auto auto auto auto;gap:5px 9px;align-items:start;padding:6px 9px;overflow:auto;box-sizing:border-box}
+body.swimActive #swimViewTitle{grid-column:1/-1;text-align:center;font-size:13px}
+body.swimActive #swimView{grid-column:1;grid-row:2;width:100%;height:auto;max-height:none;aspect-ratio:16/9;object-fit:contain;min-width:0;box-sizing:border-box}
+body.swimActive #v293Side{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-items:center;gap:7px;padding-top:3px}
+body.swimActive #v293Bottom{grid-column:1/-1;grid-row:3;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
+body.swimActive #v293Bottom>div{display:flex;flex-direction:column;align-items:center;gap:3px}
+body.swimActive #swimAdvanced{grid-column:1/-1;grid-row:4}
+body.swimActive #orbitInfo,body.swimActive #swimMessage{grid-column:1/-1;margin:0!important;font-size:11px}
+body.swimActive #swimPilot{display:none!important}
+body.swimActive #swimLookStick,body.swimActive #swimJoystick{width:78px;height:78px;border-width:2px}
+body.swimActive #swimJoystick:before,body.swimActive #swimLookStick:before{height:52px;top:11px}
+body.swimActive #swimJoystick:after,body.swimActive #swimLookStick:after{width:52px;left:11px}
+body.swimActive #swimJoystick .hub{inset:31px}
+body.swimActive #swimLookStick .hub{width:20px;height:20px;left:calc(50% - 10px);top:calc(50% - 10px)}
+body.swimActive #swimJoystick button{width:25px;height:25px;font-size:16px}
+body.swimActive #swimLookStick .direction{font-size:16px}
+body.swimActive #swimPedal{width:64px;height:76px}
+body.swimActive #swimReset,body.swimActive #swimFar{height:34px;font-size:11px}
+body.swimActive #v293Side small,body.swimActive #v293Bottom small{font-size:11px;text-align:center}
+@media(max-width:650px){body.swimActive #swimViewportPanel{grid-template-columns:minmax(0,1fr) 82px;gap:4px;padding:4px}body.swimActive #swimLookStick{width:68px;height:68px}body.swimActive #v293Bottom{gap:6px}body.swimActive #swimViewTitle{font-size:11px}}
+</style>
+<script id="v293-layout-js">
+(function(){
+ const panel=document.getElementById('swimViewportPanel'),pilot=document.getElementById('swimPilot');
+ if(!panel||!pilot)return;
+ const side=document.createElement('div');side.id='v293Side';
+ const bottom=document.createElement('div');bottom.id='v293Bottom';
+ const children=[...pilot.children];
+ if(children[1])side.appendChild(children[1]);
+ for(const child of children)if(child.parentNode===pilot)bottom.appendChild(child);
+ panel.insertBefore(side,pilot);panel.insertBefore(bottom,pilot);pilot.remove();
+ const advanced=document.getElementById('swimAdvanced');
+ if(advanced)panel.insertBefore(advanced,bottom.nextSibling);
+ // One click = one fixed look step. Capture phase suppresses old hold-to-look logic.
+ const stick=document.getElementById('swimLookStick');
+ if(stick){
+  stick.style.cursor='pointer';
+  stick.addEventListener('pointerdown',e=>{
+   if(!document.body.classList.contains('swimActive'))return;
+   e.stopImmediatePropagation();e.preventDefault();
+   const r=stick.getBoundingClientRect(),x=(e.clientX-r.left-r.width/2)/(r.width/2),y=(e.clientY-r.top-r.height/2)/(r.height/2);
+   const key=Math.abs(x)>Math.abs(y)?(x>0?'right':'left'):(y>0?'down':'up');
+   const b=document.querySelector('#swimControls [data-swim="'+key+'"]');
+   if(b)b.click();
+  },true);
+ }
+})();
+</script>
+</body></html>
