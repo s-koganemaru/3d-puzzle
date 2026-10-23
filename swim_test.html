@@ -2200,7 +2200,7 @@ body.swimActive #swimViewportPanel{bottom:0;max-height:calc(100dvh - 35px);overf
 body.swimActive #swimView{max-height:calc(100dvh - 235px)}
 @media(max-height:600px){body.swimActive #swimView{max-height:calc(100dvh - 175px)}}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v294（右側縦操作）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v295（中央拡大）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>位置移動（左右・上下）</small></div>
 <div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線変更（目は固定）</small></div>
@@ -2737,5 +2737,19 @@ body.swimActive #swimPedal{width:62px;height:68px}
 body.swimActive #swimReset,body.swimActive #swimFar{height:29px;min-height:29px;padding:2px 5px;font-size:11px}
 body.swimActive #v293Side small{font-size:10px;line-height:1.1;white-space:normal}
 @media(max-width:650px){body.swimActive #swimViewportPanel{grid-template-columns:minmax(0,1fr) 92px;gap:2px}body.swimActive #swimLookStick,body.swimActive #swimJoystick{width:64px;height:64px}}
+</style>
+
+<style id="v295-enlarge-centered">
+/* v295: enlarge the 16:9 video in place; never overlap the right controls.
+   The available viewport limits the requested 1.5x scale. */
+body.swimActive #swimViewportPanel{grid-template-rows:auto minmax(0,1fr) auto auto!important;}
+body.swimActive #swimView{
+  width:min(100%, 840px, calc((100dvh - 115px)*16/9))!important;
+  height:auto!important;max-width:100%!important;max-height:calc(100dvh - 115px)!important;
+  aspect-ratio:16/9!important;object-fit:contain!important;
+  justify-self:center!important;align-self:center!important;
+  margin:0 auto!important;display:block!important;
+}
+@media(max-height:600px){body.swimActive #swimView{width:min(100%,840px,calc((100dvh - 94px)*16/9))!important;max-height:calc(100dvh - 94px)!important;}}
 </style>
 </body></html>
