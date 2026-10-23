@@ -2200,7 +2200,7 @@ body.swimActive #swimViewportPanel{bottom:0;max-height:calc(100dvh - 35px);overf
 body.swimActive #swimView{max-height:calc(100dvh - 235px)}
 @media(max-height:600px){body.swimActive #swimView{max-height:calc(100dvh - 175px)}}
 </style>
-<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v291a（配置矢印復帰修正）</strong><canvas id="swimView" width="560" height="315"></canvas>
+<div id="swimViewportPanel"><strong id="swimViewTitle">空間遊泳テスト v292（広角視野テスト）</strong><canvas id="swimView" width="560" height="315"></canvas>
 <div id="swimPilot" aria-label="空間遊泳の操縦装置">
 <div><div id="swimJoystick" aria-label="左右上下のジョイスティック"><button data-swim="ascend" title="上昇 0.2" aria-label="上昇">↑</button><button data-swim="descend" title="下降 0.2" aria-label="下降">↓</button><button data-swim="strafeleft" title="左移動 0.2" aria-label="左移動">←</button><button data-swim="straferight" title="右移動 0.2" aria-label="右移動">→</button><span class="hub"></span></div><small>位置移動（左右・上下）</small></div>
 <div><div id="swimLookStick" aria-label="視線方向を変えるジョイスティック"><span class="direction top">↑</span><span class="direction bottom">↓</span><span class="direction left">←</span><span class="direction right">→</span><span class="hub"></span></div><small>視線変更（目は固定）</small></div>
@@ -2292,7 +2292,7 @@ body.swimActive #swimView{max-height:calc(100dvh - 235px)}
    up=[-sf*ct,cf,-sf*st];
   }
   const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
-  const f=h*.65,frac=q=>Math.abs(q-Math.round(q));
+  const f=h*.38,frac=q=>Math.abs(q-Math.round(q)); // v292: wider horizontal field of view; eye position unchanged
   const cellColors=new Map();
   for(const sb of swimBlocks)for(const c of sb.cells)cellColors.set(c.join(','),sb.color);
   for(let py=0;py<h;py++)for(let px=0;px<w;px++){
