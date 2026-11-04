@@ -91,7 +91,7 @@
 .centerPanel .stage #turnInfo,.centerPanel .stage #status{display:none!important}
 /* 完成メッセージの位置は動的生成時の指定を下記で上書き */
 #completionNotice{top:3%!important}
-</style><style id="v381-main-title">.gameMainHeading{position:absolute;top:9px;left:10px;z-index:5;margin:0;padding:0;font-family:system-ui,sans-serif;font-weight:800;font-size:clamp(16px,2vw,25px);line-height:1.3;color:#173e65;letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 2px #dfeefb}@media(max-width:760px){.gameMainHeading{top:4px;left:5px;font-size:clamp(12px,2.5vw,18px)}}</style><div class="layout"><section class="storagePanel"><div id="storageWrap" style="position:relative;width:100%;aspect-ratio:1"><header class="gameMainHeading">8088立体パズル</header><canvas id="storageView" aria-label="WebGL収納box"></canvas><svg id="storageOriginLayer" class="originMarkerLayer"></svg></div><div class="boxBottomTitle">収納(storage)BOX</div><div class="storageCaption">収納したブロックを表示します。</div></section><div class="leftActionColumn" aria-label="収納操作と重要ボタン"><button id="ansRemainButton" class="leftActionControl" type="button">Ans. remain<span class="remainValue" id="ansRemainValue">？</span></button><button id="placeBlock" class="flowMark" type="button" title="収納boxへ入れる">←</button><div id="overlapNotice" role="status" aria-live="polite">重なっています</div></div><div class="centerPanel"><div class="stage"><canvas id="view"></canvas><button id="gameStartButton" type="button">ゲーム開始</button><svg id="turnOverlay" class="turnOverlay" aria-label="面上の回転ボタン"></svg><svg id="moveOriginLayer" class="originMarkerLayer"></svg><div class="faceHelp">目に最も近い頂点を黒点で表示。3本の稜線の中点（青点）を基準に、少し離した各2本の矢印<br>ブロック自体には矢印を表示しません</div><div id="turnInfo" style="position:absolute;left:8px;top:8px;background:#ffffffdd;padding:5px 8px;font:13px system-ui;border-radius:4px;pointer-events:none">回転記録：まだありません</div><div class="status" id="status">WebGL起動中</div><div id="sameKindNumber" title="同種解答組番号-組内番号">--- --</div><div class="movingCornerActions"><button id="basePositionButton" class="leftActionControl" type="button">視線を戻す<small>(reset view)</small></button><button id="helpButton" class="leftActionControl" type="button">help</button></div></div><div class="boxBottomTitle">移動(moving)BOX</div></div><button id="returnBlock" class="flowMark" type="button" title="移動boxのブロックをブロック群へ戻す" aria-label="ブロック群へ戻す">→</button><section class="palettePanel"><div class="panelTitle">ブロック群（7色）</div><div id="blockButtons" class="row"></div><div class="paletteHint">形と色を確認して選択。収納済みは薄く表示。</div></section></div><section id="referenceNotes" aria-label="バージョン情報"><div class="integrationNote">v363：ボタンの青色を調整、A・B原点表示を非表示</div></section><details class="controlDetails" id="helpDetails"><summary>v316eの移動・視線・回転補助操作を開く</summary><div class="side"><div class="title">v316eの補助操作（回転本体は変更なし）</div><div class="title">ブロックの平行移動（1ピースずつ）</div>
+</style><style id="v388-fireworks">@keyframes v388Firework{0%{opacity:0;transform:translate(0,0) scale(.25)}12%{opacity:1}65%{opacity:.9}100%{opacity:.42;transform:translate(var(--fx),var(--fy)) scale(.65)}}@media(prefers-reduced-motion:reduce){#completionFireworks{display:none}}</style><style id="v381-main-title">.gameMainHeading{position:absolute;top:9px;left:10px;z-index:5;margin:0;padding:0;font-family:system-ui,sans-serif;font-weight:800;font-size:clamp(16px,2vw,25px);line-height:1.3;color:#173e65;letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 2px #dfeefb}@media(max-width:760px){.gameMainHeading{top:4px;left:5px;font-size:clamp(12px,2.5vw,18px)}}</style><div class="layout"><section class="storagePanel"><div id="storageWrap" style="position:relative;width:100%;aspect-ratio:1"><header class="gameMainHeading">8088立体パズル</header><canvas id="storageView" aria-label="WebGL収納box"></canvas><svg id="storageOriginLayer" class="originMarkerLayer"></svg></div><div class="boxBottomTitle">収納(storage)BOX</div><div class="storageCaption">収納したブロックを表示します。</div></section><div class="leftActionColumn" aria-label="収納操作と重要ボタン"><button id="ansRemainButton" class="leftActionControl" type="button">Ans. remain<span class="remainValue" id="ansRemainValue">？</span></button><button id="placeBlock" class="flowMark" type="button" title="収納boxへ入れる">←</button><div id="overlapNotice" role="status" aria-live="polite">重なっています</div></div><div class="centerPanel"><div class="stage"><canvas id="view"></canvas><button id="gameStartButton" type="button">ゲーム開始</button><svg id="turnOverlay" class="turnOverlay" aria-label="面上の回転ボタン"></svg><svg id="moveOriginLayer" class="originMarkerLayer"></svg><div class="faceHelp">目に最も近い頂点を黒点で表示。3本の稜線の中点（青点）を基準に、少し離した各2本の矢印<br>ブロック自体には矢印を表示しません</div><div id="turnInfo" style="position:absolute;left:8px;top:8px;background:#ffffffdd;padding:5px 8px;font:13px system-ui;border-radius:4px;pointer-events:none">回転記録：まだありません</div><div class="status" id="status">WebGL起動中</div><div id="sameKindNumber" title="同種解答組番号-組内番号">--- --</div><div class="movingCornerActions"><button id="basePositionButton" class="leftActionControl" type="button">視線を戻す<small>(reset view)</small></button><button id="helpButton" class="leftActionControl" type="button">help</button></div></div><div class="boxBottomTitle">移動(moving)BOX</div></div><button id="returnBlock" class="flowMark" type="button" title="移動boxのブロックをブロック群へ戻す" aria-label="ブロック群へ戻す">→</button><section class="palettePanel"><div class="panelTitle">ブロック群（7色）</div><div id="blockButtons" class="row"></div><div class="paletteHint">形と色を確認して選択。収納済みは薄く表示。</div></section></div><section id="referenceNotes" aria-label="バージョン情報"><div class="integrationNote">v363：ボタンの青色を調整、A・B原点表示を非表示</div></section><details class="controlDetails" id="helpDetails"><summary>v316eの移動・視線・回転補助操作を開く</summary><div class="side"><div class="title">v316eの補助操作（回転本体は変更なし）</div><div class="title">ブロックの平行移動（1ピースずつ）</div>
 <div class="row"><button data-a="mx-">X −1</button><button data-a="mx+">X ＋1</button><button data-a="my-">Y −1</button><button data-a="my+">Y ＋1</button><button data-a="mz-">Z −1</button><button data-a="mz+">Z ＋1</button></div>
 <button data-a="resetposition">位置リセット</button>
 <div id="moveInfo" class="hint">移動boxは空です。右のブロック群から選択してください。</div>
@@ -430,16 +430,49 @@ function completedAnswerId(){
  if(id!==undefined)return id;
  return null;
 }
+// v388: Ten-second celebration and persistent afterglow for unaided completion.
+let helpUsedThisGame=false;
+let celebrationShownThisGame=false;
+let celebrationTimer=null;
+function clearCelebration(){
+ if(celebrationTimer!==null){clearTimeout(celebrationTimer);celebrationTimer=null;}
+ const layer=document.getElementById('completionFireworks');
+ if(layer)layer.remove();
+}
+function celebrateUnaidedCompletion(){
+ if(helpUsedThisGame||celebrationShownThisGame)return;
+ celebrationShownThisGame=true;
+ const wrap=document.querySelector('.centerPanel .stage');
+ if(!wrap)return;
+ clearCelebration();
+ const layer=document.createElement('div');
+ layer.id='completionFireworks';
+ layer.setAttribute('aria-hidden','true');
+ layer.style.cssText='position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:29';
+ const colors=['#e84355','#ffb500','#2699df','#42b56a','#a65bdd','#ff719f'];
+ // About ten seconds of staggered fireworks. The final particles remain
+ // visible until the next press of the Game Start button.
+ const bursts=7;
+ for(let burst=0;burst<bursts;burst++){
+  const cx=[25,75,50,34,68,44,58][burst],cy=[36,35,66,54,50,29,65][burst];
+  for(let j=0;j<24;j++){
+   const angle=2*Math.PI*j/24;
+   const radius=55+(j%5)*10;
+   const dot=document.createElement('i');
+   dot.style.cssText='position:absolute;left:'+cx+'%;top:'+cy+'%;width:15px;height:15px;border-radius:50%;background:'+colors[(j+burst)%colors.length]+';opacity:0;animation:v388Firework 1600ms ease-out '+(burst*1400)+'ms both;--fx:'+Math.round(Math.cos(angle)*radius)+'px;--fy:'+Math.round(Math.sin(angle)*radius)+'px';
+   layer.appendChild(dot);
+  }
+ }
+ wrap.appendChild(layer);
+ // No removal timer: keep the final afterglow until Game Start.
+
+}
 function hideCompletionNotice(){
  const note=document.getElementById('completionNotice');
  if(note)note.style.display='none';
 }
-// Keep the completion message until the player takes another action.
-document.addEventListener('pointerdown',e=>{
- const note=document.getElementById('completionNotice');
- if(note&&note.style.display==='block'&&!note.contains(e.target))hideCompletionNotice();
-},true);
-document.addEventListener('keydown',()=>hideCompletionNotice(),true);
+// v386: Keep the completion message visible during rotation and other operations.
+// Only the 'ゲーム開始' button explicitly hides it via hideCompletionNotice().
 // Non-modal completion notice: keeps the finished 27-piece cube visible.
 function showCompletionNotice(){
  const wrap=document.getElementById('storageWrap');
@@ -455,6 +488,7 @@ function showCompletionNotice(){
  updateSameKindNumber();
  note.textContent='完成です！！　Ans.ID='+(answerId===null?'照合なし':answerId);
  note.style.display='block';
+ celebrateUnaidedCompletion();
 }
 function placeActive(){
  if(helpBusy||anim||!hasActive)return;
@@ -580,6 +614,7 @@ document.getElementById('gameStartButton').addEventListener('click',()=>{
  helpToken++;clearTimeout(helpTimer);helpTimer=null;helpBusy=false;
  if(helpWorker){helpWorker.terminate();helpWorker=null;}
  document.getElementById('helpButton').textContent='help';
+ helpUsedThisGame=false;celebrationShownThisGame=false;clearCelebration();
  anim=null;stored.length=0;hasActive=false;rotationCells=[];selectedAxis=null;moveStartView=null;
  selected=0;active=blockDefs[selected];
  invalidateRemain();hideCompletionNotice();clearOverlapNotice();updateSameKindNumber();
@@ -704,6 +739,7 @@ function playHelp(path,token){
 }
 helpButton.addEventListener('click',()=>{
  if(helpBusy||anim)return;
+ helpUsedThisGame=true;
  helpBusy=true;helpButton.textContent='探索中';
  const token=++helpToken;
  const blob=new Blob([remainWorkerSource],{type:'application/javascript'});
@@ -1150,7 +1186,7 @@ window.addEventListener('resize',draw);act('home');})();
 <h3>4. 完成したら</h3><div class="guideNumbered">
 <div class="guideNumberedLine"><span class="guideNumber">1)</span><span><strong class="guideEmphasis">「完成です！！ Ans. ID=xxxx」</strong>と表示されます。</span></div>
 <div class="guideNumberedLine"><span class="guideNumber">2)</span><span>xxxxは、<strong class="guideEmphasis">8,088通りの解答のうち何番目の解答か</strong>を表します。</span></div>
-<div class="guideNumberedLine"><span class="guideNumber">3)</span><span><span class="guideKey">help</span>を使わずに完成すると、花火のような演出で祝福されます（実装予定）。</span></div>
+<div class="guideNumberedLine"><span class="guideNumber">3)</span><span><span class="guideKey">help</span>を使わずに完成すると、花火のような演出で祝福されます。</span></div>
 </div>
 </section>
 <aside class="feedbackPanel" aria-label="自由意見投稿欄">
