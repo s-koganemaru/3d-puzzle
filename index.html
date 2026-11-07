@@ -1113,10 +1113,77 @@ window.addEventListener('resize',draw);act('home');})();
 <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.warn('PWA登録:', err)); }); }</script>
 
 <style id="v391-history-standalone-style">
-#historyStandalone{max-width:1250px;margin:20px auto 24px;padding:16px 18px;background:#fff;border:1px solid #cad7e3;border-radius:8px;font-family:system-ui,sans-serif;color:#243442;line-height:1.65;box-sizing:border-box}
+#historyStandalone{max-width:none;width:calc(100% - 24px);margin:20px auto 24px;padding:16px 18px;background:#fff;border:1px solid #cad7e3;border-radius:8px;font-family:system-ui,sans-serif;color:#243442;line-height:1.65;box-sizing:border-box}
 #historyStandalone h2{font-size:22px;margin:0 0 10px}
+
+/* v393: keep information and chart in the same row on tablets and phones. */
+#historyStandalone .historySideBySide{display:grid;grid-template-columns:minmax(175px,1fr) minmax(0,720px);gap:12px;align-items:start}
+#historyStandalone .historyInformation{min-width:0;overflow-wrap:anywhere}
+#historyStandalone .historyChartColumn{width:auto;min-width:0;max-width:100%}
+#historyStandalone .historyChartColumn .historyScroller{max-width:100%;overflow-x:auto;overflow-y:hidden}
+#historyStandalone .historyChartColumn .historyCanvasWrap{width:720px;max-width:100%}
+#historyStandalone .historyChartColumn #historyCanvas{width:100%;height:auto}
+@media(max-width:1080px){
+ #historyStandalone .historySideBySide{grid-template-columns:minmax(165px,31%) minmax(0,1fr);gap:10px}
+ #historyStandalone .historyInformation .historyLegend{flex-direction:column;align-items:flex-start}
+ #historyStandalone .historyChartColumn{width:auto;max-width:100%}
+ #historyStandalone .historyChartColumn .historyScroller{overflow-x:auto}
+ #historyStandalone .historyChartColumn .historyCanvasWrap{width:720px;max-width:100%}
+}
+@media(max-width:620px){
+ #historyStandalone{padding:8px 6px}
+ #historyStandalone .historySideBySide{grid-template-columns:135px minmax(0,1fr);gap:6px}
+ #historyStandalone .historyInformation{font-size:11px}
+ #historyStandalone .historyInformation h3{font-size:13px;line-height:1.35}
+ #historyStandalone .historyInformation .historyLegend{font-size:10px;gap:5px}
+ #historyStandalone .historyInformation .historyStats{font-size:11px}
+ #historyStandalone .historyInformation .historyHint{font-size:10px;margin:6px 0}
+ #historyStandalone .historyInformation .historyDetail{font-size:10px;padding:5px}
+ #historyStandalone .historyChartColumn .historyCanvasWrap{width:720px;max-width:none}
+}
+/* v396: compact statistics below the three legend entries. */
+#historyStandalone .historyInformation .historyStats {
+  font-size:12px;
+  font-weight:400;
+  color:#526171;
+  line-height:1.5;
+  margin:8px 0 10px;
+}
+@media(max-width:620px){
+ #historyStandalone .historyInformation .historyStats {font-size:10px;line-height:1.45;margin:6px 0}
+}
+/* v400: high-contrast black text in the history information column only. */
+#historyStandalone .historyInformation,
+#historyStandalone .historyInformation h3,
+#historyStandalone .historyInformation .historyLegend,
+#historyStandalone .historyInformation .historyStats,
+#historyStandalone .historyInformation .historyHint,
+#historyStandalone .historyInformation .historyDetail {color:#000}
 </style>
-<section id="historyStandalone" aria-label="完成履歴"><div class="historyArea"><div class="historySideBySide"><div class="historyInformation"><h3>私の完成履歴（8088通り）</h3><div class="historyStats" id="historyStats">完成履歴を読み込み中…</div><div class="historyLegend"><span><i class="historyLegendDot small"></i>未完成</span><span><i class="historyLegendDot large"></i>helpありで完成</span><span><i class="historyLegendDot red"></i>helpなしで完成</span><span>□ 対象外（8089～9000）</span></div><p class="historyHint">縦横10ドット刻みは実線、5ドット刻みは点線。赤丸や大きい黒丸をクリックすると記録が表示されます。</p><div id="historyDetail" class="historyDetail" role="status">完成済みのドットをクリックすると、Ans.IDと完成記録が表示されます。</div><p class="historyHint">この端末・ブラウザでv391以降に完成した記録を保存します。ブラウザのデータを消去すると記録は失われます。</p></div><div class="historyChartColumn"><div class="historyScroller"><div class="historyCanvasWrap"><canvas id="historyCanvas" width="720" height="486" aria-label="100列90行の完成履歴ドット表"></canvas></div></div></div></div></div></section>
+<section id="historyStandalone" aria-label="完成履歴"><div class="historyArea"><div class="historySideBySide"><div class="historyInformation"><h3>私の完成履歴（8088通り）</h3><button type="button" id="historyFitButton" class="historyFitButton" title="完成履歴を画面の中央に表示">全体表示</button><div class="historyLegend"><span><i class="historyLegendDot small"></i>未完成</span><span><i class="historyLegendDot large"></i>helpありで完成</span><span><i class="historyLegendDot red"></i>helpなしで完成</span></div><div class="historyStats" id="historyStats">完成履歴を読み込み中…</div><p class="historyHint">縦横10ドット刻みは実線、5ドット刻みは点線。赤丸や大きい黒丸をクリックすると記録が表示されます。</p><div id="historyDetail" class="historyDetail" role="status">完成済みのドットをクリックすると、Ans.IDと完成記録が表示されます。</div><p class="historyHint">この端末・ブラウザでv391以降に完成した記録を保存します。ブラウザのデータを消去すると記録は失われます。</p></div><div class="historyChartColumn"><div class="historyScroller"><div class="historyCanvasWrap"><canvas id="historyCanvas" width="720" height="486" aria-label="100列90行の完成履歴ドット表"></canvas></div></div></div></div></div></section>
+<style id="v394-fit-style">
+#historyStandalone .historyFitButton{display:inline-block;margin:0 0 7px;padding:6px 14px;border:1px solid #7098bf;border-radius:6px;background:#e9f3ff;color:#174d88;font:600 14px system-ui,sans-serif;cursor:pointer}
+#historyStandalone .historyFitButton:hover{background:#d7eaff}
+#historyStandalone .historyFitButton:focus-visible{outline:3px solid #ffb548;outline-offset:2px}
+</style>
+<script id="v394-fit-script">
+(function(){
+ function init(){
+  const button=document.getElementById('historyFitButton');
+  const panel=document.getElementById('historyStandalone');
+  if(!button||!panel)return;
+  button.addEventListener('click',function(){
+   const rect=panel.getBoundingClientRect();
+   // Center the entire panel when it fits; otherwise align its top to viewport.
+   const viewportHeight=window.innerHeight;
+   const topMargin=rect.height<=viewportHeight?Math.max(0,(viewportHeight-rect.height)/2):8;
+   const destination=window.scrollY+rect.top-topMargin;
+   window.scrollTo({top:Math.max(0,destination),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 <style id="v368-guide-style">
 #gameGuide{max-width:1250px;margin:26px auto 55px;padding:0 18px;font-family:system-ui,sans-serif;color:#243442;line-height:1.85;font-size:16px}
 #gameGuide h1{text-align:center;font-size:clamp(22px,2.5vw,30px);margin:0 0 16px}
@@ -1231,7 +1298,7 @@ window.addEventListener('resize',draw);act('home');})();
 <div class="feedbackExample"><strong>A様の投稿内容</strong><p>（ここに掲載する投稿内容が入ります）</p><strong>作者回答内容</strong><p>（ここに作者の回答が入ります）</p></div>
 <p class="feedbackNote">※上記は掲載形式の見本です。</p>
 </div></aside></div>
-<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v391</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
+<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v400</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
 </main>
 <script id="v391-history-js">
 const PUZZLE_HISTORY_KEY='puzzle8088-history-v391';
@@ -1260,14 +1327,14 @@ function drawPuzzleHistory(){
  ctx.setTransform(dpr*2/3,0,0,dpr*0.5,0,0);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,canvas.width,canvas.height);
  // Axis labels are drawn at native canvas resolution after the dots, at 18px.
  ctx.fillStyle='#f0f2f5';ctx.fillRect(x0,y0,cols*step,rows*step);
- for(let i=0;i<=cols;i+=5){ctx.beginPath();ctx.setLineDash(i%10===0?[]:[3,3]);ctx.lineWidth=i%10===0?1.2:0.7;ctx.strokeStyle=i%10===0?'#64748b':'#9ca3af';ctx.moveTo(x0+i*step,y0);ctx.lineTo(x0+i*step,y0+rows*step);ctx.stroke();}
- for(let i=0;i<=rows;i+=5){ctx.beginPath();ctx.setLineDash(i%10===0?[]:[3,3]);ctx.lineWidth=i%10===0?1.2:0.7;ctx.strokeStyle=i%10===0?'#64748b':'#9ca3af';ctx.moveTo(x0,y0+i*step);ctx.lineTo(x0+cols*step,y0+i*step);ctx.stroke();}
+ for(let i=0;i<=cols;i+=5){ctx.beginPath();ctx.setLineDash(i%10===0?[]:[3,3]);ctx.lineWidth=i%10===0?1.6:1.05;ctx.strokeStyle=i%10===0?'#000000':'#000000';ctx.moveTo(x0+i*step,y0);ctx.lineTo(x0+i*step,y0+rows*step);ctx.stroke();}
+ for(let i=0;i<=rows;i+=5){ctx.beginPath();ctx.setLineDash(i%10===0?[]:[3,3]);ctx.lineWidth=i%10===0?1.6:1.05;ctx.strokeStyle=i%10===0?'#000000':'#000000';ctx.moveTo(x0,y0+i*step);ctx.lineTo(x0+cols*step,y0+i*step);ctx.stroke();}
  ctx.setLineDash([]);
  for(let id=1;id<=9000;id++){
   const cx=x0+((id-1)%100+0.5)*step,cy=y0+(Math.floor((id-1)/100)+0.5)*step;
   if(id>8088){ctx.strokeStyle='#a3a3a3';ctx.lineWidth=0.8;ctx.strokeRect(cx-2,cy-2,4,4);continue;}
   const entry=history[id];const unaided=!!entry?.firstUnaided;const helped=!!entry?.n&&!unaided;
-  ctx.beginPath();ctx.arc(cx,cy,unaided?4.5625:helped?3.3:1.6,0,Math.PI*2);ctx.fillStyle=unaided?'#e53935':'#242424';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,unaided?4.9:helped?3.9:1.6,0,Math.PI*2);ctx.fillStyle=unaided?'#e53935':'#242424';ctx.fill();
  }
  ctx.setTransform(dpr,0,0,dpr,0,0);
  ctx.fillStyle='#263445';ctx.font='600 18px system-ui';ctx.textAlign='center';
