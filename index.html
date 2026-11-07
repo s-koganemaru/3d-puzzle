@@ -91,7 +91,23 @@
 .centerPanel .stage #turnInfo,.centerPanel .stage #status{display:none!important}
 /* 完成メッセージの位置は動的生成時の指定を下記で上書き */
 #completionNotice{top:3%!important}
-</style><style id="v388-fireworks">@keyframes v388Firework{0%{opacity:0;transform:translate(0,0) scale(.25)}12%{opacity:1}65%{opacity:.9}100%{opacity:.42;transform:translate(var(--fx),var(--fy)) scale(.65)}}@media(prefers-reduced-motion:reduce){#completionFireworks{display:none}}</style><style id="v381-main-title">.gameMainHeading{position:absolute;top:9px;left:10px;z-index:5;margin:0;padding:0;font-family:system-ui,sans-serif;font-weight:800;font-size:clamp(16px,2vw,25px);line-height:1.3;color:#173e65;letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 2px #dfeefb}@media(max-width:760px){.gameMainHeading{top:4px;left:5px;font-size:clamp(12px,2.5vw,18px)}}</style><div class="layout"><section class="storagePanel"><div id="storageWrap" style="position:relative;width:100%;aspect-ratio:1"><header class="gameMainHeading">8088立体パズル</header><canvas id="storageView" aria-label="WebGL収納box"></canvas><svg id="storageOriginLayer" class="originMarkerLayer"></svg></div><div class="boxBottomTitle">収納(storage)BOX</div><div class="storageCaption">収納したブロックを表示します。</div></section><div class="leftActionColumn" aria-label="収納操作と重要ボタン"><button id="ansRemainButton" class="leftActionControl" type="button">Ans. remain<span class="remainValue" id="ansRemainValue">？</span></button><button id="placeBlock" class="flowMark" type="button" title="収納boxへ入れる">←</button><div id="overlapNotice" role="status" aria-live="polite">重なっています</div></div><div class="centerPanel"><div class="stage"><canvas id="view"></canvas><button id="gameStartButton" type="button">ゲーム開始</button><svg id="turnOverlay" class="turnOverlay" aria-label="面上の回転ボタン"></svg><svg id="moveOriginLayer" class="originMarkerLayer"></svg><div class="faceHelp">目に最も近い頂点を黒点で表示。3本の稜線の中点（青点）を基準に、少し離した各2本の矢印<br>ブロック自体には矢印を表示しません</div><div id="turnInfo" style="position:absolute;left:8px;top:8px;background:#ffffffdd;padding:5px 8px;font:13px system-ui;border-radius:4px;pointer-events:none">回転記録：まだありません</div><div class="status" id="status">WebGL起動中</div><div id="sameKindNumber" title="同種解答組番号-組内番号">--- --</div><div class="movingCornerActions"><button id="basePositionButton" class="leftActionControl" type="button">視線を戻す<small>(reset view)</small></button><button id="helpButton" class="leftActionControl" type="button">help</button></div></div><div class="boxBottomTitle">移動(moving)BOX</div></div><button id="returnBlock" class="flowMark" type="button" title="移動boxのブロックをブロック群へ戻す" aria-label="ブロック群へ戻す">→</button><section class="palettePanel"><div class="panelTitle">ブロック群（7色）</div><div id="blockButtons" class="row"></div><div class="paletteHint">形と色を確認して選択。収納済みは薄く表示。</div></section></div><section id="referenceNotes" aria-label="バージョン情報"><div class="integrationNote">v363：ボタンの青色を調整、A・B原点表示を非表示</div></section><details class="controlDetails" id="helpDetails"><summary>v316eの移動・視線・回転補助操作を開く</summary><div class="side"><div class="title">v316eの補助操作（回転本体は変更なし）</div><div class="title">ブロックの平行移動（1ピースずつ）</div>
+</style><style id="v388-fireworks">@keyframes v388Firework{0%{opacity:0;transform:translate(0,0) scale(.25)}12%{opacity:1}65%{opacity:.9}100%{opacity:.42;transform:translate(var(--fx),var(--fy)) scale(.65)}}@media(prefers-reduced-motion:reduce){#completionFireworks{display:none}}</style><style id="v381-main-title">.gameMainHeading{position:absolute;top:9px;left:10px;z-index:5;margin:0;padding:0;font-family:system-ui,sans-serif;font-weight:800;font-size:clamp(16px,2vw,25px);line-height:1.3;color:#173e65;letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 2px #dfeefb}@media(max-width:760px){.gameMainHeading{top:4px;left:5px;font-size:clamp(12px,2.5vw,18px)}}</style><style id="v391-history-css">
+#historyStandalone .historyAppendixHeader{display:flex;align-items:center;justify-content:space-between;gap:12px}#historyStandalone .historyAppendixHeader h2{flex:1;margin-bottom:6px}#historyStandalone .historyVersion{font:12px system-ui;color:#687788;white-space:nowrap}
+#historyStandalone .historyArea{margin-top:0}#historyStandalone .historyArea h3{margin:4px 0 9px}#historyStandalone .historyStats{font-weight:700;margin:7px 0;color:#174d88}#historyStandalone .historyLegend{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px}#historyStandalone .historyLegend span{display:inline-flex;align-items:center;gap:5px}#historyStandalone .historyLegendDot{display:inline-block;background:#242424;border-radius:50%;width:5px;height:5px}#historyStandalone .historyLegendDot.large{width:9px;height:9px}#historyStandalone .historyLegendDot.red{width:9px;height:9px;background:#e53935}#historyStandalone .historyHint{font-size:12px;color:#627083;margin:6px 0}#historyStandalone .historyScroller{overflow-x:auto;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f9fafb}#historyStandalone .historyCanvasWrap{width:720px;max-width:100%}#historyStandalone #historyCanvas{display:block;width:100%;height:auto;cursor:crosshair}#historyStandalone .historyDetail{background:#edf5ff;border:1px solid #b6d4f1;border-radius:7px;padding:9px 12px;margin-top:10px;min-height:26px;font-size:14px}
+
+/* v391: history information to the left, 720px high-resolution chart to the right. */
+#historyStandalone .historySideBySide{display:grid;grid-template-columns:minmax(270px,1fr) 720px;gap:18px;align-items:start}
+#historyStandalone .historyInformation{min-width:0}
+#historyStandalone .historyInformation h3{margin-top:0}
+#historyStandalone .historyInformation .historyLegend{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:14px 0}
+#historyStandalone .historyInformation .historyStats{line-height:1.7}
+#historyStandalone .historyInformation .historyHint{line-height:1.55;margin:12px 0}
+#historyStandalone .historyInformation .historyDetail{overflow-wrap:anywhere;line-height:1.55}
+#historyStandalone .historyChartColumn{width:720px;min-width:0}
+#historyStandalone .historyChartColumn .historyScroller{border:0;overflow:visible;background:transparent}
+#historyStandalone .historyChartColumn .historyCanvasWrap{max-width:none;width:720px}
+@media(max-width:1080px){#historyStandalone .historySideBySide{grid-template-columns:1fr}#historyStandalone .historyInformation .historyLegend{flex-direction:row;flex-wrap:wrap}#historyStandalone .historyChartColumn{max-width:100%}#historyStandalone .historyChartColumn .historyScroller{overflow-x:auto}#historyStandalone .historyChartColumn .historyCanvasWrap{width:720px}}
+</style><div class="layout"><section class="storagePanel"><div id="storageWrap" style="position:relative;width:100%;aspect-ratio:1"><header class="gameMainHeading">8088立体パズル</header><canvas id="storageView" aria-label="WebGL収納box"></canvas><svg id="storageOriginLayer" class="originMarkerLayer"></svg></div><div class="boxBottomTitle">収納(storage)BOX</div><div class="storageCaption">収納したブロックを表示します。</div></section><div class="leftActionColumn" aria-label="収納操作と重要ボタン"><button id="ansRemainButton" class="leftActionControl" type="button">Ans. remain<span class="remainValue" id="ansRemainValue">？</span></button><button id="placeBlock" class="flowMark" type="button" title="収納boxへ入れる">←</button><div id="overlapNotice" role="status" aria-live="polite">重なっています</div></div><div class="centerPanel"><div class="stage"><canvas id="view"></canvas><button id="gameStartButton" type="button">ゲーム開始</button><svg id="turnOverlay" class="turnOverlay" aria-label="面上の回転ボタン"></svg><svg id="moveOriginLayer" class="originMarkerLayer"></svg><div class="faceHelp">目に最も近い頂点を黒点で表示。3本の稜線の中点（青点）を基準に、少し離した各2本の矢印<br>ブロック自体には矢印を表示しません</div><div id="turnInfo" style="position:absolute;left:8px;top:8px;background:#ffffffdd;padding:5px 8px;font:13px system-ui;border-radius:4px;pointer-events:none">回転記録：まだありません</div><div class="status" id="status">WebGL起動中</div><div id="sameKindNumber" title="同種解答組番号-組内番号">--- --</div><div class="movingCornerActions"><button id="basePositionButton" class="leftActionControl" type="button">視線を戻す<small>(reset view)</small></button><button id="helpButton" class="leftActionControl" type="button">help</button></div></div><div class="boxBottomTitle">移動(moving)BOX</div></div><button id="returnBlock" class="flowMark" type="button" title="移動boxのブロックをブロック群へ戻す" aria-label="ブロック群へ戻す">→</button><section class="palettePanel"><div class="panelTitle">ブロック群（7色）</div><div id="blockButtons" class="row"></div><div class="paletteHint">形と色を確認して選択。収納済みは薄く表示。</div></section></div><section id="referenceNotes" aria-label="バージョン情報"><div class="integrationNote">v363：ボタンの青色を調整、A・B原点表示を非表示</div></section><details class="controlDetails" id="helpDetails"><summary>v316eの移動・視線・回転補助操作を開く</summary><div class="side"><div class="title">v316eの補助操作（回転本体は変更なし）</div><div class="title">ブロックの平行移動（1ピースずつ）</div>
 <div class="row"><button data-a="mx-">X −1</button><button data-a="mx+">X ＋1</button><button data-a="my-">Y −1</button><button data-a="my+">Y ＋1</button><button data-a="mz-">Z −1</button><button data-a="mz+">Z ＋1</button></div>
 <button data-a="resetposition">位置リセット</button>
 <div id="moveInfo" class="hint">移動boxは空です。右のブロック群から選択してください。</div>
@@ -433,6 +449,7 @@ function completedAnswerId(){
 // v388: Ten-second celebration and persistent afterglow for unaided completion.
 let helpUsedThisGame=false;
 let celebrationShownThisGame=false;
+let historyCountedThisGame=false;
 let celebrationTimer=null;
 function clearCelebration(){
  if(celebrationTimer!==null){clearTimeout(celebrationTimer);celebrationTimer=null;}
@@ -486,7 +503,10 @@ function showCompletionNotice(){
  }
  const answerId=completedAnswerId();
  updateSameKindNumber();
- note.textContent='完成です！！　Ans.ID='+(answerId===null?'照合なし':answerId);
+ const completionCount=(answerId!==null&&!historyCountedThisGame)?recordPuzzleCompletion(answerId,helpUsedThisGame):null;
+ if(answerId!==null&&!historyCountedThisGame)historyCountedThisGame=true;
+ const count=completionCount??(answerId!==null?getPuzzleHistory()[answerId]?.n:null);
+ note.textContent='完成です！！　Ans.ID='+(answerId===null?'照合なし':answerId)+(count?'　'+count+'回目の完成です！':'');
  note.style.display='block';
  celebrateUnaidedCompletion();
 }
@@ -614,7 +634,7 @@ document.getElementById('gameStartButton').addEventListener('click',()=>{
  helpToken++;clearTimeout(helpTimer);helpTimer=null;helpBusy=false;
  if(helpWorker){helpWorker.terminate();helpWorker=null;}
  document.getElementById('helpButton').textContent='help';
- helpUsedThisGame=false;celebrationShownThisGame=false;clearCelebration();
+ helpUsedThisGame=false;celebrationShownThisGame=false;historyCountedThisGame=false;clearCelebration();
  anim=null;stored.length=0;hasActive=false;rotationCells=[];selectedAxis=null;moveStartView=null;
  selected=0;active=blockDefs[selected];
  invalidateRemain();hideCompletionNotice();clearOverlapNotice();updateSameKindNumber();
@@ -1092,6 +1112,11 @@ window.addEventListener('resize',draw);act('home');})();
 
 <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.warn('PWA登録:', err)); }); }</script>
 
+<style id="v391-history-standalone-style">
+#historyStandalone{max-width:1250px;margin:20px auto 24px;padding:16px 18px;background:#fff;border:1px solid #cad7e3;border-radius:8px;font-family:system-ui,sans-serif;color:#243442;line-height:1.65;box-sizing:border-box}
+#historyStandalone h2{font-size:22px;margin:0 0 10px}
+</style>
+<section id="historyStandalone" aria-label="完成履歴"><div class="historyArea"><div class="historySideBySide"><div class="historyInformation"><h3>私の完成履歴（8088通り）</h3><div class="historyStats" id="historyStats">完成履歴を読み込み中…</div><div class="historyLegend"><span><i class="historyLegendDot small"></i>未完成</span><span><i class="historyLegendDot large"></i>helpありで完成</span><span><i class="historyLegendDot red"></i>helpなしで完成</span><span>□ 対象外（8089～9000）</span></div><p class="historyHint">縦横10ドット刻みは実線、5ドット刻みは点線。赤丸や大きい黒丸をクリックすると記録が表示されます。</p><div id="historyDetail" class="historyDetail" role="status">完成済みのドットをクリックすると、Ans.IDと完成記録が表示されます。</div><p class="historyHint">この端末・ブラウザでv391以降に完成した記録を保存します。ブラウザのデータを消去すると記録は失われます。</p></div><div class="historyChartColumn"><div class="historyScroller"><div class="historyCanvasWrap"><canvas id="historyCanvas" width="720" height="486" aria-label="100列90行の完成履歴ドット表"></canvas></div></div></div></div></div></section>
 <style id="v368-guide-style">
 #gameGuide{max-width:1250px;margin:26px auto 55px;padding:0 18px;font-family:system-ui,sans-serif;color:#243442;line-height:1.85;font-size:16px}
 #gameGuide h1{text-align:center;font-size:clamp(22px,2.5vw,30px);margin:0 0 16px}
@@ -1206,8 +1231,71 @@ window.addEventListener('resize',draw);act('home');})();
 <div class="feedbackExample"><strong>A様の投稿内容</strong><p>（ここに掲載する投稿内容が入ります）</p><strong>作者回答内容</strong><p>（ここに作者の回答が入ります）</p></div>
 <p class="feedbackNote">※上記は掲載形式の見本です。</p>
 </div></aside></div>
-<section class="guideSection" id="guide-features"><h2>③ 付録（工事中）</h2><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
+<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v391</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
 </main>
+<script id="v391-history-js">
+const PUZZLE_HISTORY_KEY='puzzle8088-history-v391';
+function getPuzzleHistory(){try{const v=JSON.parse(localStorage.getItem(PUZZLE_HISTORY_KEY)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{};}catch(e){return {};}}
+function recordPuzzleCompletion(id,helpUsed){
+ if(!Number.isInteger(id)||id<1||id>8088)return null;
+ const history=getPuzzleHistory();const entry=history[id]&&typeof history[id]==='object'?history[id]:{n:0};
+ entry.n=(Number(entry.n)||0)+1;
+ if(helpUsed)entry.helpEver=true;
+ else if(!entry.firstUnaided)entry.firstUnaided=new Date().toISOString();
+ history[id]=entry;
+ try{localStorage.setItem(PUZZLE_HISTORY_KEY,JSON.stringify(history));}catch(e){console.warn('完成履歴を保存できませんでした',e);}
+ if(typeof drawPuzzleHistory==='function')drawPuzzleHistory();
+ return entry.n;
+}
+function drawPuzzleHistory(){
+ const canvas=document.getElementById('historyCanvas');if(!canvas)return;
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ const history=getPuzzleHistory();const x0=68,y0=49,step=10.0,cols=100,rows=90;
+ // High-DPI backing store: preserve the 720x486 CSS layout.
+ const dpr=Math.max(2,Math.min(3,window.devicePixelRatio||1));
+ const bw=Math.round(720*dpr),bh=Math.round(486*dpr);
+ if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh;}
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.clearRect(0,0,bw,bh);
+ ctx.setTransform(dpr*2/3,0,0,dpr*0.5,0,0);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,canvas.width,canvas.height);
+ // Axis labels are drawn at native canvas resolution after the dots, at 18px.
+ ctx.fillStyle='#f0f2f5';ctx.fillRect(x0,y0,cols*step,rows*step);
+ for(let i=0;i<=cols;i+=5){ctx.beginPath();ctx.setLineDash(i%10===0?[]:[3,3]);ctx.lineWidth=i%10===0?1.2:0.7;ctx.strokeStyle=i%10===0?'#64748b':'#9ca3af';ctx.moveTo(x0+i*step,y0);ctx.lineTo(x0+i*step,y0+rows*step);ctx.stroke();}
+ for(let i=0;i<=rows;i+=5){ctx.beginPath();ctx.setLineDash(i%10===0?[]:[3,3]);ctx.lineWidth=i%10===0?1.2:0.7;ctx.strokeStyle=i%10===0?'#64748b':'#9ca3af';ctx.moveTo(x0,y0+i*step);ctx.lineTo(x0+cols*step,y0+i*step);ctx.stroke();}
+ ctx.setLineDash([]);
+ for(let id=1;id<=9000;id++){
+  const cx=x0+((id-1)%100+0.5)*step,cy=y0+(Math.floor((id-1)/100)+0.5)*step;
+  if(id>8088){ctx.strokeStyle='#a3a3a3';ctx.lineWidth=0.8;ctx.strokeRect(cx-2,cy-2,4,4);continue;}
+  const entry=history[id];const unaided=!!entry?.firstUnaided;const helped=!!entry?.n&&!unaided;
+  ctx.beginPath();ctx.arc(cx,cy,unaided?4.5625:helped?3.3:1.6,0,Math.PI*2);ctx.fillStyle=unaided?'#e53935':'#242424';ctx.fill();
+ }
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.fillStyle='#263445';ctx.font='600 18px system-ui';ctx.textAlign='center';
+ for(let col=0;col<10;col++)ctx.fillText((col*10+1)+'–'+(col*10+10),(x0+(col*10+5)*step)*2/3,19);
+ ctx.textAlign='right';for(let row=0;row<9;row++)ctx.fillText(String(row*1000+1),43,(y0+(row*10+5)*step)*0.5+6);
+ const entries=Object.values(history).filter(v=>v&&v.n>0),red=entries.filter(v=>v.firstUnaided).length,black=entries.length-red;
+ const stats=document.getElementById('historyStats');if(stats)stats.textContent='赤丸 '+red+'個　／　大きい黒丸 '+black+'個　／　達成率 '+(red/8088*100).toFixed(2)+'％';
+}
+(function(){
+ function init(){
+  const canvas=document.getElementById('historyCanvas');if(!canvas)return;
+  drawPuzzleHistory();
+  canvas.addEventListener('click',function(e){
+   const rect=canvas.getBoundingClientRect();const x=(e.clientX-rect.left)*720/rect.width,y=(e.clientY-rect.top)*486/rect.height;
+   const col=Math.floor((x*1.5-68)/10),row=Math.floor((y*2-49)/10);if(col<0||col>=100||row<0||row>=90)return;
+   const id=row*100+col+1;const detail=document.getElementById('historyDetail');if(!detail)return;
+   if(id>8088){detail.textContent='Ans.ID='+id+'：対象外';return;}
+   const entry=getPuzzleHistory()[id];if(!entry||!entry.n){detail.textContent='Ans.ID='+id+'：未完成';return;}
+   let message='Ans.ID='+id+'：'+entry.n+'回完成';
+   if(entry.firstUnaided){const date=new Date(entry.firstUnaided);message+=' ／ helpなし初完成：'+(Number.isNaN(date.getTime())?'記録あり':date.toLocaleString('ja-JP'));}
+   else message+=' ／ helpありで完成（helpなしは未達成）';
+   detail.textContent=message;
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
 <script>
 (function(){
   const form=document.getElementById('puzzleFeedbackForm');
@@ -1252,4 +1340,5 @@ window.addEventListener('resize',draw);act('home');})();
   });
 })();
 </script>
+
 
