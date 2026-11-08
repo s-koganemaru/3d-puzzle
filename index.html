@@ -1298,7 +1298,7 @@ window.addEventListener('resize',draw);act('home');})();
 <div class="feedbackExample"><strong>A様の投稿内容</strong><p>（ここに掲載する投稿内容が入ります）</p><strong>作者回答内容</strong><p>（ここに作者の回答が入ります）</p></div>
 <p class="feedbackNote">※上記は掲載形式の見本です。</p>
 </div></aside></div>
-<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v400</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
+<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v402</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
 </main>
 <script id="v391-history-js">
 const PUZZLE_HISTORY_KEY='puzzle8088-history-v391';
@@ -1419,6 +1419,10 @@ function drawPuzzleHistory(){
 #historyStandalone .historyChartColumn .historyCanvasWrap{max-width:none!important}
 #historyStandalone .historyChartColumn #historyCanvas{max-width:none!important}
 #historyStandalone .historyChartColumn .historyScroller.historyZoomed{overflow:auto!important;max-height:min(65vh,650px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* v402: allow native one-finger panning on the history canvas in iPad Safari. */
+#historyStandalone .historyChartColumn .historyScroller,
+#historyStandalone .historyChartColumn .historyCanvasWrap,
+#historyStandalone .historyChartColumn #historyCanvas{touch-action:pan-x pan-y!important;}
 </style>
 <script id="v401-history-zoom-script">
 (function(){
