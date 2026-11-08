@@ -1160,7 +1160,7 @@ window.addEventListener('resize',draw);act('home');})();
 #historyStandalone .historyInformation .historyHint,
 #historyStandalone .historyInformation .historyDetail {color:#000}
 </style>
-<section id="historyStandalone" aria-label="完成履歴"><div class="historyArea"><div class="historySideBySide"><div class="historyInformation"><h3>私の完成履歴（8088通り）</h3><button type="button" id="historyFitButton" class="historyFitButton" title="完成履歴を画面の中央に表示">全体表示</button><div class="historyLegend"><span><i class="historyLegendDot small"></i>未完成</span><span><i class="historyLegendDot large"></i>helpありで完成</span><span><i class="historyLegendDot red"></i>helpなしで完成</span></div><div class="historyStats" id="historyStats">完成履歴を読み込み中…</div><p class="historyHint">縦横10ドット刻みは実線、5ドット刻みは点線。赤丸や大きい黒丸をクリックすると記録が表示されます。</p><div id="historyDetail" class="historyDetail" role="status">完成済みのドットをクリックすると、Ans.IDと完成記録が表示されます。</div><p class="historyHint">この端末・ブラウザでv391以降に完成した記録を保存します。ブラウザのデータを消去すると記録は失われます。</p></div><div class="historyChartColumn"><div class="historyScroller"><div class="historyCanvasWrap"><canvas id="historyCanvas" width="720" height="486" aria-label="100列90行の完成履歴ドット表"></canvas></div></div></div></div></div></section>
+<section id="historyStandalone" aria-label="完成履歴"><div class="historyArea"><div class="historySideBySide"><div class="historyInformation"><h3>私の完成履歴（8088通り）</h3><button type="button" id="historyFitButton" class="historyFitButton" title="完成履歴を画面の中央に表示">全体表示</button><div class="historyLegend"><span><i class="historyLegendDot small"></i>未完成</span><span><i class="historyLegendDot large"></i>helpありで完成</span><span><i class="historyLegendDot red"></i>helpなしで完成</span></div><div class="historyStats" id="historyStats">完成履歴を読み込み中…</div><p class="historyHint">縦横10ドット刻みは実線、5ドット刻みは点線。赤丸や大きい黒丸をクリックすると記録が表示されます。</p><div id="historyDetail" class="historyDetail" role="status">完成済みのドットをクリックすると、Ans.IDと完成記録が表示されます。</div><p class="historyHint">この端末・ブラウザでv391以降に完成した記録を保存します。ブラウザのデータを消去すると記録は失われます。</p></div><div class="historyChartColumn"><div class="historyZoomControls" aria-label="完成履歴の拡大縮小"><button type="button" id="historyZoomOut" aria-label="表を縮小">－</button><span id="historyZoomLabel">100％</span><button type="button" id="historyZoomIn" aria-label="表を拡大">＋</button></div><div class="historyScroller"><div class="historyCanvasWrap"><canvas id="historyCanvas" width="720" height="486" aria-label="100列90行の完成履歴ドット表"></canvas></div></div></div></div></div></section>
 <style id="v394-fit-style">
 #historyStandalone .historyFitButton{display:inline-block;margin:0 0 7px;padding:6px 14px;border:1px solid #7098bf;border-radius:6px;background:#e9f3ff;color:#174d88;font:600 14px system-ui,sans-serif;cursor:pointer}
 #historyStandalone .historyFitButton:hover{background:#d7eaff}
@@ -1409,3 +1409,52 @@ function drawPuzzleHistory(){
 </script>
 
 
+
+<style id="v401-history-zoom-style">
+#historyStandalone .historyZoomControls{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin:0 0 5px;font:600 14px system-ui,sans-serif;color:#000}
+#historyStandalone .historyZoomControls button{width:38px;height:34px;border:1px solid #7098bf;border-radius:6px;background:#e9f3ff;color:#000;font:700 22px system-ui,sans-serif;cursor:pointer;touch-action:manipulation}
+#historyStandalone .historyZoomControls button:disabled{opacity:.35;cursor:default}
+#historyStandalone .historyZoomControls span{min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+#historyStandalone .historyChartColumn .historyScroller{max-height:none}
+#historyStandalone .historyChartColumn .historyCanvasWrap{max-width:none!important}
+#historyStandalone .historyChartColumn #historyCanvas{max-width:none!important}
+#historyStandalone .historyChartColumn .historyScroller.historyZoomed{overflow:auto!important;max-height:min(65vh,650px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+</style>
+<script id="v401-history-zoom-script">
+(function(){
+ function init(){
+  const panel=document.getElementById('historyStandalone');
+  if(!panel)return;
+  const wrap=panel.querySelector('.historyCanvasWrap');
+  const canvas=document.getElementById('historyCanvas');
+  const scroller=panel.querySelector('.historyChartColumn .historyScroller');
+  const plus=document.getElementById('historyZoomIn');
+  const minus=document.getElementById('historyZoomOut');
+  const label=document.getElementById('historyZoomLabel');
+  if(!wrap||!canvas||!scroller||!plus||!minus||!label)return;
+  const levels=[1,1.5,2,3,4];let index=0;
+  function update(){
+   const scale=levels[index];
+   const prevW=wrap.getBoundingClientRect().width;
+   const prevH=wrap.getBoundingClientRect().height;
+   const centerX=(scroller.scrollLeft+scroller.clientWidth/2)/Math.max(prevW,1);
+   const centerY=(scroller.scrollTop+scroller.clientHeight/2)/Math.max(prevH,1);
+   wrap.style.width=(720*scale)+'px';
+   wrap.style.height=(486*scale)+'px';
+   canvas.style.width=(720*scale)+'px';
+   canvas.style.height=(486*scale)+'px';
+   scroller.classList.toggle('historyZoomed',index>0);
+   label.textContent=Math.round(scale*100)+'％';
+   minus.disabled=index===0;plus.disabled=index===levels.length-1;
+   requestAnimationFrame(function(){
+    scroller.scrollLeft=Math.max(0,centerX*720*scale-scroller.clientWidth/2);
+    scroller.scrollTop=Math.max(0,centerY*486*scale-scroller.clientHeight/2);
+   });
+  }
+  plus.addEventListener('click',function(){if(index<levels.length-1){index++;update();}});
+  minus.addEventListener('click',function(){if(index>0){index--;update();}});
+  update();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
