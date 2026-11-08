@@ -1437,26 +1437,32 @@ function drawPuzzleHistory(){
   const label=document.getElementById('historyZoomLabel');
   if(!wrap||!canvas||!scroller||!plus||!minus||!label)return;
   const levels=[1,1.5,2,3,4];let index=0;
+  // At 100%, fit the complete canvas (including its left-side labels)
+  // inside the available iPad/phone chart viewport.
+  function baseWidth(){return Math.min(720,Math.max(1,scroller.clientWidth));}
   function update(){
    const scale=levels[index];
    const prevW=wrap.getBoundingClientRect().width;
    const prevH=wrap.getBoundingClientRect().height;
    const centerX=(scroller.scrollLeft+scroller.clientWidth/2)/Math.max(prevW,1);
    const centerY=(scroller.scrollTop+scroller.clientHeight/2)/Math.max(prevH,1);
-   wrap.style.width=(720*scale)+'px';
-   wrap.style.height=(486*scale)+'px';
-   canvas.style.width=(720*scale)+'px';
-   canvas.style.height=(486*scale)+'px';
+   const w=baseWidth()*scale;
+   const h=w*486/720;
+   wrap.style.width=w+'px';
+   wrap.style.height=h+'px';
+   canvas.style.width=w+'px';
+   canvas.style.height=h+'px';
    scroller.classList.toggle('historyZoomed',index>0);
    label.textContent=Math.round(scale*100)+'％';
    minus.disabled=index===0;plus.disabled=index===levels.length-1;
    requestAnimationFrame(function(){
-    scroller.scrollLeft=Math.max(0,centerX*720*scale-scroller.clientWidth/2);
-    scroller.scrollTop=Math.max(0,centerY*486*scale-scroller.clientHeight/2);
+    scroller.scrollLeft=index===0?0:Math.max(0,centerX*w-scroller.clientWidth/2);
+    scroller.scrollTop=index===0?0:Math.max(0,centerY*h-scroller.clientHeight/2);
    });
   }
   plus.addEventListener('click',function(){if(index<levels.length-1){index++;update();}});
   minus.addEventListener('click',function(){if(index>0){index--;update();}});
+  window.addEventListener('resize',update);
   update();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
