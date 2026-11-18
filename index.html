@@ -107,7 +107,31 @@
 #historyStandalone .historyChartColumn .historyScroller{border:0;overflow:visible;background:transparent}
 #historyStandalone .historyChartColumn .historyCanvasWrap{max-width:none;width:720px}
 @media(max-width:1080px){#historyStandalone .historySideBySide{grid-template-columns:1fr}#historyStandalone .historyInformation .historyLegend{flex-direction:row;flex-wrap:wrap}#historyStandalone .historyChartColumn{max-width:100%}#historyStandalone .historyChartColumn .historyScroller{overflow-x:auto}#historyStandalone .historyChartColumn .historyCanvasWrap{width:720px}}
-</style><div class="layout"><section class="storagePanel"><div id="storageWrap" style="position:relative;width:100%;aspect-ratio:1"><header class="gameMainHeading">8088立体パズル</header><canvas id="storageView" aria-label="WebGL収納box"></canvas><svg id="storageOriginLayer" class="originMarkerLayer"></svg></div><div class="boxBottomTitle">収納(storage)BOX</div><div class="storageCaption">収納したブロックを表示します。</div></section><div class="leftActionColumn" aria-label="収納操作と重要ボタン"><button id="ansRemainButton" class="leftActionControl" type="button">Ans. remain<span class="remainValue" id="ansRemainValue">？</span></button><button id="placeBlock" class="flowMark" type="button" title="収納boxへ入れる">←</button><div id="overlapNotice" role="status" aria-live="polite">重なっています</div></div><div class="centerPanel"><div class="stage"><canvas id="view"></canvas><button id="gameStartButton" type="button">ゲーム開始</button><svg id="turnOverlay" class="turnOverlay" aria-label="面上の回転ボタン"></svg><svg id="moveOriginLayer" class="originMarkerLayer"></svg><div class="faceHelp">目に最も近い頂点を黒点で表示。3本の稜線の中点（青点）を基準に、少し離した各2本の矢印<br>ブロック自体には矢印を表示しません</div><div id="turnInfo" style="position:absolute;left:8px;top:8px;background:#ffffffdd;padding:5px 8px;font:13px system-ui;border-radius:4px;pointer-events:none">回転記録：まだありません</div><div class="status" id="status">WebGL起動中</div><div id="sameKindNumber" title="同種解答組番号-組内番号">--- --</div><div class="movingCornerActions"><button id="basePositionButton" class="leftActionControl" type="button">視線を戻す<small>(reset view)</small></button><button id="helpButton" class="leftActionControl" type="button">help</button></div></div><div class="boxBottomTitle">移動(moving)BOX</div></div><button id="returnBlock" class="flowMark" type="button" title="移動boxのブロックをブロック群へ戻す" aria-label="ブロック群へ戻す">→</button><section class="palettePanel"><div class="panelTitle">ブロック群（7色）</div><div id="blockButtons" class="row"></div><div class="paletteHint">形と色を確認して選択。収納済みは薄く表示。</div></section></div><section id="referenceNotes" aria-label="バージョン情報"><div class="integrationNote">v363：ボタンの青色を調整、A・B原点表示を非表示</div></section><details class="controlDetails" id="helpDetails"><summary>v316eの移動・視線・回転補助操作を開く</summary><div class="side"><div class="title">v316eの補助操作（回転本体は変更なし）</div><div class="title">ブロックの平行移動（1ピースずつ）</div>
+</style><style id="v413-pedestrian-signal">
+/* Compact pedestrian-style two-lamp remaining-solutions display. */
+#ansRemainButton{display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;min-width:55px;max-width:75px!important;padding:3px 4px!important;line-height:1.1}
+#ansRemainButton:disabled{opacity:1;cursor:default}
+#ansRemainButton .pedSignal{display:flex;flex-direction:column;align-items:center;gap:3px;background:#222a32;border:2px solid #111820;border-radius:6px;padding:4px 5px;box-shadow:inset 0 1px 2px #0008}
+#ansRemainButton .pedLamp{position:relative;display:flex;align-items:center;justify-content:center;width:39px;height:34px;border-radius:4px;box-sizing:border-box;overflow:hidden}
+#ansRemainButton .pedRed{background:#481e20;color:#793e3e}
+#ansRemainButton .pedBlue{background:#123747;color:#31677a}
+#ansRemainButton .pedRed.lit{background:#e52d34;color:#fff;box-shadow:0 0 7px #f44}
+#ansRemainButton .pedBlue.lit{background:#00AFFF;color:#fff;box-shadow:0 0 12px 3px #00BFFF, inset 0 0 8px #B7F1FF}
+#ansRemainButton .pedPerson{font-size:18px;line-height:1;opacity:.65}
+#ansRemainButton .pedLamp.lit .pedPerson{opacity:1}
+#ansRemainButton .pedStop{font-size:0;width:11px;height:15px;border-radius:4px 4px 2px 2px;background:currentColor}
+#ansRemainButton .pedStop:before{content:'';position:absolute;top:5px;left:14px;width:10px;height:9px;border-radius:50%;background:currentColor;transform:translateY(-4px)}
+#ansRemainButton .pedWalk{font-size:0;width:8px;height:12px;background:currentColor;transform:skew(-15deg) rotate(-12deg);border-radius:3px}
+#ansRemainButton .pedWalk:before{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:currentColor;top:-9px;left:1px}
+#ansRemainButton .pedWalk:after{content:'';position:absolute;width:18px;height:3px;background:currentColor;top:8px;left:-4px;transform:rotate(-28deg)}
+#ansRemainButton .pedCount{position:absolute;bottom:1px;left:0;right:0;text-align:center;font:700 9px/1 system-ui,sans-serif;color:white;text-shadow:0 1px 2px #003;white-space:nowrap}
+#ansRemainButton .pedBlue .pedPerson{transform:translateY(-5px) skew(-15deg) rotate(-12deg)}
+#ansRemainButton .pedBlue:not(.lit) .pedCount{visibility:hidden}
+@media(max-width:760px){#ansRemainButton{min-width:45px;max-width:57px!important;font-size:8px!important;padding:2px!important}#ansRemainButton .pedSignal{padding:3px;gap:2px}#ansRemainButton .pedLamp{width:30px;height:28px}#ansRemainButton .pedCount{font-size:8px}}
+</style><style id="v418-timer-style">
+#gameElapsedTimer{position:absolute;right:6px;top:56px;z-index:12;background:#f6fbffde;border:1px solid #7c9db9;border-radius:5px;padding:4px 9px;font:700 17px ui-monospace,Consolas,monospace;letter-spacing:1px;color:#19364e;min-width:112px;text-align:center;pointer-events:none}
+@media(max-width:760px){#gameElapsedTimer{top:40px;font-size:12px;min-width:85px;padding:3px 5px}}
+</style><div class="layout"><section class="storagePanel"><div id="storageWrap" style="position:relative;width:100%;aspect-ratio:1"><header class="gameMainHeading">8088立体パズル</header><canvas id="storageView" aria-label="WebGL収納box"></canvas><svg id="storageOriginLayer" class="originMarkerLayer"></svg></div><div class="boxBottomTitle">収納(storage)BOX</div><div class="storageCaption">収納したブロックを表示します。</div></section><div class="leftActionColumn" aria-label="収納操作と重要ボタン"><button id="ansRemainButton" class="leftActionControl" type="button">Ans. remain<span class="pedSignal" aria-label="残り解答の信号"><span class="pedLamp pedRed" id="remainRedLamp"><span class="pedPerson pedStop">●</span></span><span class="pedLamp pedBlue" id="remainBlueLamp"><span class="pedPerson pedWalk">●</span><span id="ansRemainValue" class="pedCount">？</span></span></span></button><button id="placeBlock" class="flowMark" type="button" title="収納boxへ入れる">←</button><div id="overlapNotice" role="status" aria-live="polite">重なっています</div></div><div class="centerPanel"><div class="stage"><canvas id="view"></canvas><button id="gameStartButton" type="button">ゲーム開始</button><div id="gameElapsedTimer" role="timer" aria-label="経過時間（時・分・秒）">00-00-00</div><svg id="turnOverlay" class="turnOverlay" aria-label="面上の回転ボタン"></svg><svg id="moveOriginLayer" class="originMarkerLayer"></svg><div class="faceHelp">目に最も近い頂点を黒点で表示。3本の稜線の中点（青点）を基準に、少し離した各2本の矢印<br>ブロック自体には矢印を表示しません</div><div id="turnInfo" style="position:absolute;left:8px;top:8px;background:#ffffffdd;padding:5px 8px;font:13px system-ui;border-radius:4px;pointer-events:none">回転記録：まだありません</div><div class="status" id="status">WebGL起動中</div><div id="sameKindNumber" title="同種解答組番号-組内番号">--- --</div><div class="movingCornerActions"><button id="basePositionButton" class="leftActionControl" type="button">視線を戻す<small>(reset view)</small></button><button id="helpButton" class="leftActionControl" type="button">help</button></div></div><div class="boxBottomTitle">移動(moving)BOX</div></div><button id="returnBlock" class="flowMark" type="button" title="移動boxのブロックをブロック群へ戻す" aria-label="ブロック群へ戻す">→</button><section class="palettePanel"><div class="panelTitle">ブロック群（7色）</div><div id="blockButtons" class="row"></div><div class="paletteHint">形と色を確認して選択。収納済みは薄く表示。</div></section></div><section id="referenceNotes" aria-label="バージョン情報"><div class="integrationNote">v421：完成履歴に最短時間を追加</div></section><details class="controlDetails" id="helpDetails"><summary>v316eの移動・視線・回転補助操作を開く</summary><div class="side"><div class="title">v316eの補助操作（回転本体は変更なし）</div><div class="title">ブロックの平行移動（1ピースずつ）</div>
 <div class="row"><button data-a="mx-">X −1</button><button data-a="mx+">X ＋1</button><button data-a="my-">Y −1</button><button data-a="my+">Y ＋1</button><button data-a="mz-">Z −1</button><button data-a="mz+">Z ＋1</button></div>
 <button data-a="resetposition">位置リセット</button>
 <div id="moveInfo" class="hint">移動boxは空です。右のブロック群から選択してください。</div>
@@ -118,7 +142,42 @@
 <div class="title">残像の長さ（比較できます）</div>
 <select id="trail" style="width:100%;padding:6px"><option value="0">なし</option><option value="3" selected>短い（3枚）</option><option value="6">標準（6枚）</option><option value="10">長い（10枚）</option></select>
 <div class="title">回転時間</div>
-<select id="duration" style="width:100%;padding:6px"><option value="450" selected>速い 0.45秒</option><option value="850">標準 0.85秒</option><option value="1400">遅い 1.4秒</option></select><div class="title">視線の向き（2°/回）</div><div class="row"><button data-a="left">←</button><button data-a="right">→</button><button data-a="up">↑</button><button data-a="down">↓</button></div><div class="title">収納boxの周囲を回る（15°/回）</div><div class="row"><button data-a="orbitleft">左回り</button><button data-a="orbitright">右回り</button><button data-a="orbitup">上回り</button><button data-a="orbitdown">下回り</button></div><div class="title">位置移動</div><div class="row"><button data-a="forward">前進</button><button data-a="backward">後退</button><button data-a="strafeleft">左へ</button><button data-a="straferight">右へ</button><button data-a="ascend">上昇</button><button data-a="descend">下降</button></div><button data-a="storage">収納boxを見る</button><button data-a="home">基準位置</button><div class="hint">ブロックを一体の立体として回転させます。青T型の交点を中央(1,1,1)に置いてお試しください。範囲外への移動は拒否します。回転中だけ過去の姿勢を薄く重ね、完了後に消します。回転完了位置は必ず整数格子です。残像の枚数と回転時間を比較してください。通常ゲームは変更していません。</div></div></details><script>
+<select id="duration" style="width:100%;padding:6px"><option value="450" selected>速い 0.45秒</option><option value="850">標準 0.85秒</option><option value="1400">遅い 1.4秒</option></select><div class="title">視線の向き（2°/回）</div><div class="row"><button data-a="left">←</button><button data-a="right">→</button><button data-a="up">↑</button><button data-a="down">↓</button></div><div class="title">収納boxの周囲を回る（15°/回）</div><div class="row"><button data-a="orbitleft">左回り</button><button data-a="orbitright">右回り</button><button data-a="orbitup">上回り</button><button data-a="orbitdown">下回り</button></div><div class="title">位置移動</div><div class="row"><button data-a="forward">前進</button><button data-a="backward">後退</button><button data-a="strafeleft">左へ</button><button data-a="straferight">右へ</button><button data-a="ascend">上昇</button><button data-a="descend">下降</button></div><button data-a="storage">収納boxを見る</button><button data-a="home">基準位置</button><div class="hint">ブロックを一体の立体として回転させます。青T型の交点を中央(1,1,1)に置いてお試しください。範囲外への移動は拒否します。回転中だけ過去の姿勢を薄く重ね、完了後に消します。回転完了位置は必ず整数格子です。残像の枚数と回転時間を比較してください。通常ゲームは変更していません。</div></div></details>
+<!-- v405: minimal cookieless GA4 measurement; no consent dialog, no analytics cookies. -->
+<style id="v405-analytics-style">#analyticsNotice405{font:12px/1.65 system-ui,sans-serif;color:#334155;background:#f5f7fa;border:1px solid #d2d8df;border-radius:6px;padding:8px 12px;margin:10px auto;max-width:900px}#analyticsNotice405 a{color:#245a9c}</style>
+<script id="v405-analytics-js">
+(function(){
+ 'use strict';
+ const ID='G-VW40YDBZEW';
+ window.dataLayer=window.dataLayer||[];
+ window.gtag=function(){window.dataLayer.push(arguments);};
+ // Deny all identifier/advertising storage BEFORE loading Google's tag.
+ window.gtag('consent','default',{
+   analytics_storage:'denied',ad_storage:'denied',
+   ad_user_data:'denied',ad_personalization:'denied',
+   functionality_storage:'denied',personalization_storage:'denied',
+   security_storage:'granted',wait_for_update:0
+ });
+ window.gtag('js',new Date());
+ window.gtag('config',ID,{send_page_view:true,allow_google_signals:false,allow_ad_personalization_signals:false});
+ const script=document.createElement('script');
+ script.async=true;script.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(ID);
+ document.head.appendChild(script);
+ window.puzzleAnalytics404=function(name,params){
+   if(typeof window.gtag!=='function')return;
+   window.gtag('event',name,params||{});
+ };
+ function showNotice(){
+   const el=document.createElement('div');el.id='analyticsNotice405';
+   el.innerHTML='このゲームでは改善のため、Google アナリティクスを使用して閲覧・ゲーム開始・完成の回数を集計します。解析用Cookieや広告用識別子は使用しない設定です。個別の完成履歴・Ans.ID・氏名は送信しません。Googleへの通信が行われる場合があります。<a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener noreferrer">Googleによる情報の利用</a>';
+   const appendix=document.getElementById('historyStandalone');
+   if(appendix&&appendix.parentNode)appendix.parentNode.insertBefore(el,appendix.nextSibling);
+   else document.body.appendChild(el);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showNotice);else showNotice();
+})();
+</script>
+<script>
 (()=>{const canvas=document.getElementById('view'),status=document.getElementById('status');const gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'});if(!gl){status.textContent='このブラウザではWebGL2を使用できません';return;}const vs=`#version 300 es
 in vec3 p;in vec3 color;uniform mat4 vp;out vec3 vcolor;out vec3 worldPos;void main(){vcolor=color;worldPos=p;gl_Position=vp*vec4(p,1.);}`;const fs=`#version 300 es
 precision highp float;in vec3 vcolor;in vec3 worldPos;uniform float alpha;uniform float faceLighting;uniform vec3 viewerDirection;out vec4 outColor;void main(){float brightness=1.0;if(faceLighting>0.5){vec3 n=normalize(cross(dFdx(worldPos),dFdy(worldPos)));float facing=abs(dot(n,normalize(viewerDirection)));brightness=0.66+0.68*pow(facing,1.35);}outColor=vec4(clamp(vcolor*brightness,0.0,1.0),alpha);}`;function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);let verts=[],colors=[],lines=[],lineColors=[],pieceLines=[],pieceLineColors=[],depthVerts=[];function quad(a,b,c,d,col){for(const v of [a,b,c,a,c,d]){verts.push(...v);colors.push(...col)}}function cube(x,y,z,c){const a=[x-.5,y-.5,z-.5],b=[x+.5,y-.5,z-.5],d=[x-.5,y+.5,z-.5],e=[x+.5,y+.5,z-.5],f=[x-.5,y-.5,z+.5],g=[x+.5,y-.5,z+.5],h=[x-.5,y+.5,z+.5],i=[x+.5,y+.5,z+.5];const scale=(s)=>c.map(v=>v*s);quad(f,g,i,h,scale(1));quad(b,a,d,e,scale(.72));quad(a,f,h,d,scale(.83));quad(g,b,e,i,scale(.93));quad(d,h,i,e,scale(1.12));quad(a,b,g,f,scale(.65));for(const [u,v] of [[a,b],[b,e],[e,d],[d,a],[f,g],[g,i],[i,h],[h,f],[a,f],[b,g],[d,h],[e,i]])pieceLine(u,v);}function line(a,b,col){lines.push(...a,...b);lineColors.push(...col,...col)}function pieceLine(a,b){pieceLines.push(...a,...b);const c=[.34,.36,.38];pieceLineColors.push(...c,...c)}function depthFace(a,b,c,d){for(const v of [a,b,c,a,c,d])depthVerts.push(...v)}
@@ -287,7 +346,7 @@ function tick(now){
  }
 
 const picker=document.getElementById('blockButtons');
-blockDefs.forEach((b,i)=>{let btn=document.createElement('button');btn.innerHTML=blockThumbnail(b)+`<span>${b.name}</span>`;btn.setAttribute('aria-label',b.name);btn.style.border=hasActive&&i===selected?'2px solid #172b3b':'1px solid #8aa2b6';btn.style.background=hasActive&&i===selected?'#d4eaf9':'white';btn.onclick=()=>{if(helpBusy||anim||stored.some(x=>x.index===i))return;if(hasActive&&selected!==i){document.getElementById('moveInfo').textContent='現在のブロックを右矢印で戻してから選択してください。';return;}selected=i;active=blockDefs[i];hasActive=true;captureMoveStartView();rotationCells=centeredStart();rebuildGeometry();updateBuffers();draw();refreshPicker();};picker.appendChild(btn)});
+blockDefs.forEach((b,i)=>{let btn=document.createElement('button');btn.innerHTML=blockThumbnail(b)+`<span>${b.name}</span>`;btn.setAttribute('aria-label',b.name);btn.style.border=hasActive&&i===selected?'2px solid #172b3b':'1px solid #8aa2b6';btn.style.background=hasActive&&i===selected?'#d4eaf9':'white';btn.onclick=()=>{if(helpBusy||anim||stored.some(x=>x.index===i))return;if(hasActive&&selected!==i){document.getElementById('moveInfo').textContent='現在のブロックを右矢印で戻してから選択してください。';return;}selected=i;active=blockDefs[i];hasActive=true;startGameTimerOnFirstBlock();captureMoveStartView();rotationCells=centeredStart();rebuildGeometry();updateBuffers();draw();refreshPicker();};picker.appendChild(btn)});
 // v320: Storage state is separate from the v316e rotation model.
 const stored=[];
 function refreshPicker(){
@@ -491,20 +550,56 @@ function hideCompletionNotice(){
 // v386: Keep the completion message visible during rotation and other operations.
 // Only the 'ゲーム開始' button explicitly hides it via hideCompletionNotice().
 // Non-modal completion notice: keeps the finished 27-piece cube visible.
+// v420: Reset on Game Start; start on first palette-to-Move transfer; freeze on completion.
+let gameTimerStart=null;
+let gameTimerInterval=null;
+let gameTimerFinished=false;
+function formatGameElapsed(ms){
+ const seconds=Math.floor(Math.max(0,ms)/1000);
+ const hh=String(Math.floor(seconds/3600)).padStart(2,'0');
+ const mm=String(Math.floor(seconds%3600/60)).padStart(2,'0');
+ const ss=String(seconds%60).padStart(2,'0');
+ return hh+'-'+mm+'-'+ss;
+}
+function updateGameTimer(){
+ const el=document.getElementById('gameElapsedTimer');
+ if(el&&gameTimerStart!==null)el.textContent=formatGameElapsed(Date.now()-gameTimerStart);
+}
+function restartGameTimer(){
+ if(gameTimerInterval!==null)clearInterval(gameTimerInterval);
+ gameTimerStart=null;gameTimerFinished=false;
+ gameTimerInterval=null;
+ document.getElementById('gameElapsedTimer').textContent='00-00-00';
+}
+function startGameTimerOnFirstBlock(){
+ if(gameTimerStart!==null||gameTimerFinished)return;
+ gameTimerStart=Date.now();
+ gameTimerInterval=setInterval(updateGameTimer,250);
+}
+function stopGameTimer(){
+ if(gameTimerFinished||gameTimerStart===null)return;
+ gameTimerFinished=true;
+ updateGameTimer();
+ if(gameTimerInterval!==null){clearInterval(gameTimerInterval);gameTimerInterval=null;}
+}
 function showCompletionNotice(){
+ stopGameTimer();
  const wrap=document.getElementById('storageWrap');
  if(!wrap)return;
  let note=document.getElementById('completionNotice');
  if(!note){
   note=document.createElement('div');note.id='completionNotice';
   note.setAttribute('role','status');
-  note.style.cssText='position:absolute;top:9%;left:50%;transform:translateX(-50%);z-index:30;pointer-events:none;background:#fffbeaee;color:#17412b;border:2px solid #2e8054;border-radius:9px;padding:9px 16px;font:bold clamp(16px,2.1vw,27px) system-ui;white-space:nowrap;box-shadow:0 3px 12px #0003;text-align:center';
+  note.style.cssText='position:absolute;top:9%;left:4px;transform:none;z-index:30;pointer-events:none;background:#fffbeaee;color:#17412b;border:2px solid #2e8054;border-radius:9px;padding:5px 7px;font:bold clamp(16px,1.875vw,25px) system-ui;max-width:calc(100% - 8px);width:max-content;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere;line-height:1.25;box-shadow:0 3px 12px #0003;text-align:center';
   wrap.appendChild(note);
  }
  const answerId=completedAnswerId();
  updateSameKindNumber();
- const completionCount=(answerId!==null&&!historyCountedThisGame)?recordPuzzleCompletion(answerId,helpUsedThisGame):null;
- if(answerId!==null&&!historyCountedThisGame)historyCountedThisGame=true;
+ const completionCount=(answerId!==null&&!historyCountedThisGame)?recordPuzzleCompletion(answerId,helpUsedThisGame,gameTimerFinished&&gameTimerStart!==null?document.getElementById('gameElapsedTimer').textContent:null):null;
+ if(answerId!==null&&!historyCountedThisGame){
+  if(window.puzzleAnalytics404)window.puzzleAnalytics404('puzzle_complete',{completion_type:helpUsedThisGame?'with_help':'without_help'});
+  historyCountedThisGame=true;
+ }
  const count=completionCount??(answerId!==null?getPuzzleHistory()[answerId]?.n:null);
  note.textContent='完成です！！　Ans.ID='+(answerId===null?'照合なし':answerId)+(count?'　'+count+'回目の完成です！':'');
  note.style.display='block';
@@ -524,6 +619,7 @@ function placeActive(){
  document.querySelector('.storageCaption').textContent=`${stored.length}個収納済み（${stored.reduce((n,b)=>n+b.cells.length,0)}/27ピース）`;
  hasActive=false;rotationCells=[];rebuildGeometry();updateBuffers();draw();refreshPicker();
  document.getElementById('moveInfo').textContent='移動boxは空です。右のブロック群から選択してください。';
+ calculateRemainSignal();
  // Completion message must not block the browser before the final cube is painted.
  if(stored.length===7 && stored.reduce((n,b)=>n+b.cells.length,0)===27){
   requestAnimationFrame(()=>requestAnimationFrame(()=>showCompletionNotice()));
@@ -550,6 +646,7 @@ function retrieveStored(index){
  rebuildGeometry();updateBuffers();draw();drawStored();refreshPicker();updateRetrieveList();
  document.querySelector('.storageCaption').textContent=`${stored.length}個収納済み（${stored.reduce((n,b)=>n+b.cells.length,0)}/27ピース）`;
  document.getElementById('moveInfo').textContent=`${active.name}を収納boxから取り出しました`;
+ calculateRemainSignal();
 }
 const retrieveSelect=document.createElement('select');retrieveSelect.id='retrieveSelect';retrieveSelect.style.cssText='width:100%;max-width:240px;padding:6px;margin:4px auto;display:block';
 const retrieveButton=document.createElement('button');retrieveButton.type='button';retrieveButton.textContent='選んだ収納ブロックを取り出す';retrieveButton.style.cssText='width:100%;max-width:240px;margin:2px auto;display:block';
@@ -557,9 +654,42 @@ const storagePanel=document.querySelector('.storagePanel');storagePanel.append(r
 function updateRetrieveList(){retrieveSelect.replaceChildren();for(const b of stored){const o=document.createElement('option');o.value=b.index;o.textContent=blockDefs[b.index].name;retrieveSelect.append(o)}retrieveButton.disabled=!stored.length;}
 retrieveButton.addEventListener('click',()=>{if(stored.length)retrieveStored(Number(retrieveSelect.value))});
 // A short tap on a stored block retrieves it; dragging still rotates both boxes.
-function nearestStoredAt(e){if(!stored.length)return null;const rect=storageCanvas.getBoundingClientRect();const x=(e.clientX-rect.left)*storageCanvas.width/rect.width,y=(e.clientY-rect.top)*storageCanvas.height/rect.height;const m=mat(storageCanvas.width/storageCanvas.height);let best=null,dist=Infinity;
- for(const b of stored)for(const c of b.cells){const q=projectPoint(c,m,storageCanvas.width,storageCanvas.height);if(!q)continue;const d=Math.hypot(x-q[0],y-q[1]);if(d<dist){dist=d;best=b.index}}
- return dist<Math.max(22,storageCanvas.width*.085)?best:null;
+function nearestStoredAt(e){
+ // v417: Select the visible foremost cube face, not the nearest cube center.
+ // Center-distance selection can incorrectly choose a block hidden behind another.
+ if(!stored.length)return null;
+ const rect=storageCanvas.getBoundingClientRect();
+ const px=(e.clientX-rect.left)*storageCanvas.width/rect.width;
+ const py=(e.clientY-rect.top)*storageCanvas.height/rect.height;
+ const m=mat(storageCanvas.width/storageCanvas.height);
+ const w=storageCanvas.width,h=storageCanvas.height;
+ const faces=[
+  [[.5,-.5,-.5],[.5,.5,-.5],[.5,.5,.5],[.5,-.5,.5]],
+  [[-.5,-.5,.5],[-.5,.5,.5],[-.5,.5,-.5],[-.5,-.5,-.5]],
+  [[-.5,.5,-.5],[-.5,.5,.5],[.5,.5,.5],[.5,.5,-.5]],
+  [[-.5,-.5,.5],[-.5,-.5,-.5],[.5,-.5,-.5],[.5,-.5,.5]],
+  [[.5,-.5,.5],[-.5,-.5,.5],[-.5,.5,.5],[.5,.5,.5]],
+  [[-.5,-.5,-.5],[.5,-.5,-.5],[.5,.5,-.5],[-.5,.5,-.5]]
+ ];
+ function depthInTriangle(a,b,c){
+  const den=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);
+  if(Math.abs(den)<1e-9)return null;
+  const u=((b[1]-c[1])*(px-c[0])+(c[0]-b[0])*(py-c[1]))/den;
+  const v=((c[1]-a[1])*(px-c[0])+(a[0]-c[0])*(py-c[1]))/den;
+  const t=1-u-v;
+  if(u < -1e-7||v < -1e-7||t < -1e-7)return null;
+  return u*a[2]+v*b[2]+t*c[2];
+ }
+ let closest=Infinity,chosen=null;
+ for(const block of stored)for(const cell of block.cells)for(const face of faces){
+  const q=face.map(offset=>projectPoint(offset.map((v,i)=>v+cell[i]),m,w,h));
+  if(q.some(v=>!v))continue;
+  for(const tri of [[0,1,2],[0,2,3]]){
+   const z=depthInTriangle(q[tri[0]],q[tri[1]],q[tri[2]]);
+   if(z!==null&&z<closest){closest=z;chosen=block.index;}
+  }
+ }
+ return chosen;
 }
 
 refreshPicker();updateRetrieveList();
@@ -631,6 +761,8 @@ document.getElementById('basePositionButton').addEventListener('click',()=>{
 });
 // v357: a single-click new game, without a modal confirmation.
 document.getElementById('gameStartButton').addEventListener('click',()=>{
+ restartGameTimer();
+ if(window.puzzleAnalytics404)window.puzzleAnalytics404('game_start');
  helpToken++;clearTimeout(helpTimer);helpTimer=null;helpBusy=false;
  if(helpWorker){helpWorker.terminate();helpWorker=null;}
  document.getElementById('helpButton').textContent='help';
@@ -643,15 +775,46 @@ document.getElementById('gameStartButton').addEventListener('click',()=>{
  document.getElementById('moveInfo').textContent='移動boxは空です。右のブロック群から選択してください。';
  eye=[3.6,3.08,-4.2];aim([1,1,1]);orbitActive=false;syncOrbitAngles();
  drawStored();draw();
+ calculateRemainSignal();
 });
 // help is wired below, after the answer-search worker definition.
 // Count complete placements compatible with blocks already stored. The moving block
 // is not fixed until it is placed into the storage box.
 const remainButton=document.getElementById('ansRemainButton');
 const remainValue=document.getElementById('ansRemainValue');
-let remainWorker=null,remainRequest=0,remainResetTimer=null;
-function resetRemainAfterOneSecond(request){clearTimeout(remainResetTimer);remainResetTimer=setTimeout(()=>{if(request===remainRequest)remainValue.textContent='？';},1000);}
-function invalidateRemain(){if(typeof updateSameKindNumber==='function')updateSameKindNumber();clearTimeout(remainResetTimer);remainRequest++;if(remainWorker){remainWorker.terminate();remainWorker=null;}remainValue.textContent='？';remainButton.disabled=false;}
+let remainWorker=null,remainRequest=0;
+const redLamp=document.getElementById('remainRedLamp');
+const blueLamp=document.getElementById('remainBlueLamp');
+function showRemainSignal(count){
+ redLamp.classList.toggle('lit',count===0);
+ blueLamp.classList.toggle('lit',Number.isFinite(count)&&count>0);
+ remainValue.textContent=Number.isFinite(count)&&count>0?String(count):'';
+}
+function invalidateRemain(){
+ if(typeof updateSameKindNumber==='function')updateSameKindNumber();
+ remainRequest++;
+ if(remainWorker){remainWorker.terminate();remainWorker=null;}
+ showRemainSignal(null);
+ remainButton.disabled=false;
+}
+function calculateRemainSignal(){
+ if(remainWorker){remainWorker.terminate();remainWorker=null;}
+ const request=++remainRequest;
+ // Keep the button clickable for the existing five-second author shortcut.
+ remainButton.disabled=false;
+ showRemainSignal(null);
+ const blob=new Blob([remainWorkerSource],{type:'application/javascript'});
+ const url=URL.createObjectURL(blob);
+ const worker=new Worker(url);URL.revokeObjectURL(url);remainWorker=worker;
+ worker.onmessage=({data})=>{
+  if(request!==remainRequest)return;
+  remainWorker=null;remainButton.disabled=false;
+  if(data.error){showRemainSignal(null);console.error('Ans. remain:',data.error);return;}
+  showRemainSignal(data.count);
+ };
+ worker.onerror=()=>{if(request!==remainRequest)return;remainWorker=null;remainButton.disabled=false;showRemainSignal(null);console.error('Ans. remain calculation failed');};
+ worker.postMessage({defs:blockDefs.map(b=>b.cells.map(([x,y,z])=>[y,z,2-x])),fixed:stored.map(b=>({index:b.index,cells:b.cells}))});
+}
 const remainWorkerSource=`
 self.onmessage=({data})=>{
  const defs=data.defs, fixed=data.fixed, full=(1<<27)-1, wantSolution=!!data.wantSolution;
@@ -699,17 +862,8 @@ self.onmessage=({data})=>{
  search(occupied,used);
  self.postMessage({count,solution});
 };`;
-remainButton.addEventListener('click',()=>{
- if(remainWorker)return;
- clearTimeout(remainResetTimer);remainValue.textContent='計算中';remainButton.disabled=true;
- const request=++remainRequest;
- const blob=new Blob([remainWorkerSource],{type:'application/javascript'});
- const url=URL.createObjectURL(blob);
- const worker=new Worker(url);URL.revokeObjectURL(url);remainWorker=worker;
- worker.onmessage=({data})=>{if(request!==remainRequest)return;remainWorker=null;remainButton.disabled=false;remainValue.textContent=data.error?'エラー':data.count.toLocaleString('ja-JP');if(data.error)alert(data.error);resetRemainAfterOneSecond(request);};
- worker.onerror=()=>{if(request!==remainRequest)return;remainWorker=null;remainButton.disabled=false;remainValue.textContent='エラー';resetRemainAfterOneSecond(request);};
- worker.postMessage({defs:blockDefs.map(b=>b.cells.map(([x,y,z])=>[y,z,2-x])),fixed:stored.map(b=>({index:b.index,cells:b.cells}))});
-});
+// Clicking the label can also refresh the signal; the author-only secret trigger remains intact.
+remainButton.addEventListener('click',calculateRemainSignal);
 
 // v350: help searches one compatible completion, permitting temporary excursions
 // path in the moving box, with one grid shift or 90-degree turn per second.
@@ -1107,6 +1261,105 @@ storageCanvas.addEventListener('pointermove',e=>{
 function endStorageDrag(e){if(storageDrag&&storageDrag.id===e.pointerId){if(!storageDrag.moved){const index=nearestStoredAt(e);if(index!==null)retrieveStored(index)}storageDrag=null;}}
 storageCanvas.addEventListener('pointerup',endStorageDrag);
 storageCanvas.addEventListener('pointercancel',endStorageDrag);
+
+// v407: author-only answer inspection. No completion/history/analytics events are emitted.
+(function installAuthorInspector(){
+ const start=document.getElementById('gameStartButton');
+ const remain=document.getElementById('ansRemainButton');
+ const heading=document.querySelector('.gameMainHeading');
+ const kind=document.getElementById('sameKindNumber');
+ const originalHeading=heading.innerHTML;
+ const originalHeadingPointerEvents=heading.style.pointerEvents;
+ const originalKind=kind.textContent;
+ const idBadge=document.createElement('span');idBadge.id='inspectCurrentAnswerBadge';idBadge.style.cssText='position:absolute;left:8px;bottom:45px;background:#fff;border:1px solid #777;padding:3px 7px;border-radius:4px;color:#000;font:700 13px system-ui;z-index:10;display:none;pointer-events:none';kind.parentElement.appendChild(idBadge);
+ let startedAt=0, clicks=0, mode=0;
+ const reverseAnswers=[];
+ for(const [grid,id] of Object.entries(answerIdTable))reverseAnswers[id]=grid;
+ const reverseKinds={};
+ for(const [id,label] of Object.entries(sameKindByAnswerId))reverseKinds[label]=Number(id);
+ const style=document.createElement('style');
+ style.textContent='.authorInspectInput{width:80px;max-width:100%;box-sizing:border-box;font:700 15px system-ui;padding:2px 4px;border:2px solid #1e5a9a;border-radius:4px;background:white;color:black;text-align:center}.authorInspectInput.kind{width:54px;font-size:12px}.authorInspectPanel{display:inline-flex;align-items:center;gap:3px;background:#fff;z-index:20;position:relative}.authorInspectPanel button{font-size:12px;padding:3px 5px;cursor:pointer;touch-action:manipulation}.authorInspectPanel .inspectStep{font-size:11px;padding:3px 2px}';
+ document.head.appendChild(style);
+ function closeInspector(){mode=0;heading.innerHTML=originalHeading;heading.style.pointerEvents=originalHeadingPointerEvents;kind.textContent=originalKind;kind.style.pointerEvents='none';}
+ function renderAnswer(id){
+  const grid=reverseAnswers[id];
+  if(!grid){alert('該当する解答番号がありません。');return;}
+  // Convert the answer-table coordinates back into current right-handed piece centers.
+  const pieces=Array.from({length:7},()=>[]);
+  for(let k=0;k<27;k++){
+   const color=Number(grid[k])-1;
+   if(color<0||color>6){alert('解答データに異常があります。');return;}
+   const x=k%3,y=Math.floor(k/3)%3,z=Math.floor(k/9);
+   pieces[color].push([y,z,2-x]);
+  }
+  // Do not call showCompletionNotice(), recordPuzzleCompletion(), or analytics.
+  helpToken++;clearTimeout(helpTimer);helpTimer=null;helpBusy=false;
+  if(helpWorker){helpWorker.terminate();helpWorker=null;}
+  document.getElementById('helpButton').textContent='help';
+  clearCelebration();hideCompletionNotice();clearOverlapNotice();
+  historyCountedThisGame=true;helpUsedThisGame=true;celebrationShownThisGame=true;
+  anim=null;stored.length=0;hasActive=false;rotationCells=[];selectedAxis=null;moveStartView=null;
+  for(let c=0;c<7;c++)stored.push({index:c,cells:pieces[c],color:blockDefs[c].c});
+  invalidateRemain();updateRetrieveList();refreshPicker();rebuildGeometry();updateBuffers();
+  document.querySelector('.storageCaption').textContent='検証表示：解答 '+id+'（完成履歴には記録しません）';
+  idBadge.textContent='解答番号：'+id;idBadge.style.display='block';
+  document.getElementById('moveInfo').textContent='検証表示中。ゲーム開始で通常モードに戻ります。';
+  drawStored();draw();closeInspector();updateSameKindNumber();
+ }
+ function showIdInput(){
+  closeInspector();mode=1;
+  // The title normally ignores pointer events so clicks pass through to WebGL.
+  // Enable them only while the author controls are visible.
+  heading.style.pointerEvents='auto';
+  heading.innerHTML='<span class="authorInspectPanel"><button type="button" class="inspectStep" id="inspectMinus10" title="1000戻す">－1000</button><input class="authorInspectInput" id="inspectAnswerId" type="number" min="1" max="8088" step="1" value="1" aria-label="解答番号"><button type="button" class="inspectStep" id="inspectPlus10" title="1000進める">＋1000</button><button type="button" id="inspectAnswerGo">表示</button></span>立体パズル';
+  const input=document.getElementById('inspectAnswerId');
+  const go=()=>{const id=Number(input.value);if(!Number.isInteger(id)||id<1||id>8088){alert('解答番号は1～8088で入力してください。');return;}renderAnswer(id);};
+  // Prevent parent drag/pointer handlers from swallowing the button click.
+  for(const id of ['inspectAnswerGo','inspectMinus10','inspectPlus10']){
+   const button=document.getElementById(id);
+   for(const type of ['pointerdown','mousedown','touchstart'])button.addEventListener(type,e=>e.stopPropagation());
+  }
+  document.getElementById('inspectAnswerGo').addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();go();});
+  for(const [name,delta] of [['inspectMinus10',-1000],['inspectPlus10',1000]]){
+   document.getElementById(name).addEventListener('click',e=>{
+    e.preventDefault();e.stopImmediatePropagation();
+    const old=Number(input.value)||1;
+    input.value=String(Math.max(1,Math.min(8088,old+delta)));
+    input.focus();
+   });
+  }
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go();}if(e.key==='Escape')closeInspector();});
+  input.focus();input.select();
+ }
+ function showKindInput(){
+  closeInspector();mode=2;kind.style.pointerEvents='auto';
+  kind.innerHTML='<span class="authorInspectPanel"><input class="authorInspectInput kind" id="inspectGroup" type="number" min="1" max="377" placeholder="1～377" aria-label="同種解答組番号"><span>-</span><input class="authorInspectInput kind" id="inspectSerial" type="number" min="1" max="24" placeholder="1～24" aria-label="組内連番"><button type="button" id="inspectKindGo">表示</button></span>';
+  const a=document.getElementById('inspectGroup'),b=document.getElementById('inspectSerial');
+  const go=()=>{
+   const g=Number(a.value),n=Number(b.value);
+   if(!Number.isInteger(g)||g<1||g>377||!Number.isInteger(n)||n<1||n>24){alert('組番号は1～377、連番は1～24で入力してください。');return;}
+   const key=String(g).padStart(3,'0')+'-'+String(n).padStart(2,'0');
+   const id=reverseKinds[key];if(!id){alert('該当する同種解答番号は登録されていません：'+key);return;}
+   renderAnswer(id);
+  };
+  const kindGo=document.getElementById('inspectKindGo');
+  kindGo.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();go();});
+  kindGo.addEventListener('click',e=>{e.stopPropagation();if(e.detail===0)go();});
+  for(const input of [a,b])input.addEventListener('keydown',e=>{if(e.key==='Enter')go();if(e.key==='Escape')closeInspector();});
+  a.focus();
+ }
+ // The normal game-start handler was registered earlier, so this runs after its reset.
+ start.addEventListener('click',()=>{closeInspector();idBadge.style.display='none';startedAt=performance.now();clicks=0;});
+ remain.addEventListener('click',e=>{
+  if(!startedAt||performance.now()-startedAt>5000)return;
+  // v407: the entire Ans. remain / ? button is the hidden trigger.
+  e.preventDefault();e.stopImmediatePropagation();
+  clicks++;
+  if(clicks===1)showIdInput();
+  else if(clicks===2)showKindInput();
+ },true);
+})();
+
 window.addEventListener('resize',draw);act('home');})();
 </script></html>
 
@@ -1271,7 +1524,7 @@ window.addEventListener('resize',draw);act('home');})();
 </div>
 <h3>3. 収納boxへ収める</h3><div class="guideNumbered">
 <div class="guideNumberedLine"><span class="guideNumber">1)</span><span><span class="guideKey guideArrow">⬅</span>をクリックすると、移動boxから収納boxへ移ります。</span></div>
-<div class="guideNumberedLine"><span class="guideNumber">2)</span><span><span class="guideKey">Ans. remain</span>をクリックすると、<strong class="guideEmphasis">残りの解答数</strong>が<strong class="guideEmphasis">1秒間</strong>表示されます。</span></div>
+<div class="guideNumberedLine"><span class="guideNumber">2)</span><span><span class="guideKey">Ans. remain</span>の歩行者信号は、ゲーム開始・収納・取り出し時に更新されます。青は完成可能（下に残り解答数）、赤は完成不可能です。</span></div>
 <div class="guideNumberedLine"><span class="guideNumber">3)</span><span>収納したブロックをクリックすると、<strong class="guideEmphasis">移動boxへ戻せます。</strong></span></div>
 <div class="guideNumberedLine"><span class="guideNumber">4)</span><span><span class="guideKey">ゲーム開始</span>をクリックすると、<strong class="guideEmphasis">最初からやり直せます。</strong></span></div>
 </div>
@@ -1298,17 +1551,31 @@ window.addEventListener('resize',draw);act('home');})();
 <div class="feedbackExample"><strong>A様の投稿内容</strong><p>（ここに掲載する投稿内容が入ります）</p><strong>作者回答内容</strong><p>（ここに作者の回答が入ります）</p></div>
 <p class="feedbackNote">※上記は掲載形式の見本です。</p>
 </div></aside></div>
-<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v402</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
+<section class="guideSection" id="guide-features"><div class="historyAppendixHeader"><h2>③ 付録（工事中）</h2><span class="historyVersion">v405</span></div><p>今後、パズルの詳しい説明や解答に関する資料を追加する予定です。</p></section>
 </main>
 <script id="v391-history-js">
 const PUZZLE_HISTORY_KEY='puzzle8088-history-v391';
 function getPuzzleHistory(){try{const v=JSON.parse(localStorage.getItem(PUZZLE_HISTORY_KEY)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{};}catch(e){return {};}}
-function recordPuzzleCompletion(id,helpUsed){
+// v421: elapsed time is stored as hh-mm-ss; compare only valid recorded times.
+function elapsedToSeconds(value){
+ if(typeof value!=='string'||!/^\d{2,}-[0-5]\d-[0-5]\d$/.test(value))return null;
+ const parts=value.split('-').map(Number);
+ return parts[0]*3600+parts[1]*60+parts[2];
+}
+function recordPuzzleCompletion(id,helpUsed,elapsedTime){
  if(!Number.isInteger(id)||id<1||id>8088)return null;
  const history=getPuzzleHistory();const entry=history[id]&&typeof history[id]==='object'?history[id]:{n:0};
  entry.n=(Number(entry.n)||0)+1;
+ const completedAt=new Date().toISOString();
  if(helpUsed)entry.helpEver=true;
- else if(!entry.firstUnaided)entry.firstUnaided=new Date().toISOString();
+ else if(!entry.firstUnaided){entry.firstUnaided=completedAt;if(elapsedTime)entry.firstUnaidedElapsed=elapsedTime;}
+ entry.lastCompletedAt=completedAt;
+ if(elapsedTime)entry.lastElapsed=elapsedTime;
+ // Keep a per-answer personal best. For pre-v421 records, seed from known saved times.
+ const recorded=[entry.bestElapsed,entry.firstUnaidedElapsed,entry.lastElapsed,elapsedTime]
+  .filter(t=>elapsedToSeconds(t)!==null);
+ if(recorded.length)entry.bestElapsed=recorded.reduce((best,t)=>elapsedToSeconds(t)<elapsedToSeconds(best)?t:best);
+
  history[id]=entry;
  try{localStorage.setItem(PUZZLE_HISTORY_KEY,JSON.stringify(history));}catch(e){console.warn('完成履歴を保存できませんでした',e);}
  if(typeof drawPuzzleHistory==='function')drawPuzzleHistory();
@@ -1337,9 +1604,18 @@ function drawPuzzleHistory(){
   ctx.beginPath();ctx.arc(cx,cy,unaided?4.9:helped?3.9:1.6,0,Math.PI*2);ctx.fillStyle=unaided?'#e53935':'#242424';ctx.fill();
  }
  ctx.setTransform(dpr,0,0,dpr,0,0);
- ctx.fillStyle='#263445';ctx.font='600 18px system-ui';ctx.textAlign='center';
- for(let col=0;col<10;col++)ctx.fillText((col*10+1)+'–'+(col*10+10),(x0+(col*10+5)*step)*2/3,19);
- ctx.textAlign='right';for(let row=0;row<9;row++)ctx.fillText(String(row*1000+1),43,(y0+(row*10+5)*step)*0.5+6);
+ ctx.fillStyle='#263445';ctx.textAlign='center';
+ // v416: label the first dot of each 10-column group, with small halfway labels.
+ for(let col=0;col<100;col+=5){
+  ctx.font=col%10===0?'600 16px system-ui':'500 10px system-ui';
+  ctx.fillText(String(col+1),(x0+(col+0.5)*step)*2/3,19);
+ }
+ // v416: shift major Y labels five dots upward, add smaller halfway labels.
+ ctx.textAlign='right';
+ for(let row=0;row<90;row+=5){
+  ctx.font=row%10===0?'600 16px system-ui':'500 10px system-ui';
+  ctx.fillText(String(row*100+1),43,(y0+(row+0.5)*step)*0.5+5);
+ }
  const entries=Object.values(history).filter(v=>v&&v.n>0),red=entries.filter(v=>v.firstUnaided).length,black=entries.length-red;
  const stats=document.getElementById('historyStats');if(stats)stats.textContent='赤丸 '+red+'個　／　大きい黒丸 '+black+'個　／　達成率 '+(red/8088*100).toFixed(2)+'％';
 }
@@ -1354,8 +1630,17 @@ function drawPuzzleHistory(){
    if(id>8088){detail.textContent='Ans.ID='+id+'：対象外';return;}
    const entry=getPuzzleHistory()[id];if(!entry||!entry.n){detail.textContent='Ans.ID='+id+'：未完成';return;}
    let message='Ans.ID='+id+'：'+entry.n+'回完成';
-   if(entry.firstUnaided){const date=new Date(entry.firstUnaided);message+=' ／ helpなし初完成：'+(Number.isNaN(date.getTime())?'記録あり':date.toLocaleString('ja-JP'));}
+   if(entry.firstUnaided){const date=new Date(entry.firstUnaided);message+=' ／ helpなし初完成：'+(Number.isNaN(date.getTime())?'記録あり':date.toLocaleString('ja-JP'));if(entry.firstUnaidedElapsed)message+=' ／ 所要時間：'+entry.firstUnaidedElapsed;}
+   else if(entry.lastCompletedAt){const date=new Date(entry.lastCompletedAt);message+=' ／ 完成時刻：'+(Number.isNaN(date.getTime())?'記録あり':date.toLocaleString('ja-JP'));if(entry.lastElapsed)message+=' ／ 所要時間：'+entry.lastElapsed;message+='（helpあり）';}
    else message+=' ／ helpありで完成（helpなしは未達成）';
+   if(Number(entry.n)>=2){
+    const recorded=[entry.bestElapsed,entry.firstUnaidedElapsed,entry.lastElapsed]
+     .filter(t=>elapsedToSeconds(t)!==null);
+    if(recorded.length){
+     const best=recorded.reduce((a,b)=>elapsedToSeconds(a)<=elapsedToSeconds(b)?a:b);
+     message+=' ／ 最短時間：'+best;
+    }
+   }
    detail.textContent=message;
   });
  }
